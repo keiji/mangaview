@@ -89,7 +89,7 @@ class PageTest {
             }
         }
 
-        viewState.onScroll(null, null, -VIEW_WIDTH / 2.0F, -VIEW_HEIGHT / 2.0F)
+        viewState.onScroll(-1.0F / 2.0F, -1.0F / 2.0F)
         assertEquals(
             Rectangle(-0.5F, 0.0F, 0.5F, 1.0F),
             viewState.viewport
@@ -154,7 +154,7 @@ class PageTest {
             }
         }
 
-        viewState.onScroll(null, null, -VIEW_WIDTH / 4.0F, -VIEW_HEIGHT / 2.0F)
+        viewState.onScroll(-1.0F / 4.0F, -1.0F / 2.0F)
         assertEquals(
             Rectangle(-0.25F, 0.0F, 0.75F, 1.0F),
             viewState.viewport
@@ -219,21 +219,21 @@ class PageTest {
             }
         }
 
-        viewState.onScroll(null, null, -VIEW_WIDTH, -VIEW_HEIGHT)
+        viewState.onScroll(-1.0F, -1.0F)
 
         assertEquals(
             Rectangle(left = -1.0F, top = 0.0F, right = 0.0F, bottom = 1.0F),
             viewState.viewport
         )
 
-        viewState.onScroll(null, null, -VIEW_WIDTH / 2, -VIEW_HEIGHT / 2)
+        viewState.onScroll(-1.0F / 2, -1.0F / 2)
 
         assertEquals(
             Rectangle(left = -1.0F, top = 0.0F, right = 0.0F, bottom = 1.0F),
             viewState.viewport
         )
 
-        viewState.onScroll(null, null, VIEW_WIDTH / 2, VIEW_HEIGHT / 2)
+        viewState.onScroll(1.0F / 2, 1.0F / 2)
 
         assertEquals(
             Rectangle(left = -0.5F, top = 0.0F, right = 0.5F, bottom = 1.0F),
@@ -291,8 +291,8 @@ class PageTest {
             VIEW_HEIGHT / 2.0F
         )
         assertEquals(1.0F, viewState.scale)
-        assertEquals(viewState.viewport.width, 1.0F, 0.0001F)
-        assertEquals(viewState.viewport.height, 1.0F, 0.0001F)
+        assertEquals(1.0F, viewState.viewport.width, 0.0001F)
+        assertEquals(1.0F, viewState.viewport.height, 0.0001F)
 
         assertEquals(
             Rectangle(left = 0.0F, top = 0.0F, right = 1.0F, bottom = 1.0F),
@@ -305,8 +305,8 @@ class PageTest {
             VIEW_HEIGHT / 2.0F
         )
         assertEquals(1.0F, viewState.scale)
-        assertEquals(viewState.viewport.width, 1.0F, 0.0001F)
-        assertEquals(viewState.viewport.height, 1.0F, 0.0001F)
+        assertEquals(1.0F, viewState.viewport.width, 0.0001F)
+        assertEquals(1.0F, viewState.viewport.height, 0.0001F)
 
         assertEquals(
             Rectangle(left = 0.0F, top = 0.0F, right = 1.0F, bottom = 1.0F),
@@ -379,18 +379,6 @@ class PageTest {
         layoutManager.pageList = pages
         layoutManager.layout(viewState)
 
-        runBlocking {
-            while (true) {
-                val initialized = pages.map {
-                    it.draw(null, viewState, paint, this)
-                }.filter { !it }.count() == 0
-
-                if (initialized) {
-                    break
-                }
-            }
-        }
-
         viewState.onScale(
             2.0F,
             VIEW_WIDTH / 2.0F,
@@ -403,21 +391,21 @@ class PageTest {
             viewState.viewport
         )
 
-        viewState.onScroll(null, null, -VIEW_WIDTH, -VIEW_HEIGHT)
+        viewState.onScroll(-1.0F, -1.0F)
 
         assertEquals(
             Rectangle(left = -0.75F, top = 0.0F, right = -0.25F, bottom = 0.5F),
             viewState.viewport
         )
 
-        viewState.onScroll(null, null, -VIEW_WIDTH / 2, 0.0F)
+        viewState.onScroll(-1.0F / 2, 0.0F)
 
         assertEquals(
             Rectangle(left = -1.0F, top = 0.0F, right = -0.5F, bottom = 0.5F),
             viewState.viewport
         )
 
-        viewState.onScroll(null, null, 0.0F, VIEW_HEIGHT / 2)
+        viewState.onScroll(0.0F, 1.0F / 2)
 
         assertEquals(
             Rectangle(left = -1.0F, top = 0.5F, right = -0.5F, bottom = 1.0F),
@@ -450,6 +438,23 @@ class PageTest {
         assertEquals(
             Rectangle(left = -0.9861111F, top = 0.49999994F, right = -0.4861111F, bottom = 1.0F),
             viewState.viewport
+        )
+
+        runBlocking {
+            while (true) {
+                val initialized = pages.map {
+                    it.draw(null, viewState, paint, this)
+                }.filter { !it }.count() == 0
+
+                if (initialized) {
+                    break
+                }
+            }
+        }
+
+        assertEquals(
+            Rectangle(left = -0.9861111F, top = 0.49999994F, right = -0.4861111F, bottom = 1.0F),
+            pages[0].destOnView
         )
 
     }

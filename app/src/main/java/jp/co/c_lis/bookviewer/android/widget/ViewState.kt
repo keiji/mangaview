@@ -85,9 +85,13 @@ data class ViewState(
         e2: MotionEvent?,
         distanceX: Float,
         distanceY: Float
-    ): Boolean {
-        viewport.offset(distanceX / viewWidth, distanceY / viewHeight)
+    ): Boolean = onScroll(distanceX / viewWidth, distanceY / viewHeight)
 
+    fun onScroll(
+        distanceRatioX: Float,
+        distanceRatioY: Float
+    ): Boolean {
+        viewport.offset(distanceRatioX, distanceRatioY)
         return validate()
     }
 
