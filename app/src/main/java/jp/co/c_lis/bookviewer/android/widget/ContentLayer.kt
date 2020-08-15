@@ -9,18 +9,6 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-enum class PageHorizontalAlign {
-    Center,
-    Left,
-    Right
-}
-
-enum class PageVerticalAlign {
-    Middle,
-    Top,
-    Bottom
-}
-
 abstract class ContentLayer(
     private val alignHorizontal: PageHorizontalAlign = PageHorizontalAlign.Center,
     private val alignVertical: PageVerticalAlign = PageVerticalAlign.Middle
