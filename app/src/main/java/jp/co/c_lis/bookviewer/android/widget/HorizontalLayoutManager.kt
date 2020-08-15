@@ -16,8 +16,16 @@ class HorizontalLayoutManager(
         viewState: ViewState,
         resultList: ArrayList<Page>
     ): List<Page> {
-        val pageIndexLeft = abs(floor(viewState.viewport.right / viewState.viewWidth)).toInt()
-        val pageIndexRight = abs(ceil(viewState.viewport.right / viewState.viewWidth)).toInt()
+        val pageIndexLeft = if (reversed) {
+            abs(floor(viewState.viewport.right / viewState.viewWidth)).toInt()
+        } else {
+            abs(floor(viewState.viewport.left / viewState.viewWidth)).toInt()
+        }
+        val pageIndexRight = if (reversed) {
+            abs(ceil(viewState.viewport.right / viewState.viewWidth)).toInt()
+        } else {
+            abs(ceil(viewState.viewport.left / viewState.viewWidth)).toInt()
+        }
 
         var startIndex = pageIndexLeft
         var endIndex = pageIndexRight
@@ -49,7 +57,7 @@ class HorizontalLayoutManager(
             val page = pageList[index]
 
             val positionLeft = viewState.viewWidth * if (!reversed) {
-                index + 1
+                index
             } else {
                 -(index + 1)
             }
