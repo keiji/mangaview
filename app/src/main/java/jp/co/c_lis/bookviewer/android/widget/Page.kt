@@ -15,7 +15,6 @@ class Page(
 
     val position = Rectangle()
 
-    val pageViewport = Rectangle()
     val contentSrc = Rectangle()
     val destOnView = Rectangle()
 
@@ -27,11 +26,6 @@ class Page(
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
-        pageViewport
-            .set(viewState.viewport)
-            .and(position)
-            ?.relativeBy(position)
-
         contentSrc
             .set(viewState.viewport)
             .and(position)

@@ -60,8 +60,8 @@ data class ViewState(
     var scrollable: Scrollable? = null
 
     fun onFling(
-        velocityX: Float,
-        velocityY: Float,
+        scaledVelocityX: Float,
+        scaledVelocityY: Float,
         targetPageRect: Rectangle
     ): Boolean {
         val scrollableSnapshot = scrollable ?: return false
@@ -69,8 +69,8 @@ data class ViewState(
         scrollableSnapshot.scroller().fling(
             scrollX.roundToInt(),
             scrollY.roundToInt(),
-            -(velocityX / currentScale).roundToInt(),
-            -(velocityY / currentScale).roundToInt(),
+            -scaledVelocityX.roundToInt(),
+            -scaledVelocityY.roundToInt(),
             targetPageRect.left.roundToInt(),
             (targetPageRect.right - width).roundToInt(),
             targetPageRect.top.roundToInt(),

@@ -252,8 +252,11 @@ class BookView(
             "onFling: ${velocityX}, ${velocityY} ${maxFlingVelocity}"
         )
 
-        val velocityRatioX = velocityX / viewState.currentScale / maxFlingVelocity
-        val velocityRatioY = velocityY / viewState.currentScale / maxFlingVelocity
+        val scaledVelocityX = velocityX / viewState.currentScale
+        val scaledVelocityY = velocityY / viewState.currentScale
+
+        val velocityRatioX = scaledVelocityX / maxFlingVelocity
+        val velocityRatioY = scaledVelocityY / maxFlingVelocity
 
         var targetPageRect =
             layoutManagerSnapshot.nextPageRect(viewState, velocityRatioX, velocityRatioY)
@@ -261,7 +264,7 @@ class BookView(
             targetPageRect = layoutManagerSnapshot.currentPageRect(viewState)
         }
 
-        return viewState.onFling(velocityX, velocityY, targetPageRect)
+        return viewState.onFling(scaledVelocityX, scaledVelocityY, targetPageRect)
     }
 
     override fun onScroll(
