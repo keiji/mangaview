@@ -1,5 +1,7 @@
 package jp.co.c_lis.bookviewer.android.widget
 
+import jp.co.c_lis.bookviewer.android.Rectangle
+
 abstract class LayoutManager {
 
     internal var pageList: List<Page> = ArrayList()
@@ -8,9 +10,11 @@ abstract class LayoutManager {
         viewState: ViewState
     ): Int
 
-    fun currentPage(
+    abstract fun currentPageRect(
         viewState: ViewState
-    ): Page = pageList[currentPageIndex(viewState)]
+    ): Rectangle
+
+    abstract fun getPageRect(pageIndex: Int): Rectangle
 
     abstract fun visiblePages(
         viewState: ViewState,

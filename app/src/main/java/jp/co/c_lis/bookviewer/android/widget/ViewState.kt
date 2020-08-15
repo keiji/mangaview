@@ -1,19 +1,24 @@
 package jp.co.c_lis.bookviewer.android.widget
 
 import android.util.Log
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.widget.OverScroller
-import androidx.annotation.VisibleForTesting
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlin.math.roundToInt
 
 interface Scrollable {
     fun scroller(): OverScroller
     fun currentPageRect(): Rectangle?
-    fun startScroll()
+    fun startScrollOrScale()
     fun cancelScroll()
+    fun startScale(
+        fromScale: Float,
+        toScale: Float,
+        focusX: Float,
+        focusY: Float,
+        duration: Long
+    )
 }
 
 data class ViewState(
@@ -24,12 +29,14 @@ data class ViewState(
     internal var currentScale: Float = 1.0F,
     internal val viewport: Rectangle = Rectangle(0.0F, 0.0F, viewWidth, viewHeight),
     internal val scrollableArea: Rectangle = Rectangle(0.0F, 0.0F, 1.0F, 1.0F)
-) : GestureDetector.OnGestureListener, ScaleGestureDetector.OnScaleGestureListener {
+) {
 
     companion object {
         private val TAG = ViewState::class.java.simpleName
 
         private const val OVERSCROLL_RATIO = 0.1F
+        private const val SCROLLING_DURATION = 350
+        private const val SCALING_DURATION = 350L
     }
 
     var minScale = 1.0F
@@ -43,25 +50,7 @@ data class ViewState(
 
     var scrollable: Scrollable? = null
 
-    override fun onShowPress(e: MotionEvent?) {
-        Log.d(TAG, "onShowPress")
-    }
-
-    override fun onSingleTapUp(e: MotionEvent?): Boolean {
-        Log.d(TAG, "onSingleTapUp")
-        return false
-    }
-
-    override fun onDown(e: MotionEvent?): Boolean {
-        Log.d(TAG, "onDown")
-        scrollable?.cancelScroll()
-
-        return true
-    }
-
-    override fun onFling(
-        e1: MotionEvent?,
-        e2: MotionEvent?,
+    fun onFling(
         velocityX: Float,
         velocityY: Float
     ): Boolean {
@@ -81,7 +70,7 @@ data class ViewState(
             (height * OVERSCROLL_RATIO).roundToInt()
         )
 
-        scrollable?.startScroll()
+        scrollable?.startScrollOrScale()
 
         return true
     }
@@ -114,9 +103,7 @@ data class ViewState(
         return result
     }
 
-    override fun onScroll(
-        e1: MotionEvent?,
-        e2: MotionEvent?,
+    fun onScroll(
         distanceX: Float,
         distanceY: Float
     ): Boolean = offset(
@@ -141,24 +128,20 @@ data class ViewState(
         return validate()
     }
 
-    override fun onLongPress(e: MotionEvent?) {
+    fun onLongPress(e: MotionEvent?) {
         Log.d(TAG, "onLongPress")
     }
 
     private var isScaling = false
 
-    override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+    fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
         Log.d(TAG, "onScaleBegin")
-
-        detector ?: return false
 
         isScaling = true
         return true
     }
 
-    override fun onScale(detector: ScaleGestureDetector?): Boolean {
-        detector ?: return false
-
+    fun onScale(detector: ScaleGestureDetector): Boolean {
         val factor = detector.scaleFactor
 
         val scale = currentScale * factor
@@ -172,7 +155,6 @@ data class ViewState(
         return result
     }
 
-    @VisibleForTesting
     fun setScale(
         scale: Float,
         focusX: Float,
@@ -207,9 +189,32 @@ data class ViewState(
         return validate()
     }
 
-    override fun onScaleEnd(detector: ScaleGestureDetector?) {
+    fun onScaleEnd(detector: ScaleGestureDetector) {
         Log.d(TAG, "onScaleEnd")
 
         isScaling = false
+    }
+
+    fun scrollTo(x: Int, y: Int, smoothScroll: Boolean) {
+        if (!smoothScroll) {
+            offsetTo(x, y)
+            return
+        }
+        scrollable?.scroller()?.startScroll(
+            viewport.left.roundToInt(), viewport.top.roundToInt(),
+            x, y,
+            SCROLLING_DURATION
+        )
+        scrollable?.startScrollOrScale()
+    }
+
+    fun scale(scale: Float, focusX: Float, focusY: Float, smoothScale: Boolean) {
+        if (!smoothScale) {
+            setScale(scale, focusX, focusY)
+            return
+        }
+
+        scrollable?.startScale(currentScale, scale, focusX, focusY, SCALING_DURATION)
+
     }
 }

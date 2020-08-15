@@ -1,5 +1,6 @@
 package jp.co.c_lis.bookviewer.android.widget
 
+import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -15,6 +16,14 @@ class HorizontalLayoutManager(
     override fun currentPageIndex(
         viewState: ViewState
     ): Int = abs(viewState.viewport.center / viewState.viewWidth).toInt()
+
+    override fun currentPageRect(viewState: ViewState): Rectangle {
+        return pageList[currentPageIndex(viewState)].position
+    }
+
+    override fun getPageRect(pageIndex: Int): Rectangle {
+        return pageList[pageIndex].position
+    }
 
     override fun visiblePages(
         viewState: ViewState,

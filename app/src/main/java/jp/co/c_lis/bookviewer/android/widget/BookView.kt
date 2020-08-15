@@ -4,9 +4,12 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Log
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.widget.OverScroller
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ScaleGestureDetectorCompat
@@ -15,12 +18,16 @@ import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class BookView(
     context: Context,
     attrs: AttributeSet?,
     defStyleAttr: Int
-) : View(context, attrs, defStyleAttr), Scrollable {
+) : View(context, attrs, defStyleAttr),
+    GestureDetector.OnGestureListener,
+    ScaleGestureDetector.OnScaleGestureListener,
+    Scrollable, GestureDetector.OnDoubleTapListener {
 
     companion object {
         private val TAG = BookView::class.java.simpleName
@@ -128,10 +135,25 @@ class BookView(
         }
     }
 
-    private val gestureDetector = GestureDetectorCompat(context, viewState)
-    private val scaleGestureDetector = ScaleGestureDetector(context, viewState).also {
+    fun showPage(pageIndex: Int, smoothScroll: Boolean = false) {
+        val layoutManagerSnapshot = layoutManager ?: return
+
+        val rect = layoutManagerSnapshot.getPageRect(pageIndex)
+
+        viewState.scrollTo(
+            rect.left.roundToInt(),
+            rect.right.roundToInt(),
+            smoothScroll = smoothScroll
+        )
+    }
+
+    private val gestureDetector = GestureDetectorCompat(context, this).also {
+        it.setOnDoubleTapListener(this)
+    }
+    private val scaleGestureDetector = ScaleGestureDetector(context, this).also {
         ScaleGestureDetectorCompat.setQuickScaleEnabled(it, false)
     }
+
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (scaleGestureDetector.onTouchEvent(event)) {
@@ -145,20 +167,40 @@ class BookView(
         return super.onTouchEvent(event)
     }
 
-    private var scroller = OverScroller(context)
+    private var scroller = OverScroller(context, DecelerateInterpolator())
     override fun scroller(): OverScroller = scroller
 
     override fun currentPageRect(): Rectangle? {
         val layoutManagerSnapshot = layoutManager ?: return null
-        return layoutManagerSnapshot.currentPage(viewState).position
+        return layoutManagerSnapshot.currentPageRect(viewState)
     }
 
-    override fun startScroll() {
+    override fun startScrollOrScale() {
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
     override fun cancelScroll() {
         scroller.forceFinished(true)
+    }
+
+    private var scaleInterpolator = DecelerateInterpolator()
+
+    private var scaling: Scaling? = null
+
+    override fun startScale(
+        fromScale: Float,
+        toScale: Float,
+        focusX: Float,
+        focusY: Float,
+        duration: Long
+    ) {
+        scaling = Scaling(
+            fromScale, toScale,
+            System.currentTimeMillis(), duration,
+            focusX, focusY
+        )
+
+        startScrollOrScale()
     }
 
     override fun computeScroll() {
@@ -168,5 +210,107 @@ class BookView(
             viewState.offsetTo(scroller.currX, scroller.currY)
             ViewCompat.postInvalidateOnAnimation(this)
         }
+
+        scaling?.also {
+            val elapsed = System.currentTimeMillis() - it.startTimeMillis
+            val input = elapsed.toFloat() / it.durationMillis
+            val scaleFactor = scaleInterpolator.getInterpolation(input)
+            val newScale = it.from + it.diff * scaleFactor
+            viewState.setScale(newScale, it.focusX, it.focusY)
+
+            if (input > 1.0F) {
+                scaling = null
+            }
+
+            ViewCompat.postInvalidateOnAnimation(this)
+        }
+    }
+
+    override fun onShowPress(e: MotionEvent?) {
+        cancelScroll()
+    }
+
+    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+        return false
+    }
+
+    override fun onDown(e: MotionEvent?): Boolean {
+        return true
+    }
+
+    override fun onFling(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        Log.d(TAG, "onFling")
+        return viewState.onFling(velocityX, velocityY)
+    }
+
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        Log.d(TAG, "onScroll")
+        return viewState.onScroll(distanceX, distanceY)
+    }
+
+    override fun onLongPress(e: MotionEvent?) {
+        Log.d(TAG, "onLongPress")
+    }
+
+    override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+        detector ?: return false
+
+        Log.d(TAG, "onScaleBegin")
+        return viewState.onScaleBegin(detector)
+    }
+
+    override fun onScale(detector: ScaleGestureDetector?): Boolean {
+        detector ?: return false
+
+        Log.d(TAG, "onScale")
+        return viewState.onScale(detector)
+    }
+
+    override fun onScaleEnd(detector: ScaleGestureDetector?) {
+        detector ?: return
+
+        Log.d(TAG, "onScaleEnd")
+        viewState.onScaleEnd(detector)
+    }
+
+    override fun onDoubleTap(e: MotionEvent?): Boolean {
+        e ?: return false
+
+        Log.d(TAG, "onDoubleTap")
+
+        viewState.scale(2.5F, e.x, e.y, smoothScale = true)
+        return true
+    }
+
+    override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
+        Log.d(TAG, "onDoubleTapEvent")
+
+        return false
+    }
+
+    override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+        Log.d(TAG, "onSingleTapConfirmed")
+
+        return false
     }
 }
+
+private data class Scaling(
+    val from: Float,
+    val to: Float,
+    val startTimeMillis: Long,
+    val durationMillis: Long,
+    val focusX: Float,
+    val focusY: Float,
+    val diff: Float = to - from
+)
