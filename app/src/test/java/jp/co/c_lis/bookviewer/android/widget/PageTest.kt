@@ -48,8 +48,8 @@ class PageTest {
                 assertEquals(0.9375F, layer.minScale, FLOAT_DELTA)
                 assertEquals(0, layer.paddingLeft)
                 assertEquals(0, layer.paddingRight)
-                assertEquals(0, layer.paddingTop)
-                assertEquals(0, layer.paddingBottom)
+                assertEquals(207, layer.paddingTop)
+                assertEquals(207, layer.paddingBottom)
             }
         }
         pages[1].also { page ->
@@ -58,8 +58,8 @@ class PageTest {
                 assertEquals(0.94158673F, layer.minScale, FLOAT_DELTA)
                 assertEquals(0, layer.paddingLeft)
                 assertEquals(0, layer.paddingRight)
-                assertEquals(0, layer.paddingTop)
-                assertEquals(0, layer.paddingBottom)
+                assertEquals(236, layer.paddingTop)
+                assertEquals(236, layer.paddingBottom)
             }
         }
     }
@@ -109,22 +109,22 @@ class PageTest {
         )
 
         assertEquals(
-            Rectangle(left = 0.0F, top = 0.0F, right = 1080.0F, bottom = 2048.0F),
+            Rectangle(left = 0.0F, top = 0.0F, right = 540.0F, bottom = 2048.0F),
             pages[0].contentSrc
         )
 
         assertEquals(
-            Rectangle(left = 0.0F, top = 0.0F, right = 540.0F, bottom = 2048.0F),
+            Rectangle(left = 540.0F, top = 0.0F, right = 1080.0F, bottom = 2048.0F),
             pages[1].contentSrc
         )
 
         assertEquals(
-            Rectangle(left = 540.0F, top = 193.84375F, right = 1080.0F, bottom = 1854.1562F),
+            Rectangle(left = 540.0F, top = 0.0F, right = 1080.0F, bottom = 2048.0F),
             pages[0].layers[0].destOnView
         )
 
         assertEquals(
-            Rectangle(left = 0.0F, top = 222.23889F, right = 540.0F, bottom = 1825.7611F),
+            Rectangle(left = 0.0F, top = 0.0F, right = 540.0F, bottom = 2048.0F),
             pages[1].layers[0].destOnView
         )
     }
@@ -174,22 +174,22 @@ class PageTest {
         )
 
         assertEquals(
-            Rectangle(left = 270.0F, top = 0.0F, right = 1080.0F, bottom = 2048.0F),
+            Rectangle(left = 0.0F, top = 0.0F, right = 810.0F, bottom = 2048.0F),
             pages[0].contentSrc
         )
 
         assertEquals(
-            Rectangle(left = 0.0F, top = 0.0F, right = 270.0F, bottom = 2048.0F),
+            Rectangle(left = 810.0F, top = 0.0F, right = 1080.0F, bottom = 2048.0F),
             pages[1].contentSrc
         )
 
         assertEquals(
-            Rectangle(left = 270.0F, top = 193.84375F, right = 1080.0F, bottom = 1854.1562F),
+            Rectangle(left = 270.0F, top = 0.0F, right = 1080.0F, bottom = 2048.0F),
             pages[0].layers[0].destOnView
         )
 
         assertEquals(
-            Rectangle(left = 0.0F, top = 222.23889F, right = 270.0F, bottom = 1825.7611F),
+            Rectangle(left = 0.0F, top = 0.0F, right = 270.0F, bottom = 2048.0F),
             pages[1].layers[0].destOnView
         )
     }
@@ -451,7 +451,7 @@ class PageTest {
         }
 
         assertEquals(
-            Rectangle(left = 0.0F, top = 0.0F, right = 1080.0F, bottom = 2048.0F),
+            Rectangle(left = 90.0F, top = 853.33325F, right = 630.0F, bottom = 1877.3333F),
             pages[1].contentSrc
         )
 
