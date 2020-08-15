@@ -12,7 +12,7 @@ class HorizontalLayoutManager(
         private val TAG = HorizontalLayoutManager::class.java.simpleName
     }
 
-    override fun currentPage(
+    override fun currentPageIndex(
         viewState: ViewState
     ): Int = abs(viewState.viewport.center / viewState.viewWidth).toInt()
 

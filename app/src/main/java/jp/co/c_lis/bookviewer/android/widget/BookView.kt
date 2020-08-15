@@ -7,8 +7,11 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import android.widget.OverScroller
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ScaleGestureDetectorCompat
+import androidx.core.view.ViewCompat
+import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,7 +20,7 @@ class BookView(
     context: Context,
     attrs: AttributeSet?,
     defStyleAttr: Int
-) : View(context, attrs, defStyleAttr) {
+) : View(context, attrs, defStyleAttr), Scrollable {
 
     companion object {
         private val TAG = BookView::class.java.simpleName
@@ -67,7 +70,9 @@ class BookView(
         isInitialized = true
     }
 
-    private val viewState = ViewState()
+    private val viewState = ViewState().also {
+        it.scrollable = this@BookView
+    }
 
     private var isInitialized = false
 
@@ -138,5 +143,30 @@ class BookView(
         }
 
         return super.onTouchEvent(event)
+    }
+
+    private var scroller = OverScroller(context)
+    override fun scroller(): OverScroller = scroller
+
+    override fun currentPageRect(): Rectangle? {
+        val layoutManagerSnapshot = layoutManager ?: return null
+        return layoutManagerSnapshot.currentPage(viewState).position
+    }
+
+    override fun startScroll() {
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    override fun cancelScroll() {
+        scroller.forceFinished(true)
+    }
+
+    override fun computeScroll() {
+        super.computeScroll()
+
+        if (scroller.computeScrollOffset()) {
+            viewState.offsetTo(scroller.currX, scroller.currY)
+            ViewCompat.postInvalidateOnAnimation(this)
+        }
     }
 }

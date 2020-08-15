@@ -4,8 +4,17 @@ import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
+import android.widget.OverScroller
 import androidx.annotation.VisibleForTesting
 import jp.co.c_lis.bookviewer.android.Rectangle
+import kotlin.math.roundToInt
+
+interface Scrollable {
+    fun scroller(): OverScroller
+    fun currentPageRect(): Rectangle?
+    fun startScroll()
+    fun cancelScroll()
+}
 
 data class ViewState(
     internal var viewWidth: Float = 0.0F,
@@ -19,6 +28,8 @@ data class ViewState(
 
     companion object {
         private val TAG = ViewState::class.java.simpleName
+
+        private const val OVERSCROLL_RATIO = 0.1F
     }
 
     var minScale = 1.0F
@@ -29,6 +40,8 @@ data class ViewState(
 
     val height: Float
         get() = viewHeight / currentScale
+
+    var scrollable: Scrollable? = null
 
     override fun onShowPress(e: MotionEvent?) {
         Log.d(TAG, "onShowPress")
@@ -41,6 +54,8 @@ data class ViewState(
 
     override fun onDown(e: MotionEvent?): Boolean {
         Log.d(TAG, "onDown")
+        scrollable?.cancelScroll()
+
         return true
     }
 
@@ -51,7 +66,24 @@ data class ViewState(
         velocityY: Float
     ): Boolean {
         Log.d(TAG, "onFling")
-        return false
+
+        val currentPageRect = scrollable?.currentPageRect() ?: return false
+        scrollable?.scroller()?.fling(
+            scrollX.roundToInt(),
+            scrollY.roundToInt(),
+            -(velocityX / currentScale).roundToInt(),
+            -(velocityY / currentScale).roundToInt(),
+            currentPageRect.left.roundToInt(),
+            (currentPageRect.right - width).roundToInt(),
+            currentPageRect.top.roundToInt(),
+            (currentPageRect.bottom - height).roundToInt(),
+            (width * OVERSCROLL_RATIO).roundToInt(),
+            (height * OVERSCROLL_RATIO).roundToInt()
+        )
+
+        scrollable?.startScroll()
+
+        return true
     }
 
     private fun validate(): Boolean {
@@ -98,6 +130,13 @@ data class ViewState(
     ): Boolean {
         scrollX += offsetX
         scrollY += offsetY
+
+        return validate()
+    }
+
+    fun offsetTo(x: Int, y: Int): Boolean {
+        scrollX = x.toFloat()
+        scrollY = y.toFloat()
 
         return validate()
     }

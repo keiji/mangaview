@@ -4,9 +4,13 @@ abstract class LayoutManager {
 
     internal var pageList: List<Page> = ArrayList()
 
-    abstract fun currentPage(
+    abstract fun currentPageIndex(
         viewState: ViewState
     ): Int
+
+    fun currentPage(
+        viewState: ViewState
+    ): Page = pageList[currentPageIndex(viewState)]
 
     abstract fun visiblePages(
         viewState: ViewState,
