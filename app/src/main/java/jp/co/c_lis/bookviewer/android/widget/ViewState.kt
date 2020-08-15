@@ -3,6 +3,7 @@ package jp.co.c_lis.bookviewer.android.widget
 import android.util.Log
 import android.widget.OverScroller
 import jp.co.c_lis.bookviewer.android.Rectangle
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 interface Scrollable {
@@ -21,6 +22,12 @@ interface Scrollable {
         focusY: Float,
         duration: Long
     )
+
+    val scaledHorizontalScrollFactor: Float
+    val scaledVerticalScrollFactor: Float
+
+    val minFlingVelocity: Int
+    val maxFlingVelocity: Int
 }
 
 data class ViewState(
@@ -54,25 +61,23 @@ data class ViewState(
 
     fun onFling(
         velocityX: Float,
-        velocityY: Float
+        velocityY: Float,
+        targetPageRect: Rectangle
     ): Boolean {
-        Log.d(TAG, "onFling")
+        val scrollableSnapshot = scrollable ?: return false
 
-        val currentPageRect = scrollable?.currentPageRect() ?: return false
-        scrollable?.scroller()?.fling(
+        scrollableSnapshot.scroller().fling(
             scrollX.roundToInt(),
             scrollY.roundToInt(),
             -(velocityX / currentScale).roundToInt(),
             -(velocityY / currentScale).roundToInt(),
-            currentPageRect.left.roundToInt(),
-            (currentPageRect.right - width).roundToInt(),
-            currentPageRect.top.roundToInt(),
-            (currentPageRect.bottom - height).roundToInt(),
-            (width * OVERSCROLL_RATIO).roundToInt(),
-            (height * OVERSCROLL_RATIO).roundToInt()
+            targetPageRect.left.roundToInt(),
+            (targetPageRect.right - width).roundToInt(),
+            targetPageRect.top.roundToInt(),
+            (targetPageRect.bottom - height).roundToInt()
         )
 
-        scrollable?.startScrollOrScale()
+        scrollableSnapshot.startScrollOrScale()
 
         return true
     }

@@ -23,4 +23,10 @@ abstract class LayoutManager {
     ): List<Page>
 
     abstract fun layout(viewState: ViewState)
+
+    abstract fun nextPageRect(
+        viewState: ViewState,
+        velocityRatioX: Float,
+        velocityRatioY: Float
+    ): Rectangle?
 }

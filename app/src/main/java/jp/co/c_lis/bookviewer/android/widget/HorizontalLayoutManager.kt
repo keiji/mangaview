@@ -11,6 +11,8 @@ class HorizontalLayoutManager(
 
     companion object {
         private val TAG = HorizontalLayoutManager::class.java.simpleName
+
+        private const val VELOCITY_RATIO_THRESHOLD = 0.25F
     }
 
     override fun currentPageIndex(
@@ -95,6 +97,37 @@ class HorizontalLayoutManager(
         }
 
         viewState.offset(-viewState.viewWidth, 0.0F)
+    }
+
+    override fun nextPageRect(
+        viewState: ViewState,
+        velocityRatioX: Float,
+        velocityRatioY: Float
+    ): Rectangle? {
+        if (abs(velocityRatioX) < VELOCITY_RATIO_THRESHOLD) {
+            return null
+        }
+
+        val currentPageIndex = currentPageIndex(viewState)
+
+        var nextPageIndex = when {
+            reversed && velocityRatioX > 0 -> currentPageIndex + 1
+            reversed && velocityRatioX < 0 -> currentPageIndex - 1
+            !reversed && velocityRatioX > 0 -> currentPageIndex - 1
+            !reversed && velocityRatioX < 0 -> currentPageIndex + 1
+            else -> null
+        }
+
+        nextPageIndex ?: return null
+
+        if (nextPageIndex < 0) {
+            nextPageIndex = 0
+        }
+        if (nextPageIndex >= pageList.size) {
+            nextPageIndex = pageList.size - 1
+        }
+
+        return getPageRect(nextPageIndex)
     }
 }
 

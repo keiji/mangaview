@@ -5,15 +5,13 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
-import android.view.View
+import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.OverScroller
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ScaleGestureDetectorCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.ViewConfigurationCompat
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +34,16 @@ class BookView(
     constructor(context: Context) : this(context, null, 0x0)
 
     constructor(context: Context, attrs: AttributeSet) : this(context, attrs, 0x0)
+
+    private val viewConfiguration: ViewConfiguration = ViewConfiguration.get(context)
+
+    override val scaledHorizontalScrollFactor: Float =
+        ViewConfigurationCompat.getScaledHorizontalScrollFactor(viewConfiguration, context)
+    override val scaledVerticalScrollFactor: Float =
+        ViewConfigurationCompat.getScaledVerticalScrollFactor(viewConfiguration, context)
+
+    override val maxFlingVelocity = viewConfiguration.scaledMaximumFlingVelocity
+    override val minFlingVelocity = viewConfiguration.scaledMinimumFlingVelocity
 
     var layoutManager: LayoutManager? = null
         set(value) {
@@ -238,8 +246,22 @@ class BookView(
         velocityX: Float,
         velocityY: Float
     ): Boolean {
-        Log.d(TAG, "onFling")
-        return viewState.onFling(velocityX, velocityY)
+        val layoutManagerSnapshot = layoutManager ?: return false
+        Log.d(
+            TAG,
+            "onFling: ${velocityX}, ${velocityY} ${maxFlingVelocity}"
+        )
+
+        val velocityRatioX = velocityX / viewState.currentScale / maxFlingVelocity
+        val velocityRatioY = velocityY / viewState.currentScale / maxFlingVelocity
+
+        var targetPageRect =
+            layoutManagerSnapshot.nextPageRect(viewState, velocityRatioX, velocityRatioY)
+        if (targetPageRect == null) {
+            targetPageRect = layoutManagerSnapshot.currentPageRect(viewState)
+        }
+
+        return viewState.onFling(velocityX, velocityY, targetPageRect)
     }
 
     override fun onScroll(
@@ -289,7 +311,7 @@ class BookView(
     override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
         Log.d(TAG, "onDoubleTapEvent")
 
-        return false
+        return true
     }
 
     override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
