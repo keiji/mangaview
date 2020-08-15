@@ -108,4 +108,7 @@ abstract class ContentLayer(
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean
+
+    open fun recycle() {
+    }
 }

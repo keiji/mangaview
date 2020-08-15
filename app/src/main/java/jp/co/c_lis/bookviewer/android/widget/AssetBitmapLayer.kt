@@ -67,4 +67,11 @@ class AssetBitmapLayer(
 
         return true
     }
+
+    override fun recycle() {
+        super.recycle()
+
+        bitmap?.recycle()
+        bitmap = null
+    }
 }

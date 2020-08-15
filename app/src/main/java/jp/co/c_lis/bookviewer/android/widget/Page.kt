@@ -68,4 +68,12 @@ class Page(
         rectangle.top = viewState.viewHeight * topRatio
         rectangle.bottom = viewState.viewHeight * bottomRatio
     }
+
+    fun recycle() {
+        Log.d(TAG, "recycle ${number}")
+
+        layers.forEach {
+            it.recycle()
+        }
+    }
 }

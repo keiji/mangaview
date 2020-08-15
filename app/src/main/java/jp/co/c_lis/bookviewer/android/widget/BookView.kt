@@ -12,6 +12,7 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ScaleGestureDetectorCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class BookView(
     context: Context,
@@ -80,6 +81,9 @@ class BookView(
     @Suppress("MemberVisibilityCanBePrivate")
     var coroutineScope = CoroutineScope(Dispatchers.Main)
 
+    private val visiblePages = ArrayList<Page>()
+    private val recycleBin = ArrayList<Page>()
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
@@ -91,13 +95,27 @@ class BookView(
 
         var result = true
 
-        layoutManager?.pageList?.forEach { page ->
+        recycleBin.addAll(visiblePages)
+        layoutManager?.visiblePages(viewState, visiblePages)
+
+        visiblePages.forEach { page ->
             if (!page.position.intersect(viewState.viewport)) {
                 return@forEach
             }
 
             if (!page.draw(canvas, viewState, paint, coroutineScope)) {
                 result = false
+            }
+        }
+
+        coroutineScope.launch(Dispatchers.Unconfined) {
+            synchronized(recycleBin) {
+                recycleBin.forEach {
+                    if (!visiblePages.contains(it)) {
+                        it.recycle()
+                    }
+                }
+                recycleBin.clear()
             }
         }
 
