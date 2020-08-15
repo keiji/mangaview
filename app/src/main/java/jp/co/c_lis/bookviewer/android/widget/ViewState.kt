@@ -10,13 +10,25 @@ import jp.co.c_lis.bookviewer.android.Rectangle
 data class ViewState(
     internal var viewWidth: Float = 0.0F,
     internal var viewHeight: Float = 0.0F,
-    internal val viewport: Rectangle = Rectangle(0.0F, 0.0F, 1.0F, 1.0F),
+    internal var scrollX: Float = 0.0F,
+    internal var scrollY: Float = 0.0F,
+    internal var currentScale: Float = 1.0F,
+    internal val viewport: Rectangle = Rectangle(0.0F, 0.0F, viewWidth, viewHeight),
     internal val scrollableArea: Rectangle = Rectangle(0.0F, 0.0F, 1.0F, 1.0F)
 ) : GestureDetector.OnGestureListener, ScaleGestureDetector.OnScaleGestureListener {
 
     companion object {
         private val TAG = ViewState::class.java.simpleName
     }
+
+    var minScale = 1.0F
+    var maxScale = 5.0F
+
+    val width: Float
+        get() = viewWidth / currentScale
+
+    val height: Float
+        get() = viewHeight / currentScale
 
     override fun onShowPress(e: MotionEvent?) {
         Log.d(TAG, "onShowPress")
@@ -42,38 +54,28 @@ data class ViewState(
         return false
     }
 
-    private fun validate(
-        focusX: Float = 0.5F,
-        focusY: Float = 0.5F
-    ): Boolean {
+    private fun validate(): Boolean {
         var result = true
 
-        if (viewport.width > scrollableArea.width) {
-            viewport.scale(
-                1.0F / (scrollableArea.width / viewport.width),
-                focusX, focusY
-            )
-            result = false
-        }
-        if (viewport.height > scrollableArea.height) {
-            viewport.scale(
-                1.0F / (scrollableArea.height / viewport.height),
-                focusX, focusY
-            )
-            result = false
-        }
+        viewport.set(
+            scrollX,
+            scrollY,
+            scrollX + width,
+            scrollY + height
+        )
+
         if (viewport.left < scrollableArea.left) {
-            viewport.offset(scrollableArea.left - viewport.left, 0.0F)
+            offset(scrollableArea.left - viewport.left, 0.0F)
             result = false
         } else if (viewport.right > scrollableArea.right) {
-            viewport.offset(scrollableArea.right - viewport.right, 0.0F)
+            offset(scrollableArea.right - viewport.right, 0.0F)
             result = false
         }
         if (viewport.top < scrollableArea.top) {
-            viewport.offset(0.0F, scrollableArea.top - viewport.top)
+            offset(0.0F, scrollableArea.top - viewport.top)
             result = false
         } else if (viewport.bottom > scrollableArea.bottom) {
-            viewport.offset(0.0F, scrollableArea.bottom - viewport.bottom)
+            offset(0.0F, scrollableArea.bottom - viewport.bottom)
             result = false
         }
 
@@ -85,13 +87,19 @@ data class ViewState(
         e2: MotionEvent?,
         distanceX: Float,
         distanceY: Float
-    ): Boolean = onScroll(distanceX / viewWidth, distanceY / viewHeight)
+    ): Boolean = offset(
+        distanceX / currentScale,
+        distanceY / currentScale
+    )
 
-    fun onScroll(
-        distanceRatioX: Float,
-        distanceRatioY: Float
+    @VisibleForTesting
+    fun offset(
+        offsetX: Float,
+        offsetY: Float
     ): Boolean {
-        viewport.offset(distanceRatioX, distanceRatioY)
+        scrollX += offsetX
+        scrollY += offsetY
+
         return validate()
     }
 
@@ -99,11 +107,7 @@ data class ViewState(
         Log.d(TAG, "onLongPress")
     }
 
-    val scale: Float
-        get() = 1 / ((viewport.width + viewport.height) / 2)
-
     private var isScaling = false
-    var prevScale: Float = 1.0F
 
     override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
         Log.d(TAG, "onScaleBegin")
@@ -111,7 +115,6 @@ data class ViewState(
         detector ?: return false
 
         isScaling = true
-        prevScale = detector.scaleFactor
         return true
     }
 
@@ -119,32 +122,16 @@ data class ViewState(
         detector ?: return false
 
         val factor = detector.scaleFactor
-        if (Math.abs(factor) < 0.0001) {
-            return false
-        }
 
-        val result = onScale(
-            factor,
+        val scale = currentScale * factor
+
+        val result = setScale(
+            scale,
             detector.focusX,
             detector.focusY
         )
-        prevScale = factor
 
         return result
-    }
-
-    @VisibleForTesting
-    fun onScale(
-        factor: Float,
-        focusX: Float,
-        focusY: Float
-    ): Boolean {
-        val result = viewport.scale(
-            factor,
-            focusX / viewWidth,
-            focusY / viewHeight
-        )
-        return validate(focusX, focusY) && result
     }
 
     @VisibleForTesting
@@ -153,18 +140,38 @@ data class ViewState(
         focusX: Float,
         focusY: Float
     ): Boolean {
-        val result = viewport.setScale(
-            scale,
-            focusX / viewWidth,
-            focusY / viewHeight
-        )
-        return validate(focusX, focusY) && result
+        var newScale = scale
+
+        if (maxScale < newScale) {
+            newScale = maxScale
+        }
+        if (minScale > newScale) {
+            newScale = minScale
+        }
+        if (currentScale == newScale) {
+            return false
+        }
+
+        val focusXRatio = focusX / viewWidth
+        val focusYRatio = focusY / viewHeight
+
+        val newViewportWidth = viewWidth / newScale
+        val newViewportHeight = viewHeight / newScale
+
+        val diffX = newViewportWidth - width
+        val diffY = newViewportHeight - height
+
+        scrollX -= diffX * focusXRatio
+        scrollY -= diffY * focusYRatio
+
+        currentScale = newScale
+
+        return validate()
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector?) {
         Log.d(TAG, "onScaleEnd")
 
-        prevScale = 1.0F
         isScaling = false
     }
 }

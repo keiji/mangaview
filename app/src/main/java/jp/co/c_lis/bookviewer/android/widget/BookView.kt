@@ -5,18 +5,13 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.util.Log
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
-import androidx.annotation.VisibleForTesting
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ScaleGestureDetectorCompat
-import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import java.lang.Math.abs
-import java.lang.Math.min
 
 class BookView(
     context: Context,
@@ -51,6 +46,11 @@ class BookView(
         viewState.also {
             it.viewWidth = w.toFloat()
             it.viewHeight = h.toFloat()
+
+            it.viewport.left = 0.0F
+            it.viewport.top = 0.0F
+            it.viewport.right = it.viewWidth
+            it.viewport.bottom = it.viewHeight
         }
         isInitialized = false
     }
@@ -63,6 +63,7 @@ class BookView(
             .map { adapterSnapshot.getPage(it) }
 
         layoutManagerSnapshot.layout(viewState)
+        viewState.viewport
         isInitialized = true
     }
 
@@ -70,9 +71,14 @@ class BookView(
 
     private var isInitialized = false
 
-    private val paint = Paint()
+    @Suppress("MemberVisibilityCanBePrivate")
+    var paint = Paint().also {
+        it.isAntiAlias = true
+        it.isDither = true
+    }
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    @Suppress("MemberVisibilityCanBePrivate")
+    var coroutineScope = CoroutineScope(Dispatchers.Main)
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
@@ -83,16 +89,20 @@ class BookView(
             return
         }
 
+        var result = true
+
         layoutManager?.pageList?.forEach { page ->
             if (!page.position.intersect(viewState.viewport)) {
-                Log.d(TAG, "number: ${page.number}, position: ${page.position} skipped.")
                 return@forEach
             }
 
             if (!page.draw(canvas, viewState, paint, coroutineScope)) {
-                invalidate()
-                return
+                result = false
             }
+        }
+
+        if (!result) {
+            invalidate()
         }
     }
 

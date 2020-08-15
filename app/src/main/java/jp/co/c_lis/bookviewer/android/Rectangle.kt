@@ -16,6 +16,14 @@ data class Rectangle(
     val height: Float
         get() = bottom - top
 
+    fun set(left: Float, top: Float, right: Float, bottom: Float): Rectangle {
+        this.left = left
+        this.right = right
+        this.top = top
+        this.bottom = bottom
+        return this
+    }
+
     fun set(rectangle: Rectangle): Rectangle {
         left = rectangle.left
         right = rectangle.right
@@ -47,102 +55,13 @@ data class Rectangle(
         return true
     }
 
-    fun relativeBy(base: Rectangle) {
+    fun relativeBy(base: Rectangle): Rectangle {
         offset(-base.left, -base.top)
+        return this
     }
 
-    fun alignZero() {
-        offset(-left, -top)
-    }
-
-    private fun scaleX(factor: Float, focusX: Float): Boolean {
-        val focusXRatio = width * focusX
-
-        val oldWidth = width
-        val newWidth = width / factor
-        if (newWidth <= 0.0F) {
-            return false
-        }
-
-        val diffHorizontal = newWidth - oldWidth
-
-        val diffLeft = diffHorizontal * focusXRatio
-        val diffRight = diffHorizontal - diffLeft
-
-        left -= diffLeft
-        right += diffRight
-
-        return true
-    }
-
-    private fun scaleY(factor: Float, focusY: Float): Boolean {
-        val focusYRatio = height * focusY
-
-        val oldHeight = height
-        val newHeight = height / factor
-        if (newHeight <= 0.0F) {
-            return false
-        }
-
-        val diffVertical = newHeight - oldHeight
-
-        val diffTop = diffVertical * focusYRatio
-        val diffBottom = diffVertical - diffTop
-
-        top -= diffTop
-        bottom += diffBottom
-
-        return true
-    }
-
-    fun scale(factor: Float, focusX: Float, focusY: Float): Boolean {
-        return scaleX(factor, focusX) && scaleY(factor, focusY)
-    }
-
-    fun setScale(scale: Float, focusX: Float, focusY: Float): Boolean {
-        return setScaleX(scale, focusX) && setScaleY(scale, focusY)
-    }
-
-    private fun setScaleX(scale: Float, focusX: Float): Boolean {
-        val focusXRatio = width * focusX
-
-        val oldWidth = width
-        val newWidth = 1.0F / scale
-        if (newWidth <= 0.0F) {
-            return false
-        }
-
-        val diffHorizontal = newWidth - oldWidth
-
-        val diffLeft = diffHorizontal * focusXRatio
-        val diffRight = diffHorizontal - diffLeft
-
-        left -= diffLeft
-        right += diffRight
-
-        return true
-
-    }
-
-    private fun setScaleY(scale: Float, focusY: Float): Boolean {
-        val focusYRatio = height * focusY
-
-        val oldHeight = height
-        val newHeight = 1.0F / scale
-        if (newHeight <= 0.0F) {
-            return false
-        }
-
-        val diffVertical = newHeight - oldHeight
-
-        val diffTop = diffVertical * focusYRatio
-        val diffBottom = diffVertical - diffTop
-
-        top -= diffTop
-        bottom += diffBottom
-
-        return true
-
+    fun and(rectB: Rectangle): Rectangle? {
+        return and(this, rectB, this)
     }
 
     companion object {

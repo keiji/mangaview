@@ -112,33 +112,4 @@ class RectangleTest {
         assertNull(resultAnd)
     }
 
-    @Test
-    fun scale1() {
-        val rect = Rectangle(0.0F, 0.0F, 1.0F, 1.0F)
-
-        rect.scale(2.0F, 0.5F, 0.5F)
-
-        assertEquals(0.5F, rect.width, 0.0001F)
-        assertEquals(0.5F, rect.height, 0.0001F)
-
-        assertEquals(0.25F, rect.left, 0.0001F)
-        assertEquals(0.75F, rect.right, 0.0001F)
-        assertEquals(0.25F, rect.top, 0.0001F)
-        assertEquals(0.75F, rect.bottom, 0.0001F)
-    }
-
-    @Test
-    fun scale2() {
-        val rect = Rectangle(0.0F, 0.0F, 1.0F, 1.0F)
-
-        rect.scale(2.0F, 0.2F, 0.6F)
-
-        assertEquals(0.5F, rect.width, 0.0001F)
-        assertEquals(0.5F, rect.height, 0.0001F)
-
-        assertEquals(0.1F, rect.left, 0.0001F)
-        assertEquals(0.6F, rect.right, 0.0001F)
-        assertEquals(0.3F, rect.top, 0.0001F)
-        assertEquals(0.8F, rect.bottom, 0.0001F)
-    }
 }

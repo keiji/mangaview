@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 enum class PageHorizontalAlign {
     Center,
@@ -30,9 +31,13 @@ abstract class ContentLayer {
 
     internal var minScale: Float = 1.0F
 
-    val contentPosition = Rectangle()
+    var paddingLeft = 0
+    var paddingTop = 0
+    var paddingRight = 0
+    var paddingBottom = 0
+
     val contentSrc = Rectangle()
-    val contentDst = Rectangle()
+    val destOnView = Rectangle()
 
     abstract suspend fun prepareContent(viewState: ViewState, pageRect: Rectangle)
 
@@ -50,20 +55,13 @@ abstract class ContentLayer {
         val scaledContentWidth = contentWidth * minScale
         val scaledContentHeight = contentHeight * minScale
 
-        val paddingHorizontal = pageRect.width - (scaledContentWidth / viewState.viewWidth)
-        val paddingVertical = pageRect.height - (scaledContentHeight / viewState.viewHeight)
+        val paddingHorizontal = pageRect.width - scaledContentWidth
+        val paddingVertical = pageRect.height - scaledContentHeight
 
-        val paddingLeft = paddingHorizontal / 2
-        val paddingRight = paddingHorizontal - paddingLeft
-        val paddingTop = paddingVertical / 2
-        val paddingBottom = paddingVertical - paddingTop
-
-        contentPosition.also {
-            it.left = paddingLeft
-            it.top = paddingTop
-            it.right = 1.0F - paddingRight
-            it.bottom = 1.0F - paddingBottom
-        }
+        paddingLeft = ((paddingHorizontal / 2) / minScale).roundToInt()
+        paddingTop = ((paddingVertical / 2) / minScale).roundToInt()
+        paddingRight = (paddingHorizontal / minScale - paddingLeft).roundToInt()
+        paddingBottom = (paddingVertical / minScale - paddingTop).roundToInt()
     }
 
     fun draw(
@@ -80,17 +78,15 @@ abstract class ContentLayer {
             return false
         }
 
-        contentSrc.set(page.pageViewport)
-        contentDst.set(page.destOnView)
-        Rectangle.and(contentDst, contentPosition, contentDst)
+        contentSrc.set(page.contentSrc)
+        destOnView.set(page.destOnView)
 
-        return onDraw(canvas, viewState, page, paint, coroutineScope)
+        return onDraw(canvas, viewState, paint, coroutineScope)
     }
 
     abstract fun onDraw(
         canvas: Canvas?,
         viewState: ViewState,
-        page: Page,
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean

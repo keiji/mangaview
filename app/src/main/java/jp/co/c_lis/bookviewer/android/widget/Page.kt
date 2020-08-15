@@ -2,6 +2,7 @@ package jp.co.c_lis.bookviewer.android.widget
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.util.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
 
@@ -9,12 +10,13 @@ class Page(
     val number: Int
 ) {
     companion object {
-        private val TAG = ContentLayer::class.java.simpleName
+        private val TAG = Page::class.java.simpleName
     }
 
     val position = Rectangle()
 
-    val pageViewport = Rectangle(0.0F, 0.0F, 1.0F, 1.0F)
+    val pageViewport = Rectangle()
+    val contentSrc = Rectangle()
     val destOnView = Rectangle()
 
     internal val layers = ArrayList<ContentLayer>()
@@ -25,17 +27,45 @@ class Page(
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
-        Rectangle.and(viewState.viewport, position, pageViewport)
-        pageViewport.relativeBy(position)
+        pageViewport
+            .set(viewState.viewport)
+            .and(position)
+            ?.relativeBy(position)
 
-        Rectangle.and(destOnView.set(viewState.viewport), position, destOnView)
-        destOnView.relativeBy(viewState.viewport)
+        contentSrc
+            .set(viewState.viewport)
+            .and(position)
+            ?.relativeBy(position)
+
+        destOnView
+            .set(viewState.viewport)
+            .and(position)
+            ?.relativeBy(viewState.viewport)
+        normalize(destOnView, viewState)
+
+        var result = true
 
         layers.forEach {
             if (!it.draw(canvas, viewState, this, paint, coroutineScope)) {
-                return false
+                result = false
             }
         }
-        return true
+
+        return result
+    }
+
+    private fun normalize(
+        rectangle: Rectangle,
+        viewState: ViewState
+    ) {
+        val leftRatio = rectangle.left / viewState.width
+        val rightRatio = rectangle.right / viewState.width
+        val topRatio = rectangle.top / viewState.height
+        val bottomRatio = rectangle.bottom / viewState.height
+
+        rectangle.left = viewState.viewWidth * leftRatio
+        rectangle.right = viewState.viewWidth * rightRatio
+        rectangle.top = viewState.viewHeight * topRatio
+        rectangle.bottom = viewState.viewHeight * bottomRatio
     }
 }

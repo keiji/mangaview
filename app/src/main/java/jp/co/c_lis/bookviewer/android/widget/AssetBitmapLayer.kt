@@ -32,68 +32,33 @@ class AssetBitmapLayer(
         }
     }
 
-    private fun scaleRect(
-        from: Rectangle,
-        scaleHorizontal: Float,
-        scaleVertical: Float,
-        out: Rect
-    ): Rect {
-        return out.also {
-            out.left = (from.left * scaleHorizontal).roundToInt()
-            out.top = (from.top * scaleVertical).roundToInt()
-            out.right = (from.right * scaleHorizontal).roundToInt()
-            out.bottom = (from.bottom * scaleVertical).roundToInt()
-        }
-    }
-
+    private val srcRect = Rect()
     private val dstRect = RectF()
-
-    private val srcAbsoluteRect = Rect()
 
     override fun onDraw(
         canvas: Canvas?,
         viewState: ViewState,
-        page: Page,
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
-
-        Log.d(TAG, page.position.toString())
-        Log.d(TAG, viewState.viewport.toString())
-
         val bitmapSnapshot = bitmap ?: return false
 
-        dstRect.also {
-            it.left = page.position.left * viewState.viewWidth
-            it.right = page.position.right * viewState.viewWidth
-            it.top = page.position.top * viewState.viewHeight
-            it.bottom = page.position.bottom * viewState.viewHeight
+        srcRect.also {
+            it.left = (contentSrc.left / minScale).roundToInt() - paddingLeft
+            it.right = (contentSrc.right / minScale).roundToInt() - paddingRight
+            it.top = (contentSrc.top / minScale).roundToInt() - paddingTop
+            it.bottom = (contentSrc.bottom / minScale).roundToInt() - paddingBottom
         }
-
-        scaleRect(
-            page.position,
-            contentWidth, contentHeight,
-            srcAbsoluteRect
-        )
-
-        Log.d(
-            TAG,
-            "dstRect.left:${dstRect.left}, " +
-                    "top:${dstRect.top}, " +
-                    "right:${dstRect.right}, " +
-                    "bottom:${dstRect.bottom}"
-        )
-        Log.d(
-            TAG,
-            "srcAbsoluteRect.left:${srcAbsoluteRect.left}, " +
-                    "top:${srcAbsoluteRect.top}, " +
-                    "right:${srcAbsoluteRect.right}, " +
-                    "bottom:${srcAbsoluteRect.bottom}"
-        )
+        dstRect.also {
+            it.left = destOnView.left
+            it.right = destOnView.right
+            it.top = destOnView.top
+            it.bottom = destOnView.bottom
+        }
 
         canvas?.drawBitmap(
             bitmapSnapshot,
-            srcAbsoluteRect,
+            srcRect,
             dstRect,
             paint
         )

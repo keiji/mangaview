@@ -14,17 +14,17 @@ class HorizontalLayoutManager(
         for (index in pageList.indices) {
             val page = pageList[index]
 
-            val positionLeft = if (!reversed) {
+            val positionLeft = viewState.viewWidth * if (!reversed) {
                 index
             } else {
                 -index
             }
 
             page.position.also {
-                it.left = positionLeft.toFloat()
-                it.right = it.left + 1.0F
+                it.left = positionLeft
+                it.right = it.left + viewState.viewWidth
                 it.top = 0.0F
-                it.bottom = 1.0F
+                it.bottom = viewState.viewHeight
             }
         }
 
