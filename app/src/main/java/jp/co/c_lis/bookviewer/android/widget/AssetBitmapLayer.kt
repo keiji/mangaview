@@ -2,8 +2,6 @@ package jp.co.c_lis.bookviewer.android.widget
 
 import android.content.res.AssetManager
 import android.graphics.*
-import android.util.Log
-import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlin.math.roundToInt
 

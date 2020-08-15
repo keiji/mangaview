@@ -1,10 +1,8 @@
 package jp.co.c_lis.bookviewer.android.widget
 
-import android.util.Log
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
-import kotlin.math.roundToInt
 
 class HorizontalLayoutManager(
     private val reversed: Boolean = false
