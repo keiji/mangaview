@@ -21,10 +21,11 @@ enum class PageVerticalAlign {
     Bottom
 }
 
-abstract class ContentLayer {
+abstract class ContentLayer(
+    private val alignHorizontal: PageHorizontalAlign = PageHorizontalAlign.Center,
+    private val alignVertical: PageVerticalAlign = PageVerticalAlign.Middle
+) {
 
-    private var alignHorizontal = PageHorizontalAlign.Center
-    private var alignVertical = PageVerticalAlign.Middle
 
     abstract val contentWidth: Float
     abstract val contentHeight: Float
@@ -39,13 +40,13 @@ abstract class ContentLayer {
     val contentSrc = Rectangle()
     val destOnView = Rectangle()
 
-    abstract suspend fun prepareContent(viewState: ViewState, pageRect: Rectangle)
+    abstract suspend fun prepareContent(viewState: ViewState, page: Page)
 
     open val isPrepared
         get() = false
 
-    private suspend fun prepare(viewState: ViewState, pageRect: Rectangle) {
-        prepareContent(viewState, pageRect)
+    private suspend fun prepare(viewState: ViewState, page: Page) {
+        prepareContent(viewState, page)
 
         minScale = min(
             viewState.viewWidth / contentWidth,
@@ -55,13 +56,42 @@ abstract class ContentLayer {
         val scaledContentWidth = contentWidth * minScale
         val scaledContentHeight = contentHeight * minScale
 
-        val paddingHorizontal = pageRect.width - scaledContentWidth
-        val paddingVertical = pageRect.height - scaledContentHeight
+        val paddingHorizontal = page.position.width - scaledContentWidth
+        val paddingVertical = page.position.height - scaledContentHeight
 
-        paddingLeft = ((paddingHorizontal / 2) / minScale).roundToInt()
-        paddingTop = ((paddingVertical / 2) / minScale).roundToInt()
-        paddingRight = (paddingHorizontal / minScale - paddingLeft).roundToInt()
-        paddingBottom = (paddingVertical / minScale - paddingTop).roundToInt()
+        alignment(paddingHorizontal, paddingVertical)
+    }
+
+    private fun alignment(paddingHorizontal: Float, paddingVertical: Float) {
+        when (alignHorizontal) {
+            PageHorizontalAlign.Center -> {
+                paddingLeft = ((paddingHorizontal / 2) / minScale).roundToInt()
+                paddingRight = (paddingHorizontal / minScale - paddingLeft).roundToInt()
+            }
+            PageHorizontalAlign.Left -> {
+                paddingLeft = 0
+                paddingRight = (paddingHorizontal / minScale - paddingLeft).roundToInt()
+            }
+            PageHorizontalAlign.Right -> {
+                paddingLeft = (paddingHorizontal / minScale).roundToInt()
+                paddingRight = 0
+            }
+        }
+
+        when (alignVertical) {
+            PageVerticalAlign.Middle -> {
+                paddingTop = ((paddingVertical / 2) / minScale).roundToInt()
+                paddingBottom = (paddingVertical / minScale - paddingTop).roundToInt()
+            }
+            PageVerticalAlign.Top -> {
+                paddingTop = 0
+                paddingBottom = (paddingVertical / minScale).roundToInt()
+            }
+            PageVerticalAlign.Bottom -> {
+                paddingTop = (paddingVertical / minScale).roundToInt()
+                paddingBottom = 0
+            }
+        }
     }
 
     fun draw(
@@ -73,7 +103,7 @@ abstract class ContentLayer {
     ): Boolean {
         if (!isPrepared) {
             coroutineScope.launch(Dispatchers.IO) {
-                prepare(viewState, page.position)
+                prepare(viewState, page)
             }
             return false
         }

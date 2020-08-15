@@ -9,8 +9,10 @@ import kotlin.math.roundToInt
 
 class AssetBitmapLayer(
     private val assetManager: AssetManager,
-    private val fileName: String
-) : ContentLayer() {
+    private val fileName: String,
+    alignHorizontal: PageHorizontalAlign = PageHorizontalAlign.Center,
+    alignVertical: PageVerticalAlign = PageVerticalAlign.Middle
+) : ContentLayer(alignHorizontal, alignVertical) {
 
     companion object {
         private val TAG = AssetBitmapLayer::class.java.simpleName
@@ -26,7 +28,7 @@ class AssetBitmapLayer(
     override val isPrepared: Boolean
         get() = bitmap != null
 
-    override suspend fun prepareContent(viewState: ViewState, pageRect: Rectangle) {
+    override suspend fun prepareContent(viewState: ViewState, page: Page) {
         bitmap = assetManager.open(fileName).use {
             BitmapFactory.decodeStream(it)
         }

@@ -558,7 +558,7 @@ class DummyLayer(
     override val isPrepared: Boolean
         get() = isContentLoaded
 
-    override suspend fun prepareContent(viewState: ViewState, pageRect: Rectangle) {
+    override suspend fun prepareContent(viewState: ViewState, page: Page) {
         isContentLoaded = true
     }
 
