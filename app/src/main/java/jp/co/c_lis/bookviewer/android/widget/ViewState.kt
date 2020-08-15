@@ -1,17 +1,19 @@
 package jp.co.c_lis.bookviewer.android.widget
 
 import android.util.Log
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.widget.OverScroller
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlin.math.roundToInt
 
 interface Scrollable {
     fun scroller(): OverScroller
+
     fun currentPageRect(): Rectangle?
+
     fun startScrollOrScale()
+
     fun cancelScroll()
+
     fun startScale(
         fromScale: Float,
         toScale: Float,
@@ -128,28 +130,22 @@ data class ViewState(
         return validate()
     }
 
-    fun onLongPress(e: MotionEvent?) {
-        Log.d(TAG, "onLongPress")
-    }
-
     private var isScaling = false
 
-    fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+    fun onScaleBegin(): Boolean {
         Log.d(TAG, "onScaleBegin")
 
         isScaling = true
         return true
     }
 
-    fun onScale(detector: ScaleGestureDetector): Boolean {
-        val factor = detector.scaleFactor
-
+    fun onScale(factor: Float, focusX: Float, focusY: Float): Boolean {
         val scale = currentScale * factor
 
         val result = setScale(
             scale,
-            detector.focusX,
-            detector.focusY
+            focusX,
+            focusY
         )
 
         return result
@@ -189,7 +185,7 @@ data class ViewState(
         return validate()
     }
 
-    fun onScaleEnd(detector: ScaleGestureDetector) {
+    fun onScaleEnd() {
         Log.d(TAG, "onScaleEnd")
 
         isScaling = false

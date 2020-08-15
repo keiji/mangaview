@@ -226,17 +226,11 @@ class BookView(
         }
     }
 
-    override fun onShowPress(e: MotionEvent?) {
-        cancelScroll()
-    }
+    override fun onShowPress(e: MotionEvent?) = cancelScroll()
 
-    override fun onSingleTapUp(e: MotionEvent?): Boolean {
-        return false
-    }
+    override fun onSingleTapUp(e: MotionEvent?) = false
 
-    override fun onDown(e: MotionEvent?): Boolean {
-        return true
-    }
+    override fun onDown(e: MotionEvent?) = true
 
     override fun onFling(
         e1: MotionEvent?,
@@ -266,21 +260,21 @@ class BookView(
         detector ?: return false
 
         Log.d(TAG, "onScaleBegin")
-        return viewState.onScaleBegin(detector)
+        return viewState.onScaleBegin()
     }
 
     override fun onScale(detector: ScaleGestureDetector?): Boolean {
         detector ?: return false
 
         Log.d(TAG, "onScale")
-        return viewState.onScale(detector)
+        return viewState.onScale(detector.scaleFactor, detector.focusX, detector.focusY)
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector?) {
         detector ?: return
 
         Log.d(TAG, "onScaleEnd")
-        viewState.onScaleEnd(detector)
+        viewState.onScaleEnd()
     }
 
     override fun onDoubleTap(e: MotionEvent?): Boolean {
