@@ -12,9 +12,14 @@ class HorizontalLayoutManager(
         private val TAG = HorizontalLayoutManager::class.java.simpleName
     }
 
+    override fun currentPage(
+        viewState: ViewState
+    ): Int = abs(viewState.viewport.center / viewState.viewWidth).toInt()
+
     override fun visiblePages(
         viewState: ViewState,
-        resultList: ArrayList<Page>
+        resultList: ArrayList<Page>,
+        offsetScreenPageLimit: Int
     ): List<Page> {
         val pageIndexLeft = if (reversed) {
             abs(floor(viewState.viewport.right / viewState.viewWidth)).toInt()
@@ -33,6 +38,9 @@ class HorizontalLayoutManager(
             startIndex = pageIndexRight
             endIndex = pageIndexLeft
         }
+
+        startIndex -= offsetScreenPageLimit
+        endIndex += offsetScreenPageLimit
 
         if (startIndex < 0) {
             startIndex = 0
