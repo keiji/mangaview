@@ -92,7 +92,6 @@ data class ViewState(
         distanceY / currentScale
     )
 
-    @VisibleForTesting
     fun offset(
         offsetX: Float,
         offsetY: Float

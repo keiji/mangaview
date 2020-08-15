@@ -71,7 +71,7 @@ class HorizontalLayoutManager(
             area.bottom = pageList.maxBy { it.position.bottom }?.position?.bottom ?: 0.0F
         }
 
-        viewState.viewport.offset(-viewState.viewWidth, 0.0F)
+        viewState.offset(-viewState.viewWidth, 0.0F)
     }
 }
 
