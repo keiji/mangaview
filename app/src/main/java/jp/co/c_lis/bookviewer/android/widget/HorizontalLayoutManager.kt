@@ -19,8 +19,25 @@ class HorizontalLayoutManager(
         viewState: ViewState
     ): Int = abs(viewState.viewport.center / viewState.viewWidth).toInt()
 
-    override fun currentPageRect(viewState: ViewState): Rectangle {
+    override fun currentRect(viewState: ViewState): Rectangle {
         return pageList[currentPageIndex(viewState)].position
+    }
+
+    override fun leftRect(viewState: ViewState): Rectangle? {
+        val leftIndex = currentPageIndex(viewState) + 1
+        if (leftIndex >= pageList.size) {
+            return null
+        }
+        return getPageRect(leftIndex)
+
+    }
+
+    override fun rightRect(viewState: ViewState): Rectangle? {
+        val rightIndex = currentPageIndex(viewState) - 1
+        if (rightIndex < 0) {
+            return null
+        }
+        return getPageRect(rightIndex)
     }
 
     override fun getPageRect(pageIndex: Int): Rectangle {
@@ -99,35 +116,6 @@ class HorizontalLayoutManager(
         viewState.offset(-viewState.viewWidth, 0.0F)
     }
 
-    override fun nextPageRect(
-        viewState: ViewState,
-        velocityRatioX: Float,
-        velocityRatioY: Float
-    ): Rectangle? {
-        if (abs(velocityRatioX) < VELOCITY_RATIO_THRESHOLD) {
-            return null
-        }
-
-        val currentPageIndex = currentPageIndex(viewState)
-
-        var nextPageIndex = when {
-            reversed && velocityRatioX > 0 -> currentPageIndex + 1
-            reversed && velocityRatioX < 0 -> currentPageIndex - 1
-            !reversed && velocityRatioX > 0 -> currentPageIndex - 1
-            !reversed && velocityRatioX < 0 -> currentPageIndex + 1
-            else -> null
-        }
-
-        nextPageIndex ?: return null
-
-        if (nextPageIndex < 0) {
-            nextPageIndex = 0
-        }
-        if (nextPageIndex >= pageList.size) {
-            nextPageIndex = pageList.size - 1
-        }
-
-        return getPageRect(nextPageIndex)
-    }
+    override fun calcPopulateY(viewState: ViewState, rect: Rectangle) = 0.0F
 }
 

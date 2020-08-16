@@ -10,9 +10,14 @@ abstract class LayoutManager {
         viewState: ViewState
     ): Int
 
-    abstract fun currentPageRect(
+    abstract fun currentRect(
         viewState: ViewState
     ): Rectangle
+
+    open fun leftRect(viewState: ViewState): Rectangle? = null
+    open fun rightRect(viewState: ViewState): Rectangle? = null
+    open fun topRect(viewState: ViewState): Rectangle? = null
+    open fun bottomRect(viewState: ViewState): Rectangle? = null
 
     abstract fun getPageRect(pageIndex: Int): Rectangle
 
@@ -24,9 +29,5 @@ abstract class LayoutManager {
 
     abstract fun layout(viewState: ViewState)
 
-    abstract fun nextPageRect(
-        viewState: ViewState,
-        velocityRatioX: Float,
-        velocityRatioY: Float
-    ): Rectangle?
+    abstract fun calcPopulateY(viewState: ViewState, rect: Rectangle): Float
 }

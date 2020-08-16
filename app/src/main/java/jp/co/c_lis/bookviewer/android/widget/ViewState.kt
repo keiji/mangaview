@@ -3,32 +3,7 @@ package jp.co.c_lis.bookviewer.android.widget
 import android.util.Log
 import android.widget.OverScroller
 import jp.co.c_lis.bookviewer.android.Rectangle
-import kotlin.math.abs
 import kotlin.math.roundToInt
-
-interface Scrollable {
-    fun scroller(): OverScroller
-
-    fun currentPageRect(): Rectangle?
-
-    fun startScrollOrScale()
-
-    fun cancelScroll()
-
-    fun startScale(
-        fromScale: Float,
-        toScale: Float,
-        focusX: Float,
-        focusY: Float,
-        duration: Long
-    )
-
-    val scaledHorizontalScrollFactor: Float
-    val scaledVerticalScrollFactor: Float
-
-    val minFlingVelocity: Int
-    val maxFlingVelocity: Int
-}
 
 data class ViewState(
     internal var viewWidth: Float = 0.0F,
@@ -42,10 +17,6 @@ data class ViewState(
 
     companion object {
         private val TAG = ViewState::class.java.simpleName
-
-        private const val OVERSCROLL_RATIO = 0.1F
-        private const val SCROLLING_DURATION = 350
-        private const val SCALING_DURATION = 350L
     }
 
     var minScale = 1.0F
@@ -56,31 +27,6 @@ data class ViewState(
 
     val height: Float
         get() = viewHeight / currentScale
-
-    var scrollable: Scrollable? = null
-
-    fun onFling(
-        scaledVelocityX: Float,
-        scaledVelocityY: Float,
-        targetPageRect: Rectangle
-    ): Boolean {
-        val scrollableSnapshot = scrollable ?: return false
-
-        scrollableSnapshot.scroller().fling(
-            scrollX.roundToInt(),
-            scrollY.roundToInt(),
-            -scaledVelocityX.roundToInt(),
-            -scaledVelocityY.roundToInt(),
-            targetPageRect.left.roundToInt(),
-            (targetPageRect.right - width).roundToInt(),
-            targetPageRect.top.roundToInt(),
-            (targetPageRect.bottom - height).roundToInt()
-        )
-
-        scrollableSnapshot.startScrollOrScale()
-
-        return true
-    }
 
     private fun validate(): Boolean {
         var result = true
@@ -194,32 +140,5 @@ data class ViewState(
         Log.d(TAG, "onScaleEnd")
 
         isScaling = false
-    }
-
-    fun scrollTo(x: Int, y: Int, smoothScroll: Boolean) {
-        if (!smoothScroll) {
-            offsetTo(x, y)
-            return
-        }
-
-        val currentLeft = viewport.left.roundToInt()
-        val currentTop = viewport.top.roundToInt()
-
-        scrollable?.scroller()?.startScroll(
-            currentLeft, currentTop,
-            x - currentLeft, y - currentTop,
-            SCROLLING_DURATION
-        )
-        scrollable?.startScrollOrScale()
-    }
-
-    fun scale(scale: Float, focusX: Float, focusY: Float, smoothScale: Boolean) {
-        if (!smoothScale) {
-            setScale(scale, focusX, focusY)
-            return
-        }
-
-        scrollable?.startScale(currentScale, scale, focusX, focusY, SCALING_DURATION)
-
     }
 }
