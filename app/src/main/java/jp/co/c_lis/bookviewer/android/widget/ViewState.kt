@@ -201,9 +201,13 @@ data class ViewState(
             offsetTo(x, y)
             return
         }
+
+        val currentLeft = viewport.left.roundToInt()
+        val currentTop = viewport.top.roundToInt()
+
         scrollable?.scroller()?.startScroll(
-            viewport.left.roundToInt(), viewport.top.roundToInt(),
-            x, y,
+            currentLeft, currentTop,
+            x - currentLeft, y - currentTop,
             SCROLLING_DURATION
         )
         scrollable?.startScrollOrScale()

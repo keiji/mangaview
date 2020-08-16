@@ -150,7 +150,7 @@ class BookView(
 
         viewState.scrollTo(
             rect.left.roundToInt(),
-            rect.right.roundToInt(),
+            rect.top.roundToInt(),
             smoothScroll = smoothScroll
         )
     }
