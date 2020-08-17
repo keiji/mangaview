@@ -158,7 +158,7 @@ class PopulateHelper {
         }
     }
 
-    fun populateTo(
+    private fun populateTo(
         rect: Rectangle?,
         shouldPopulate: (Rectangle?) -> Boolean,
         dx: (Rectangle) -> Int,
