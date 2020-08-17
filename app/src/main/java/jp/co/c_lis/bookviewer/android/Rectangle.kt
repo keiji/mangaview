@@ -19,6 +19,9 @@ data class Rectangle(
     val height: Float
         get() = bottom - top
 
+    val area: Float
+        get() = width * height
+
     fun set(left: Float, top: Float, right: Float, bottom: Float): Rectangle {
         this.left = left
         this.right = right
@@ -121,6 +124,21 @@ data class Rectangle(
                 it.top = max(rectA.top, rectB.top)
                 it.bottom = min(rectA.bottom, rectB.bottom)
             }
+        }
+
+        fun jaccardIndex(
+            rectA: Rectangle,
+            rectB: Rectangle,
+            tmp: Rectangle = Rectangle()
+        ): Float {
+            if (!rectA.intersect(rectB)) {
+                return 0.0F
+            }
+
+            val overlap = and(rectA, rectB)?.area ?: 0.0F
+            val jaccardIndex = overlap / ((rectA.area + rectB.area) - overlap)
+
+            return jaccardIndex
         }
     }
 

@@ -93,7 +93,7 @@ class PopulateHelper {
         Log.d(TAG, "topRect: $topRect")
         Log.d(TAG, "bottomRect: $bottomRect")
 
-        val result = populateTo(
+        val handled = populateTo(
             leftRect,
             shouldPopulateHorizontal,
             calcDiffXToLeft, calcDiffBlank
@@ -111,23 +111,18 @@ class PopulateHelper {
             calcDiffBlank, calcDiffYToBottom
         )
 
-        if (!result) {
+        if (!handled) {
             Log.d(TAG, "tryPopulate to current")
             val matchHorizontalRect = arrayOf(leftRect, rightRect)
                 .filterNotNull()
                 .maxBy {
-                    val overlap = Rectangle.and(it, viewState.viewport, populateTmp)
-                    overlap ?: return@maxBy 0.0F
-                    return@maxBy overlap.width * overlap.height
+                    Rectangle.jaccardIndex(it, viewState.viewport, populateTmp)
                 }
             val matchVerticalRect = arrayOf(topRect, bottomRect)
                 .filterNotNull()
                 .maxBy {
-                    val overlap = Rectangle.and(it, viewState.viewport, populateTmp)
-                    overlap ?: return@maxBy 0.0F
-                    return@maxBy overlap.width * overlap.height
+                    Rectangle.jaccardIndex(it, viewState.viewport, populateTmp)
                 }
-
 
             Log.d(TAG, "populate to current")
             matchHorizontalRect?.let {
