@@ -168,7 +168,6 @@ class BookView(
         ScaleGestureDetectorCompat.setQuickScaleEnabled(it, false)
     }
 
-
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event ?: return super.onTouchEvent(event)
 
@@ -199,169 +198,25 @@ class BookView(
         delayedPopulate = coroutineScope.launch(Dispatchers.Unconfined) {
             delay(200)
             withContext(Dispatchers.Main) {
-                populate()
-            }
-        }
-    }
-
-    private val populateTmp = Rectangle()
-
-    private val shouldPopulateHorizontal = fun(rect: Rectangle?): Boolean {
-        rect ?: return false
-        return rect.width > pagingTouchSlop / viewState.currentScale
-    }
-
-    private val calcDiffBlank = fun(_: Rectangle) = 0
-
-    private val calcDiffXToLeft = fun(rect: Rectangle): Int {
-        val result = -(viewState.viewport.width - rect.width).roundToInt()
-        return result
-    }
-    private val calcDiffXToRight = fun(rect: Rectangle): Int {
-        val result = (viewState.viewport.width - rect.width).roundToInt()
-        return result
-    }
-
-    private val shouldPopulateVertical = fun(rect: Rectangle?): Boolean {
-        rect ?: return false
-        return rect.height > pagingTouchSlop / viewState.currentScale
-    }
-
-    private val calcDiffYToTop = fun(rect: Rectangle): Int {
-        return -(viewState.viewport.height - rect.height).roundToInt()
-    }
-    private val calcDiffYToBottom = fun(rect: Rectangle): Int {
-        return (viewState.viewport.height - rect.height).roundToInt()
-    }
-
-    private val shouldPopulateAlwaysTrue = fun(rect: Rectangle?) = true
-
-    private fun populate() {
-        Log.d(TAG, "populate!")
-
-        if (scaling != null) {
-            return
-        }
-
-        val layoutManagerSnapshot = layoutManager ?: return
-
-        // detect overscroll
-        val currentRect = layoutManagerSnapshot.currentRect(viewState)
-        if (currentRect.contains(viewState.viewport)) {
-            Log.d(TAG, "not overscrolled.")
-            return
-        }
-
-        val leftRect = layoutManagerSnapshot.leftRect(viewState)
-        val rightRect = layoutManagerSnapshot.rightRect(viewState)
-        val topRect = layoutManagerSnapshot.topRect(viewState)
-        val bottomRect = layoutManagerSnapshot.bottomRect(viewState)
-
-
-        Log.d(TAG, "currentRect: $currentRect")
-        Log.d(TAG, "leftRect: $leftRect")
-        Log.d(TAG, "rightRect: $rightRect")
-        Log.d(TAG, "topRect: $topRect")
-        Log.d(TAG, "bottomRect: $bottomRect")
-
-        val result = populateTo(
-            leftRect,
-            shouldPopulateHorizontal,
-            calcDiffXToLeft, calcDiffBlank
-        ) or populateTo(
-            rightRect,
-            shouldPopulateHorizontal,
-            calcDiffXToRight, calcDiffBlank
-        ) or populateTo(
-            topRect,
-            shouldPopulateVertical,
-            calcDiffBlank, calcDiffYToTop
-        ) or populateTo(
-            bottomRect,
-            shouldPopulateVertical,
-            calcDiffBlank, calcDiffYToBottom
-        )
-
-        if (!result) {
-            Log.d(TAG, "tryPopulate to current")
-            val matchHorizontalRect = arrayOf(leftRect, rightRect)
-                .filterNotNull()
-                .maxBy {
-                    val overlap = Rectangle.and(it, viewState.viewport, populateTmp)
-                    overlap ?: return@maxBy 0.0F
-                    return@maxBy overlap.width * overlap.height
-                }
-            val matchVerticalRect = arrayOf(topRect, bottomRect)
-                .filterNotNull()
-                .maxBy {
-                    val overlap = Rectangle.and(it, viewState.viewport, populateTmp)
-                    overlap ?: return@maxBy 0.0F
-                    return@maxBy overlap.width * overlap.height
+                val touchSlop = if (scalingState == ScalingState.End) {
+                    Float.MAX_VALUE
+                } else {
+                    pagingTouchSlop
                 }
 
-
-            Log.d(TAG, "populate to current")
-            matchHorizontalRect?.let {
-                Log.d(TAG, "leftRect ${leftRect.toString()}")
-                Log.d(TAG, "rightRect ${rightRect.toString()}")
-                Log.d(TAG, "currentRect ${currentRect}")
-                Log.d(TAG, "matchHorizontalRect $it")
+                PopulateHelper
+                    .obtain(
+                        viewState,
+                        touchSlop,
+                        layoutManager,
+                        settleScroller,
+                        SCROLLING_DURATION
+                    )
+                    .populate()
+                startAnimation()
+                scalingState = ScalingState.Finish
             }
-
-            val fromLeft = (matchHorizontalRect === leftRect)
-            val fromTop = (matchVerticalRect === topRect)
-
-            val calcDiffXToCurrent = if (fromLeft) {
-                Log.d(TAG, "fromLeft ${viewState.viewport}")
-                Log.d(TAG, "fromLeft ${currentRect}")
-                calcDiffXToRight
-            } else {
-                Log.d(TAG, "fromRight ${viewState.viewport}")
-                Log.d(TAG, "fromRight ${currentRect}")
-                calcDiffXToLeft
-            }
-            val calcDiffYToCurrent = if (fromTop) {
-                calcDiffYToTop
-            } else {
-                calcDiffYToBottom
-            }
-
-            populateTo(
-                currentRect,
-                shouldPopulateAlwaysTrue,
-                calcDiffXToCurrent, calcDiffYToCurrent
-            )
         }
-
-        startAnimation()
-    }
-
-    private fun populateTo(
-        rect: Rectangle?,
-        shouldPopulate: (Rectangle?) -> Boolean,
-        dx: (Rectangle) -> Int,
-        dy: (Rectangle) -> Int
-    ): Boolean {
-        rect ?: return false
-
-        val overlap = Rectangle.and(rect, viewState.viewport, populateTmp)
-
-        Log.d(TAG, "overlap ${overlap}")
-        if (shouldPopulate(overlap)) {
-            val startX = viewState.viewport.left.roundToInt()
-            val startY = viewState.viewport.top.roundToInt()
-
-            settleScroller.startScroll(
-                startX,
-                startY,
-                dx(populateTmp),
-                dy(populateTmp),
-                SCROLLING_DURATION
-            )
-            return true
-        }
-
-        return false
     }
 
     private var settleScroller = OverScroller(context, DecelerateInterpolator())
@@ -373,6 +228,7 @@ class BookView(
 
     private fun abortAnimation() {
         scroller.abortAnimation()
+        settleScroller.abortAnimation()
     }
 
     private var scaleInterpolator = DecelerateInterpolator()
@@ -418,7 +274,13 @@ class BookView(
         e2: MotionEvent?,
         velocityX: Float,
         velocityY: Float
-    ): Boolean = fling(velocityX, velocityY)
+    ): Boolean {
+        val handled = fling(velocityX, velocityY)
+        if (handled) {
+            startAnimation()
+        }
+        return handled
+    }
 
     private fun fling(velocityX: Float, velocityY: Float): Boolean {
         val layoutManagerSnapshot = layoutManager ?: return false
@@ -431,54 +293,55 @@ class BookView(
 
         val currentRect = layoutManagerSnapshot.currentRect(viewState)
 
+        val populateHelper = PopulateHelper
+            .obtain(
+                viewState,
+                pagingTouchSlop,
+                layoutManager,
+                settleScroller,
+                SCROLLING_DURATION
+            )
+
         if (abs(scaledVelocityX) > abs(scaledVelocityY)) {
             // horizontal
-            if (scaledVelocityX > 0.0F && !viewState.canScrollLeft(currentRect)) {
+            if (scaledVelocityX > 0.0F && !viewState.canScrollLeft(currentRect, -pagingTouchSlop)) {
                 // left
                 Log.d(TAG, "left Page")
                 val leftRect = layoutManagerSnapshot.leftRect(viewState)
                 leftRect ?: return false
-                populateTo(
-                    leftRect,
-                    shouldPopulateHorizontal,
-                    calcDiffXToLeft, calcDiffBlank
-                )
+                populateHelper.populateToLeft(leftRect)
                 return true
-            } else if (scaledVelocityX < 0.0F && !viewState.canScrollRight(currentRect)) {
+            } else if (scaledVelocityX < 0.0F && !viewState.canScrollRight(
+                    currentRect,
+                    -pagingTouchSlop
+                )
+            ) {
                 // right
                 Log.d(TAG, "right Page")
                 val rightRect = layoutManagerSnapshot.rightRect(viewState)
                 rightRect ?: return false
-                populateTo(
-                    rightRect,
-                    shouldPopulateHorizontal,
-                    calcDiffXToRight, calcDiffBlank
-                )
+                populateHelper.populateToRight(rightRect)
                 return true
             }
         } else {
             // vertical
-            if (scaledVelocityY > 0.0F && !viewState.canScrollTop(currentRect)) {
+            if (scaledVelocityY > 0.0F && !viewState.canScrollTop(currentRect, -pagingTouchSlop)) {
                 // top
                 Log.d(TAG, "top Page")
                 val topRect = layoutManagerSnapshot.topRect(viewState)
                 topRect ?: return false
-                populateTo(
-                    topRect,
-                    shouldPopulateVertical,
-                    calcDiffBlank, calcDiffYToTop
-                )
+                populateHelper.populateToTop(topRect)
                 return true
-            } else if (scaledVelocityY < 0.0F && !viewState.canScrollBottom(currentRect)) {
+            } else if (scaledVelocityY < 0.0F && !viewState.canScrollBottom(
+                    currentRect,
+                    -pagingTouchSlop
+                )
+            ) {
                 // bottom
                 Log.d(TAG, "bottom Page")
                 val bottomRect = layoutManagerSnapshot.bottomRect(viewState)
                 bottomRect ?: return false
-                populateTo(
-                    bottomRect,
-                    shouldPopulateVertical,
-                    calcDiffBlank, calcDiffYToBottom
-                )
+                populateHelper.populateToBottom(bottomRect)
                 return true
             }
         }
@@ -498,8 +361,6 @@ class BookView(
             minY, maxY
         )
 
-        startAnimation()
-
         return true
     }
 
@@ -516,28 +377,38 @@ class BookView(
         Log.d(TAG, "onLongPress")
     }
 
+    enum class ScalingState {
+        Begin,
+        Scaling,
+        End,
+        Finish
+    }
+
+    private var scalingState = ScalingState.Finish
+        set(value) {
+            Log.d(TAG, "$field -> $value")
+            field = value
+        }
+
     override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
         detector ?: return false
 
-        Log.d(TAG, "onScaleBegin")
-        return viewState.onScaleBegin()
+        scalingState = ScalingState.Begin
+
+        return true
     }
 
     override fun onScale(detector: ScaleGestureDetector?): Boolean {
         detector ?: return false
 
-        Log.d(TAG, "onScale")
+        scalingState = ScalingState.Scaling
         return viewState.onScale(detector.scaleFactor, detector.focusX, detector.focusY)
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector?) {
         detector ?: return
 
-        Log.d(TAG, "onScaleEnd")
-        viewState.endScale()
-
-        delayedPopulate?.cancel()
-        delayedPopulate = null
+        scalingState = ScalingState.End
     }
 
     override fun onDoubleTap(e: MotionEvent?): Boolean {

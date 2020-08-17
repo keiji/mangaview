@@ -79,15 +79,6 @@ data class ViewState(
         return validate()
     }
 
-    var isScaling: Boolean = false
-
-    fun onScaleBegin(): Boolean {
-        Log.d(TAG, "onScaleBegin")
-
-        isScaling = true
-        return true
-    }
-
     fun onScale(factor: Float, focusX: Float, focusY: Float): Boolean {
         val scale = currentScale * factor
 
@@ -134,16 +125,19 @@ data class ViewState(
         return validate()
     }
 
-    fun endScale() {
-        isScaling = false
+    fun canScrollLeft(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
+        return (rectangle.left - delta) < viewport.left
     }
 
-    fun canScrollLeft(rectangle: Rectangle) = rectangle.left < viewport.left
+    fun canScrollRight(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
+        return (rectangle.right + delta) > viewport.right
+    }
 
-    fun canScrollRight(rectangle: Rectangle) = rectangle.right > viewport.right
+    fun canScrollTop(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
+        return (rectangle.top - delta) < viewport.top
+    }
 
-    fun canScrollTop(rectangle: Rectangle) = rectangle.top < viewport.top
-
-    fun canScrollBottom(rectangle: Rectangle) = rectangle.bottom > viewport.bottom
-
+    fun canScrollBottom(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
+        return (rectangle.bottom + delta) > viewport.bottom
+    }
 }
