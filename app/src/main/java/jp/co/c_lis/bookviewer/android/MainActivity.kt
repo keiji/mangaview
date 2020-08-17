@@ -2,9 +2,7 @@ package jp.co.c_lis.bookviewer.android
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import jp.co.c_lis.bookviewer.android.widget.AssetBitmapAdapter
-import jp.co.c_lis.bookviewer.android.widget.BookView
-import jp.co.c_lis.bookviewer.android.widget.HorizontalLayoutManager
+import jp.co.c_lis.bookviewer.android.widget.*
 
 private val FILE_NAMES = arrayOf(
     "sample1.png",
@@ -24,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         bookView = findViewById<BookView>(R.id.book_view).also {
-            it.layoutManager = HorizontalLayoutManager(reversed = true)
+            it.layoutManager = VerticalLayoutManager()
             it.adapter = AssetBitmapAdapter(assets, FILE_NAMES)
         }
     }

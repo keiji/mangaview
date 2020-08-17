@@ -204,12 +204,13 @@ class BookView(
                     pagingTouchSlop
                 }
 
-                PopulateHelper
-                    .obtain(
+                val layoutManagerSnapshot = layoutManager ?: return@withContext
+                layoutManagerSnapshot.populateHelper
+                    .init(
                         viewState,
-                        touchSlop,
-                        layoutManager,
+                        layoutManagerSnapshot,
                         settleScroller,
+                        touchSlop,
                         SCROLLING_DURATION
                     )
                     .populate()
@@ -293,12 +294,12 @@ class BookView(
 
         val currentRect = layoutManagerSnapshot.currentRect(viewState)
 
-        val populateHelper = PopulateHelper
-            .obtain(
+        val populateHelper = layoutManagerSnapshot.populateHelper
+            .init(
                 viewState,
-                pagingTouchSlop,
-                layoutManager,
+                layoutManagerSnapshot,
                 settleScroller,
+                pagingTouchSlop,
                 SCROLLING_DURATION
             )
 

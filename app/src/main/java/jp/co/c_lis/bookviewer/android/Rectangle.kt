@@ -11,8 +11,11 @@ data class Rectangle(
     var bottom: Float = 0.0F
 ) {
 
-    val center: Float
+    val centerX: Float
         get() = left + width / 2
+
+    val centerY: Float
+        get() = top + height / 2
 
     val width: Float
         get() = right - left
