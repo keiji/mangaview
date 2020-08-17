@@ -4,15 +4,16 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.OverScroller
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ScaleGestureDetectorCompat
 import androidx.core.view.ViewCompat
+import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.*
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class BookView(
@@ -171,14 +172,6 @@ class BookView(
 
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (scaleGestureDetector.onTouchEvent(event)) {
-            invalidate()
-        }
-        if (gestureDetector.onTouchEvent(event)) {
-            invalidate()
-            return true
-        }
-
         event ?: return super.onTouchEvent(event)
 
         when (event.action and MotionEvent.ACTION_MASK) {
@@ -189,6 +182,16 @@ class BookView(
                 delayedPopulate()
             }
         }
+
+        if (scaleGestureDetector.onTouchEvent(event)) {
+            invalidate()
+        }
+
+        if (gestureDetector.onTouchEvent(event)) {
+            invalidate()
+            return true
+        }
+
         return super.onTouchEvent(event)
     }
 
@@ -205,25 +208,35 @@ class BookView(
 
     private val populateTmp = Rectangle()
 
-    private val shouldPopulateHorizontal = fun(rect: Rectangle) = rect.width > pagingTouchSlop
+    private val shouldPopulateHorizontal = fun(rect: Rectangle?): Boolean {
+        rect ?: return false
+        return rect.width > pagingTouchSlop / viewState.currentScale
+    }
 
     private val calcDiffBlank = fun(_: Rectangle) = 0
 
     private val calcDiffXToLeft = fun(rect: Rectangle): Int {
-        return -(viewState.viewport.width - rect.width).roundToInt()
+        val result = -(viewState.viewport.width - rect.width).roundToInt()
+        return result
     }
     private val calcDiffXToRight = fun(rect: Rectangle): Int {
-        return (viewState.viewport.width - rect.width).roundToInt()
+        val result = (viewState.viewport.width - rect.width).roundToInt()
+        return result
     }
 
-    private val shouldPopulateVertical = fun(rect: Rectangle) = rect.height > pagingTouchSlop
+    private val shouldPopulateVertical = fun(rect: Rectangle?): Boolean {
+        rect ?: return false
+        return rect.height > pagingTouchSlop / viewState.currentScale
+    }
 
-    private val calcDiffXToTop = fun(rect: Rectangle): Int {
+    private val calcDiffYToTop = fun(rect: Rectangle): Int {
         return -(viewState.viewport.height - rect.height).roundToInt()
     }
-    private val calcDiffXToBottom = fun(rect: Rectangle): Int {
+    private val calcDiffYToBottom = fun(rect: Rectangle): Int {
         return (viewState.viewport.height - rect.height).roundToInt()
     }
+
+    private val shouldPopulateAlwaysTrue = fun(rect: Rectangle?) = true
 
     private fun populate() {
         Log.d(TAG, "populate!")
@@ -234,10 +247,24 @@ class BookView(
 
         val layoutManagerSnapshot = layoutManager ?: return
 
+        // detect overscroll
+        val currentRect = layoutManagerSnapshot.currentRect(viewState)
+        if (currentRect.contains(viewState.viewport)) {
+            Log.d(TAG, "not overscrolled.")
+            return
+        }
+
         val leftRect = layoutManagerSnapshot.leftRect(viewState)
         val rightRect = layoutManagerSnapshot.rightRect(viewState)
         val topRect = layoutManagerSnapshot.topRect(viewState)
         val bottomRect = layoutManagerSnapshot.bottomRect(viewState)
+
+
+        Log.d(TAG, "currentRect: $currentRect")
+        Log.d(TAG, "leftRect: $leftRect")
+        Log.d(TAG, "rightRect: $rightRect")
+        Log.d(TAG, "topRect: $topRect")
+        Log.d(TAG, "bottomRect: $bottomRect")
 
         val result = tryPopulate(
             leftRect,
@@ -250,33 +277,60 @@ class BookView(
         ) or tryPopulate(
             topRect,
             shouldPopulateVertical,
-            calcDiffBlank, calcDiffXToTop
+            calcDiffBlank, calcDiffYToTop
         ) or tryPopulate(
             bottomRect,
             shouldPopulateVertical,
-            calcDiffBlank, calcDiffXToBottom
+            calcDiffBlank, calcDiffYToBottom
         )
 
         if (!result) {
+            Log.d(TAG, "tryPopulate to current")
+            val matchHorizontalRect = arrayOf(leftRect, rightRect)
+                .filterNotNull()
+                .maxBy {
+                    val overlap = Rectangle.and(it, viewState.viewport, populateTmp)
+                    overlap ?: return@maxBy 0.0F
+                    return@maxBy overlap.width * overlap.height
+                }
+            val matchVerticalRect = arrayOf(topRect, bottomRect)
+                .filterNotNull()
+                .maxBy {
+                    val overlap = Rectangle.and(it, viewState.viewport, populateTmp)
+                    overlap ?: return@maxBy 0.0F
+                    return@maxBy overlap.width * overlap.height
+                }
+
+
             Log.d(TAG, "populate to current")
+            matchHorizontalRect?.let {
+                Log.d(TAG, "leftRect ${leftRect.toString()}")
+                Log.d(TAG, "rightRect ${rightRect.toString()}")
+                Log.d(TAG, "currentRect ${currentRect}")
+                Log.d(TAG, "matchHorizontalRect $it")
+            }
 
-            val toLeft = (leftRect != null && rightRect == null)
-            val toTop = (topRect != null && bottomRect == null)
+            val fromLeft = (matchHorizontalRect === leftRect)
+            val fromTop = (matchVerticalRect === topRect)
 
-            val calcDiffXToCurrent = if (toLeft) {
+            val calcDiffXToCurrent = if (fromLeft) {
+                Log.d(TAG, "fromLeft ${viewState.viewport}")
+                Log.d(TAG, "fromLeft ${currentRect}")
                 calcDiffXToRight
             } else {
+                Log.d(TAG, "fromRight ${viewState.viewport}")
+                Log.d(TAG, "fromRight ${currentRect}")
                 calcDiffXToLeft
             }
-            val calcDiffYToCurrent = if (toTop) {
-                calcDiffXToBottom
+            val calcDiffYToCurrent = if (fromTop) {
+                calcDiffYToTop
             } else {
-                calcDiffXToTop
+                calcDiffYToBottom
             }
 
             tryPopulate(
-                layoutManagerSnapshot.currentRect(viewState),
-                { _ -> true },
+                currentRect,
+                shouldPopulateAlwaysTrue,
                 calcDiffXToCurrent, calcDiffYToCurrent
             )
         }
@@ -286,16 +340,16 @@ class BookView(
 
     private fun tryPopulate(
         rect: Rectangle?,
-        shouldPopulate: (Rectangle) -> Boolean,
+        shouldPopulate: (Rectangle?) -> Boolean,
         dx: (Rectangle) -> Int,
         dy: (Rectangle) -> Int
     ): Boolean {
         rect ?: return false
 
-        populateTmp.set(0.0F, 0.0F, 0.0F, 0.0F)
-        Rectangle.and(rect, viewState.viewport, populateTmp)
+        val overlap = Rectangle.and(rect, viewState.viewport, populateTmp)
 
-        if (shouldPopulate(populateTmp)) {
+        Log.d(TAG, "overlap ${overlap}")
+        if (shouldPopulate(overlap)) {
             val startX = viewState.viewport.left.roundToInt()
             val startY = viewState.viewport.top.roundToInt()
 
@@ -402,7 +456,6 @@ class BookView(
         distanceX: Float,
         distanceY: Float
     ): Boolean {
-        Log.d(TAG, "onScroll")
         return viewState.onScroll(distanceX, distanceY)
     }
 
@@ -428,9 +481,10 @@ class BookView(
         detector ?: return
 
         Log.d(TAG, "onScaleEnd")
-        viewState.onScaleEnd()
+        viewState.endScale()
 
-        delayedPopulate()
+        delayedPopulate?.cancel()
+        delayedPopulate = null
     }
 
     override fun onDoubleTap(e: MotionEvent?): Boolean {

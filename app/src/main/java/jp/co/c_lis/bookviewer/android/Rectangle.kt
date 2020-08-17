@@ -58,6 +58,16 @@ data class Rectangle(
         return true
     }
 
+    fun contains(rectangle: Rectangle): Boolean {
+        if (left <= rectangle.left && right >= rectangle.right
+            && top <= rectangle.top && bottom >= rectangle.bottom
+        ) {
+            return true
+        }
+
+        return false
+    }
+
     fun relativeBy(base: Rectangle): Rectangle {
         offset(-base.left, -base.top)
         return this

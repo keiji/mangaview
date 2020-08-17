@@ -1,9 +1,7 @@
 package jp.co.c_lis.bookviewer.android.widget
 
-import android.util.Log
-import android.widget.OverScroller
+import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
-import kotlin.math.roundToInt
 
 data class ViewState(
     internal var viewWidth: Float = 0.0F,
@@ -81,7 +79,7 @@ data class ViewState(
         return validate()
     }
 
-    private var isScaling = false
+    var isScaling: Boolean = false
 
     fun onScaleBegin(): Boolean {
         Log.d(TAG, "onScaleBegin")
@@ -136,9 +134,8 @@ data class ViewState(
         return validate()
     }
 
-    fun onScaleEnd() {
-        Log.d(TAG, "onScaleEnd")
-
+    fun endScale() {
         isScaling = false
     }
+
 }
