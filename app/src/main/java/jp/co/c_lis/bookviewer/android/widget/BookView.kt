@@ -137,10 +137,8 @@ class BookView(
         }
     }
 
-    fun showPage(pageIndex: Int, smoothScroll: Boolean = false) {
+    fun showPage(rect: Rectangle, smoothScroll: Boolean = false) {
         val layoutManagerSnapshot = layoutManager ?: return
-
-        val rect = layoutManagerSnapshot.getPageRect(pageIndex)
 
         if (!smoothScroll) {
             viewState.offsetTo(
@@ -266,19 +264,19 @@ class BookView(
         Log.d(TAG, "topRect: $topRect")
         Log.d(TAG, "bottomRect: $bottomRect")
 
-        val result = tryPopulate(
+        val result = populateTo(
             leftRect,
             shouldPopulateHorizontal,
             calcDiffXToLeft, calcDiffBlank
-        ) or tryPopulate(
+        ) or populateTo(
             rightRect,
             shouldPopulateHorizontal,
             calcDiffXToRight, calcDiffBlank
-        ) or tryPopulate(
+        ) or populateTo(
             topRect,
             shouldPopulateVertical,
             calcDiffBlank, calcDiffYToTop
-        ) or tryPopulate(
+        ) or populateTo(
             bottomRect,
             shouldPopulateVertical,
             calcDiffBlank, calcDiffYToBottom
@@ -328,7 +326,7 @@ class BookView(
                 calcDiffYToBottom
             }
 
-            tryPopulate(
+            populateTo(
                 currentRect,
                 shouldPopulateAlwaysTrue,
                 calcDiffXToCurrent, calcDiffYToCurrent
@@ -338,7 +336,7 @@ class BookView(
         startAnimation()
     }
 
-    private fun tryPopulate(
+    private fun populateTo(
         rect: Rectangle?,
         shouldPopulate: (Rectangle?) -> Boolean,
         dx: (Rectangle) -> Int,
@@ -428,7 +426,62 @@ class BookView(
         val scaledVelocityX = velocityX / viewState.currentScale
         val scaledVelocityY = velocityY / viewState.currentScale
 
+        Log.d(TAG, "scaledVelocityX $scaledVelocityX")
+        Log.d(TAG, "scaledVelocityY $scaledVelocityY")
+
         val currentRect = layoutManagerSnapshot.currentRect(viewState)
+
+        if (abs(scaledVelocityX) > abs(scaledVelocityY)) {
+            // horizontal
+            if (scaledVelocityX > 0.0F && !viewState.canScrollLeft(currentRect)) {
+                // left
+                Log.d(TAG, "left Page")
+                val leftRect = layoutManagerSnapshot.leftRect(viewState)
+                leftRect ?: return false
+                populateTo(
+                    leftRect,
+                    shouldPopulateHorizontal,
+                    calcDiffXToLeft, calcDiffBlank
+                )
+                return true
+            } else if (scaledVelocityX < 0.0F && !viewState.canScrollRight(currentRect)) {
+                // right
+                Log.d(TAG, "right Page")
+                val rightRect = layoutManagerSnapshot.rightRect(viewState)
+                rightRect ?: return false
+                populateTo(
+                    rightRect,
+                    shouldPopulateHorizontal,
+                    calcDiffXToRight, calcDiffBlank
+                )
+                return true
+            }
+        } else {
+            // vertical
+            if (scaledVelocityY > 0.0F && !viewState.canScrollTop(currentRect)) {
+                // top
+                Log.d(TAG, "top Page")
+                val topRect = layoutManagerSnapshot.topRect(viewState)
+                topRect ?: return false
+                populateTo(
+                    topRect,
+                    shouldPopulateVertical,
+                    calcDiffBlank, calcDiffYToTop
+                )
+                return true
+            } else if (scaledVelocityY < 0.0F && !viewState.canScrollBottom(currentRect)) {
+                // bottom
+                Log.d(TAG, "bottom Page")
+                val bottomRect = layoutManagerSnapshot.bottomRect(viewState)
+                bottomRect ?: return false
+                populateTo(
+                    bottomRect,
+                    shouldPopulateVertical,
+                    calcDiffBlank, calcDiffYToBottom
+                )
+                return true
+            }
+        }
 
         val minX = currentRect.left.roundToInt()
         val maxX = (currentRect.right - viewState.width).roundToInt()

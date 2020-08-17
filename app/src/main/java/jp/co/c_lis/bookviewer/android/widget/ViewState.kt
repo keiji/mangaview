@@ -138,4 +138,12 @@ data class ViewState(
         isScaling = false
     }
 
+    fun canScrollLeft(rectangle: Rectangle) = rectangle.left < viewport.left
+
+    fun canScrollRight(rectangle: Rectangle) = rectangle.right > viewport.right
+
+    fun canScrollTop(rectangle: Rectangle) = rectangle.top < viewport.top
+
+    fun canScrollBottom(rectangle: Rectangle) = rectangle.bottom > viewport.bottom
+
 }
