@@ -22,8 +22,8 @@ class BookView(
     defStyleAttr: Int
 ) : View(context, attrs, defStyleAttr),
     GestureDetector.OnGestureListener,
-    ScaleGestureDetector.OnScaleGestureListener,
-    GestureDetector.OnDoubleTapListener {
+    GestureDetector.OnDoubleTapListener,
+    ScaleGestureDetector.OnScaleGestureListener {
 
     companion object {
         private val TAG = BookView::class.java.simpleName
@@ -38,7 +38,6 @@ class BookView(
 
     private val viewConfiguration: ViewConfiguration = ViewConfiguration.get(context)
     private val density = context.resources.displayMetrics.scaledDensity
-
     private val pagingTouchSlop = viewConfiguration.scaledPagingTouchSlop * density
 
     var layoutManager: LayoutManager? = null
@@ -53,6 +52,10 @@ class BookView(
             isInitialized = false
             invalidate()
         }
+
+    private val viewState = ViewState()
+
+    private var isInitialized = false
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -81,10 +84,6 @@ class BookView(
         isInitialized = true
     }
 
-    private val viewState = ViewState()
-
-    private var isInitialized = false
-
     @Suppress("MemberVisibilityCanBePrivate")
     var paint = Paint().also {
         it.isAntiAlias = true
@@ -93,6 +92,10 @@ class BookView(
 
     @Suppress("MemberVisibilityCanBePrivate")
     var coroutineScope = CoroutineScope(Dispatchers.Main)
+        set(value) {
+            field.cancel()
+            field = value
+        }
 
     private val visiblePages = ArrayList<Page>()
     private val recycleBin = ArrayList<Page>()
@@ -305,17 +308,14 @@ class BookView(
 
         if (abs(scaledVelocityX) > abs(scaledVelocityY)) {
             // horizontal
-            if (scaledVelocityX > 0.0F && !viewState.canScrollLeft(currentRect, -pagingTouchSlop)) {
+            if (scaledVelocityX > 0.0F && !viewState.canScrollLeft(currentRect)) {
                 // left
                 Log.d(TAG, "left Page")
                 val leftRect = layoutManagerSnapshot.leftRect(viewState)
                 leftRect ?: return false
                 populateHelper.populateToLeft(leftRect)
                 return true
-            } else if (scaledVelocityX < 0.0F && !viewState.canScrollRight(
-                    currentRect,
-                    -pagingTouchSlop
-                )
+            } else if (scaledVelocityX < 0.0F && !viewState.canScrollRight(currentRect)
             ) {
                 // right
                 Log.d(TAG, "right Page")
@@ -326,17 +326,14 @@ class BookView(
             }
         } else {
             // vertical
-            if (scaledVelocityY > 0.0F && !viewState.canScrollTop(currentRect, -pagingTouchSlop)) {
+            if (scaledVelocityY > 0.0F && !viewState.canScrollTop(currentRect)) {
                 // top
                 Log.d(TAG, "top Page")
                 val topRect = layoutManagerSnapshot.topRect(viewState)
                 topRect ?: return false
                 populateHelper.populateToTop(topRect)
                 return true
-            } else if (scaledVelocityY < 0.0F && !viewState.canScrollBottom(
-                    currentRect,
-                    -pagingTouchSlop
-                )
+            } else if (scaledVelocityY < 0.0F && !viewState.canScrollBottom(currentRect)
             ) {
                 // bottom
                 Log.d(TAG, "bottom Page")
@@ -452,14 +449,14 @@ class BookView(
 
         return false
     }
-}
 
-private data class Scaling(
-    val from: Float,
-    val to: Float,
-    val startTimeMillis: Long,
-    val durationMillis: Long,
-    val focusX: Float,
-    val focusY: Float,
-    val diff: Float = to - from
-)
+    private data class Scaling(
+        val from: Float,
+        val to: Float,
+        val startTimeMillis: Long,
+        val durationMillis: Long,
+        val focusX: Float,
+        val focusY: Float,
+        val diff: Float = to - from
+    )
+}
