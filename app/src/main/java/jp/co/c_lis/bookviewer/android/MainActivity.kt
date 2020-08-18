@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         bookView = findViewById<BookView>(R.id.book_view).also {
-            it.layoutManager = HorizontalRtlLayoutManager()
+            it.layoutManager = VerticalLayoutManager()
             it.adapter = AssetBitmapAdapter(assets, FILE_NAMES)
         }
     }

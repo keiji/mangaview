@@ -40,16 +40,15 @@ abstract class PopulateHelper {
     abstract fun populate()
 
     fun populateTo(
-        rect: Rectangle?,
+        pageLayout: PageLayout?,
         shouldPopulate: (Rectangle?) -> Boolean,
         dx: (Rectangle) -> Int,
         dy: (Rectangle) -> Int
     ): Boolean {
-        rect ?: return false
+        pageLayout ?: return false
 
-        val overlap = Rectangle.and(rect, viewState.viewport, populateTmp)
+        val overlap = Rectangle.and(pageLayout.position, viewState.viewport, populateTmp)
 
-        Log.d(TAG, "overlap ${overlap} $rect, ${viewState.viewport}")
         if (shouldPopulate(overlap)) {
             val startX = viewState.viewport.left.roundToInt()
             val startY = viewState.viewport.top.roundToInt()
@@ -67,16 +66,16 @@ abstract class PopulateHelper {
         return false
     }
 
-    open fun populateToLeft(leftRect: Rectangle) {
+    open fun populateToLeft(leftRect: PageLayout) {
     }
 
-    open fun populateToRight(rightRect: Rectangle) {
+    open fun populateToRight(rightRect: PageLayout) {
     }
 
-    open fun populateToTop(topRect: Rectangle) {
+    open fun populateToTop(topRect: PageLayout) {
     }
 
-    open fun populateToBottom(bottomRect: Rectangle) {
+    open fun populateToBottom(bottomRect: PageLayout) {
     }
 
 }

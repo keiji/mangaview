@@ -53,6 +53,14 @@ class BookView(
             invalidate()
         }
 
+    var pageLayoutManager: PageLayoutManager = DoublePageLayoutManager()
+        set(value) {
+            field = value
+            isInitialized = false
+            invalidate()
+        }
+
+
     private val viewState = ViewState()
 
     private var isInitialized = false
@@ -78,9 +86,8 @@ class BookView(
 
         layoutManagerSnapshot.pageList = (0 until adapterSnapshot.getPageCount())
             .map { adapterSnapshot.getPage(it) }
+        layoutManagerSnapshot.layout(viewState, pageLayoutManager)
 
-        layoutManagerSnapshot.layout(viewState)
-        viewState.viewport
         isInitialized = true
     }
 
@@ -285,7 +292,7 @@ class BookView(
         Log.d(TAG, "scaledVelocityX $scaledVelocityX")
         Log.d(TAG, "scaledVelocityY $scaledVelocityY")
 
-        val currentRect = layoutManagerSnapshot.currentRect(viewState)
+        val currentRect = layoutManagerSnapshot.currentPageLayout(viewState).position
 
         val populateHelper = layoutManagerSnapshot.populateHelper
             .init(
@@ -301,7 +308,7 @@ class BookView(
             if (scaledVelocityX > 0.0F && !viewState.canScrollLeft(currentRect)) {
                 // left
                 Log.d(TAG, "left Page")
-                val leftRect = layoutManagerSnapshot.leftRect(viewState)
+                val leftRect = layoutManagerSnapshot.leftPageLayout(viewState)
                 leftRect ?: return false
                 populateHelper.populateToLeft(leftRect)
                 return true
@@ -309,7 +316,7 @@ class BookView(
             ) {
                 // right
                 Log.d(TAG, "right Page")
-                val rightRect = layoutManagerSnapshot.rightRect(viewState)
+                val rightRect = layoutManagerSnapshot.rightPageLayout(viewState)
                 rightRect ?: return false
                 populateHelper.populateToRight(rightRect)
                 return true
@@ -319,7 +326,7 @@ class BookView(
             if (scaledVelocityY > 0.0F && !viewState.canScrollTop(currentRect)) {
                 // top
                 Log.d(TAG, "top Page")
-                val topRect = layoutManagerSnapshot.topRect(viewState)
+                val topRect = layoutManagerSnapshot.topPageLayout(viewState)
                 topRect ?: return false
                 populateHelper.populateToTop(topRect)
                 return true
@@ -327,7 +334,7 @@ class BookView(
             ) {
                 // bottom
                 Log.d(TAG, "bottom Page")
-                val bottomRect = layoutManagerSnapshot.bottomRect(viewState)
+                val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewState)
                 bottomRect ?: return false
                 populateHelper.populateToBottom(bottomRect)
                 return true

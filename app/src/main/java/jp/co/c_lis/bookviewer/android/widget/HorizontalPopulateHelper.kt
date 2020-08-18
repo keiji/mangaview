@@ -33,14 +33,14 @@ class HorizontalPopulateHelper : PopulateHelper() {
         val layoutManagerSnapshot = layoutManager ?: return
 
         // detect overscroll
-        val currentRect = layoutManagerSnapshot.currentRect(viewState)
-        if (currentRect.contains(viewState.viewport)) {
+        val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
+        if (currentRect.position.contains(viewState.viewport)) {
             Log.d(TAG, "not overscrolled.")
             return
         }
 
-        val leftRect = layoutManagerSnapshot.leftRect(viewState)
-        val rightRect = layoutManagerSnapshot.rightRect(viewState)
+        val leftRect = layoutManagerSnapshot.leftPageLayout(viewState)
+        val rightRect = layoutManagerSnapshot.rightPageLayout(viewState)
 
         Log.d(TAG, "currentRect: $currentRect")
         Log.d(TAG, "leftRect: $leftRect")
@@ -60,8 +60,8 @@ class HorizontalPopulateHelper : PopulateHelper() {
             Log.d(TAG, "tryPopulate to current")
             val matchHorizontalRect = arrayOf(leftRect, rightRect)
                 .filterNotNull()
-                .maxBy {
-                    Rectangle.jaccardIndex(it, viewState.viewport, populateTmp)
+                .maxByOrNull {
+                    Rectangle.jaccardIndex(it.position, viewState.viewport, populateTmp)
                 }
 
             Log.d(TAG, "populate to current")
@@ -92,7 +92,7 @@ class HorizontalPopulateHelper : PopulateHelper() {
         }
     }
 
-    override fun populateToLeft(leftRect: Rectangle) {
+    override fun populateToLeft(leftRect: PageLayout) {
         populateTo(
             leftRect,
             shouldPopulateHorizontal,
@@ -100,7 +100,7 @@ class HorizontalPopulateHelper : PopulateHelper() {
         )
     }
 
-    override fun populateToRight(rightRect: Rectangle) {
+    override fun populateToRight(rightRect: PageLayout) {
         populateTo(
             rightRect,
             shouldPopulateHorizontal,

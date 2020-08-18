@@ -1,6 +1,5 @@
 package jp.co.c_lis.bookviewer.android.widget
 
-import android.widget.OverScroller
 import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlin.math.roundToInt
@@ -33,14 +32,14 @@ class VerticalPopulateHelper : PopulateHelper() {
         val layoutManagerSnapshot = layoutManager ?: return
 
         // detect overscroll
-        val currentRect = layoutManagerSnapshot.currentRect(viewState)
-        if (currentRect.contains(viewState.viewport)) {
+        val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
+        if (currentRect.position.contains(viewState.viewport)) {
             Log.d(TAG, "not overscrolled.")
             return
         }
 
-        val topRect = layoutManagerSnapshot.topRect(viewState)
-        val bottomRect = layoutManagerSnapshot.bottomRect(viewState)
+        val topRect = layoutManagerSnapshot.topPageLayout(viewState)
+        val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewState)
 
         Log.d(TAG, "currentRect: $currentRect")
         Log.d(TAG, "topRect: $topRect")
@@ -61,7 +60,7 @@ class VerticalPopulateHelper : PopulateHelper() {
             val matchVerticalRect = arrayOf(topRect, bottomRect)
                 .filterNotNull()
                 .maxBy {
-                    Rectangle.jaccardIndex(it, viewState.viewport, populateTmp)
+                    Rectangle.jaccardIndex(it.position, viewState.viewport, populateTmp)
                 }
 
             Log.d(TAG, "populate to current")
@@ -88,7 +87,7 @@ class VerticalPopulateHelper : PopulateHelper() {
         }
     }
 
-    override fun populateToTop(topRect: Rectangle) {
+    override fun populateToTop(topRect: PageLayout) {
         populateTo(
             topRect,
             shouldPopulateVertical,
@@ -96,7 +95,7 @@ class VerticalPopulateHelper : PopulateHelper() {
         )
     }
 
-    override fun populateToBottom(bottomRect: Rectangle) {
+    override fun populateToBottom(bottomRect: PageLayout) {
         populateTo(
             bottomRect,
             shouldPopulateVertical,

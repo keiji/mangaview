@@ -14,7 +14,6 @@ abstract class ContentLayer(
     private val alignVertical: PageVerticalAlign = PageVerticalAlign.Middle
 ) {
 
-
     abstract val contentWidth: Float
     abstract val contentHeight: Float
 
@@ -37,8 +36,8 @@ abstract class ContentLayer(
         prepareContent(viewState, page)
 
         minScale = min(
-            viewState.viewWidth / contentWidth,
-            viewState.viewHeight / contentHeight
+            page.position.width / contentWidth,
+            page.position.height / contentHeight
         )
 
         val scaledContentWidth = contentWidth * minScale

@@ -1,6 +1,5 @@
 package jp.co.c_lis.bookviewer.android.widget
 
-import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlin.math.*
 
 class HorizontalLtrLayoutManager : LayoutManager() {
@@ -11,36 +10,38 @@ class HorizontalLtrLayoutManager : LayoutManager() {
 
     override val populateHelper: PopulateHelper = HorizontalPopulateHelper()
 
-    override fun currentPageIndex(
+    override fun currentPageLayoutIndex(
         viewState: ViewState
     ): Int = abs(viewState.viewport.centerX / viewState.viewWidth).toInt()
 
-    override fun leftRect(viewState: ViewState): Rectangle? {
-        val leftIndex = currentPageIndex(viewState) - 1
+    override fun leftPageLayout(viewState: ViewState): PageLayout? {
+        val leftIndex = currentPageLayoutIndex(viewState) - 1
         if (leftIndex < 0) {
             return null
         }
-        return getPageRect(leftIndex)
+        return getPageLayout(leftIndex)
 
     }
 
-    override fun rightRect(viewState: ViewState): Rectangle? {
-        val rightIndex = currentPageIndex(viewState) + 1
-        if (rightIndex >= pageList.size) {
+    override fun rightPageLayout(viewState: ViewState): PageLayout? {
+        val rightIndex = currentPageLayoutIndex(viewState) + 1
+        if (rightIndex >= pageLayoutList.size) {
             return null
         }
-        return getPageRect(rightIndex)
+        return getPageLayout(rightIndex)
     }
 
-    override fun layout(viewState: ViewState) {
+    override fun layout(viewState: ViewState, pageLayoutManager: PageLayoutManager) {
+
+        pageLayoutList = pageLayoutManager.init(pageList)
 
         // layout pages
-        for (index in pageList.indices) {
-            val page = pageList[index]
+        for (index in pageLayoutList.indices) {
+            val pageContainer = pageLayoutList[index]
 
             val positionLeft = viewState.viewWidth * index
 
-            page.position.also {
+            pageContainer.position.also {
                 it.left = positionLeft
                 it.right = it.left + viewState.viewWidth
                 it.top = 0.0F
@@ -48,21 +49,26 @@ class HorizontalLtrLayoutManager : LayoutManager() {
             }
         }
 
+        // layout page
+        pageList.forEach {
+            pageLayoutManager.add(it)
+        }
+
         viewState.scrollableArea.also { area ->
-            area.left = pageList.minBy { it.position.left }?.position?.left ?: 0.0F
-            area.right = pageList.maxBy { it.position.right }?.position?.right ?: 0.0F
-            area.top = pageList.minBy { it.position.top }?.position?.top ?: 0.0F
-            area.bottom = pageList.maxBy { it.position.bottom }?.position?.bottom ?: 0.0F
+            area.left = pageList.minByOrNull { it.position.left }?.position?.left ?: 0.0F
+            area.right = pageList.maxByOrNull { it.position.right }?.position?.right ?: 0.0F
+            area.top = pageList.minByOrNull { it.position.top }?.position?.top ?: 0.0F
+            area.bottom = pageList.maxByOrNull { it.position.bottom }?.position?.bottom ?: 0.0F
         }
 
         viewState.offset(-viewState.viewWidth, 0.0F)
     }
 
-    override fun calcFirstVisiblePageIndex(viewState: ViewState): Int {
+    override fun calcFirstVisiblePageLayoutIndex(viewState: ViewState): Int {
         return abs(floor(viewState.viewport.left / viewState.viewWidth)).toInt()
     }
 
-    override fun calcEndVisiblePageIndex(viewState: ViewState): Int {
+    override fun calcEndVisiblePageLayoutIndex(viewState: ViewState): Int {
         return abs(ceil(viewState.viewport.left / viewState.viewWidth)).toInt()
     }
 }
