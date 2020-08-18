@@ -146,6 +146,9 @@ data class Rectangle(
     }
 
     fun equals(rect: Rectangle, delta: Float): Boolean {
+        if (this === rect) {
+            return true
+        }
         if (floatIsDifferent(left, rect.left, delta)) {
             return false
         }

@@ -16,7 +16,7 @@ class Page(
     val position = Rectangle()
 
     val contentSrc = Rectangle()
-    val destOnView = Rectangle()
+    val projection = Rectangle()
 
     internal val layers = ArrayList<ContentLayer>()
 
@@ -31,11 +31,11 @@ class Page(
             .and(position)
             ?.relativeBy(position)
 
-        destOnView
+        projection
             .set(viewState.viewport)
             .and(position)
             ?.relativeBy(viewState.viewport)
-        normalize(destOnView, viewState)
+        normalize(projection, viewState)
 
         var result = true
 

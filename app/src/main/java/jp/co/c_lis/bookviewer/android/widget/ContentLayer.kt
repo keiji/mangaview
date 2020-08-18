@@ -26,7 +26,7 @@ abstract class ContentLayer(
     var paddingBottom = 0
 
     val contentSrc = Rectangle()
-    val destOnView = Rectangle()
+    val projection = Rectangle()
 
     abstract suspend fun prepareContent(viewState: ViewState, page: Page)
 
@@ -97,7 +97,7 @@ abstract class ContentLayer(
         }
 
         contentSrc.set(page.contentSrc)
-        destOnView.set(page.destOnView)
+        projection.set(page.projection)
 
         return onDraw(canvas, viewState, paint, coroutineScope)
     }

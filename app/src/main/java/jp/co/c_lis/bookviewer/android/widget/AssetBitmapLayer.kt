@@ -3,6 +3,8 @@ package jp.co.c_lis.bookviewer.android.widget
 import android.content.res.AssetManager
 import android.graphics.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 class AssetBitmapLayer(
@@ -26,11 +28,12 @@ class AssetBitmapLayer(
     override val isPrepared: Boolean
         get() = bitmap != null
 
-    override suspend fun prepareContent(viewState: ViewState, page: Page) {
-        bitmap = assetManager.open(fileName).use {
-            BitmapFactory.decodeStream(it)
+    override suspend fun prepareContent(viewState: ViewState, page: Page) =
+        withContext(Dispatchers.IO) {
+            bitmap = assetManager.open(fileName).use {
+                BitmapFactory.decodeStream(it)
+            }
         }
-    }
 
     private val srcRect = Rect()
     private val dstRect = RectF()
@@ -50,10 +53,10 @@ class AssetBitmapLayer(
             it.bottom = (contentSrc.bottom / minScale).roundToInt() - paddingBottom
         }
         dstRect.also {
-            it.left = destOnView.left
-            it.right = destOnView.right
-            it.top = destOnView.top
-            it.bottom = destOnView.bottom
+            it.left = projection.left
+            it.right = projection.right
+            it.top = projection.top
+            it.bottom = projection.bottom
         }
 
         canvas?.drawBitmap(
