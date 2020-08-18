@@ -431,7 +431,7 @@ class BookView(
     override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
         e ?: return false
 
-        Log.d(TAG, "onDoubleTapEvent")
+        Log.d(TAG, "onDoubleTapEvent ${e.action}")
 
         when (e.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_UP -> {
@@ -453,7 +453,8 @@ class BookView(
         val startTimeMillis: Long,
         val durationMillis: Long,
         val focusX: Float,
-        val focusY: Float,
+        val focusY: Float
+    ) {
         val diff: Float = to - from
-    )
+    }
 }
