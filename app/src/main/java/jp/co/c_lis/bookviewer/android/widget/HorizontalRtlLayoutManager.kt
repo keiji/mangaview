@@ -37,11 +37,11 @@ class HorizontalRtlLayoutManager : LayoutManager() {
 
         // layout pageContainer
         for (index in pageLayoutList.indices) {
-            val pageContainer = pageLayoutList[index]
+            val pageLayout = pageLayoutList[index]
 
             val positionLeft = viewState.viewWidth * -(index + 1)
 
-            pageContainer.position.also {
+            pageLayout.position.also {
                 it.left = positionLeft
                 it.right = it.left + viewState.viewWidth
                 it.top = 0.0F

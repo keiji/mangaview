@@ -1,13 +1,12 @@
 package jp.co.c_lis.bookviewer.android.widget
 
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Rect
+import android.view.View
+import android.view.ViewGroup
 import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
-import kotlin.math.roundToInt
 
 class Page(
     val index: Int
@@ -47,7 +46,7 @@ class Page(
             .set(viewState.viewport)
             .and(position)
             ?.relativeBy(viewState.viewport)
-        normalize(projection, viewState)
+        project(projection, viewState, projection)
 
         var result = true
 
@@ -60,19 +59,20 @@ class Page(
         return result
     }
 
-    private fun normalize(
+    private fun project(
         rectangle: Rectangle,
-        viewState: ViewState
+        viewState: ViewState,
+        result: Rectangle
     ) {
         val leftRatio = rectangle.left / viewState.scaledWidth
         val rightRatio = rectangle.right / viewState.scaledWidth
         val topRatio = rectangle.top / viewState.scaledHeight
         val bottomRatio = rectangle.bottom / viewState.scaledHeight
 
-        rectangle.left = viewState.viewWidth * leftRatio
-        rectangle.right = viewState.viewWidth * rightRatio
-        rectangle.top = viewState.viewHeight * topRatio
-        rectangle.bottom = viewState.viewHeight * bottomRatio
+        result.left = viewState.viewWidth * leftRatio
+        result.right = viewState.viewWidth * rightRatio
+        result.top = viewState.viewHeight * topRatio
+        result.bottom = viewState.viewHeight * bottomRatio
     }
 
     fun recycle() {

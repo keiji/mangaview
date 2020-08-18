@@ -7,7 +7,7 @@ class AssetBitmapAdapter(
     private val fileNames: Array<String>
 ) : PageAdapter() {
 
-    override fun getPageCount() = fileNames.size
+    override val pageCount = fileNames.size
 
     override fun getPage(index: Int): Page {
         return Page(index).also {

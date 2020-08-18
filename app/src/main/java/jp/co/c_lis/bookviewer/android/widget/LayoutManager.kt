@@ -1,6 +1,5 @@
 package jp.co.c_lis.bookviewer.android.widget
 
-import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlin.math.max
 import kotlin.math.min
 
@@ -24,8 +23,8 @@ abstract class LayoutManager {
     open fun topPageLayout(viewState: ViewState): PageLayout? = null
     open fun bottomPageLayout(viewState: ViewState): PageLayout? = null
 
-    fun getPageLayout(pageIndex: Int): PageLayout {
-        return pageLayoutList[pageIndex]
+    fun getPageLayout(index: Int): PageLayout {
+        return pageLayoutList[index]
     }
 
     fun visiblePages(

@@ -58,15 +58,6 @@ abstract class ContentLayer {
         val paddingVertical = page.position.height - scaledContentHeight
 
         alignment(paddingHorizontal, paddingVertical)
-
-        Log.d(
-            TAG,
-            "${page.index} $alignHorizontal" +
-                    " paddingLeft:$paddingLeft," +
-                    " paddingRight:$paddingRight," +
-                    " paddingTop:$paddingTop," +
-                    " paddingBottom:$paddingBottom"
-        )
     }
 
     private fun alignment(paddingHorizontal: Float, paddingVertical: Float) {
@@ -120,6 +111,8 @@ abstract class ContentLayer {
 
         contentSrc.set(page.contentSrc)
         projection.set(page.projection)
+
+        Log.d(TAG, "contentSrc", contentSrc)
 
         return onDraw(canvas, viewState, paint, coroutineScope)
     }

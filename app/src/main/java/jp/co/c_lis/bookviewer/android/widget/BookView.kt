@@ -84,7 +84,7 @@ class BookView(
         val adapterSnapshot = adapter ?: return
         val layoutManagerSnapshot = layoutManager ?: return
 
-        layoutManagerSnapshot.pageList = (0 until adapterSnapshot.getPageCount())
+        layoutManagerSnapshot.pageList = (0 until adapterSnapshot.pageCount)
             .map { adapterSnapshot.getPage(it) }
         layoutManagerSnapshot.layout(viewState, pageLayoutManager)
 
@@ -312,8 +312,7 @@ class BookView(
                 leftRect ?: return false
                 populateHelper.populateToLeft(leftRect)
                 return true
-            } else if (scaledVelocityX < 0.0F && !viewState.canScrollRight(currentRect)
-            ) {
+            } else if (scaledVelocityX < 0.0F && !viewState.canScrollRight(currentRect)) {
                 // right
                 Log.d(TAG, "right Page")
                 val rightRect = layoutManagerSnapshot.rightPageLayout(viewState)
@@ -330,8 +329,7 @@ class BookView(
                 topRect ?: return false
                 populateHelper.populateToTop(topRect)
                 return true
-            } else if (scaledVelocityY < 0.0F && !viewState.canScrollBottom(currentRect)
-            ) {
+            } else if (scaledVelocityY < 0.0F && !viewState.canScrollBottom(currentRect)) {
                 // bottom
                 Log.d(TAG, "bottom Page")
                 val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewState)
