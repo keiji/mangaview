@@ -1,13 +1,14 @@
 package jp.co.c_lis.bookviewer.android.widget
 
-import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
+import kotlin.math.max
+import kotlin.math.min
 
 data class ViewState(
     internal var viewWidth: Float = 0.0F,
     internal var viewHeight: Float = 0.0F,
-    internal var scrollX: Float = 0.0F,
-    internal var scrollY: Float = 0.0F,
+    internal var currentX: Float = 0.0F,
+    internal var currentY: Float = 0.0F,
     internal var currentScale: Float = 1.0F,
     internal val viewport: Rectangle = Rectangle(0.0F, 0.0F, viewWidth, viewHeight),
     internal val scrollableArea: Rectangle = Rectangle(0.0F, 0.0F, 1.0F, 1.0F)
@@ -20,20 +21,20 @@ data class ViewState(
     var minScale = 1.0F
     var maxScale = 5.0F
 
-    val width: Float
+    val scaledWidth: Float
         get() = viewWidth / currentScale
 
-    val height: Float
+    val scaledHeight: Float
         get() = viewHeight / currentScale
 
     private fun validate(): Boolean {
         var result = true
 
         viewport.set(
-            scrollX,
-            scrollY,
-            scrollX + width,
-            scrollY + height
+            currentX,
+            currentY,
+            currentX + scaledWidth,
+            currentY + scaledHeight
         )
 
         if (viewport.left < scrollableArea.left) {
@@ -54,35 +55,27 @@ data class ViewState(
         return result
     }
 
-    fun onScroll(
+    fun scroll(
         distanceX: Float,
         distanceY: Float
-    ): Boolean = offset(
-        distanceX / currentScale,
-        distanceY / currentScale
-    )
+    ): Boolean = offset(distanceX, distanceY)
 
     fun offset(
         offsetX: Float,
         offsetY: Float
-    ): Boolean {
-        scrollX += offsetX
-        scrollY += offsetY
+    ) = offsetTo(currentX + offsetX, currentY + offsetY)
+
+    fun offsetTo(x: Float, y: Float): Boolean {
+        currentX = x
+        currentY = y
 
         return validate()
     }
 
-    fun offsetTo(x: Int, y: Int): Boolean {
-        scrollX = x.toFloat()
-        scrollY = y.toFloat()
-
-        return validate()
-    }
-
-    fun onScale(factor: Float, focusX: Float, focusY: Float): Boolean {
+    fun scale(factor: Float, focusX: Float, focusY: Float): Boolean {
         val scale = currentScale * factor
 
-        val result = setScale(
+        val result = scaleTo(
             scale,
             focusX,
             focusY
@@ -91,19 +84,12 @@ data class ViewState(
         return result
     }
 
-    fun setScale(
+    fun scaleTo(
         scale: Float,
         focusX: Float,
         focusY: Float
     ): Boolean {
-        var newScale = scale
-
-        if (maxScale < newScale) {
-            newScale = maxScale
-        }
-        if (minScale > newScale) {
-            newScale = minScale
-        }
+        val newScale = max(min(scale, maxScale), minScale)
         if (currentScale == newScale) {
             return false
         }
@@ -114,11 +100,10 @@ data class ViewState(
         val newViewportWidth = viewWidth / newScale
         val newViewportHeight = viewHeight / newScale
 
-        val diffX = newViewportWidth - width
-        val diffY = newViewportHeight - height
+        val diffX = scaledWidth - newViewportWidth
+        val diffY = scaledHeight - newViewportHeight
 
-        scrollX -= diffX * focusXRatio
-        scrollY -= diffY * focusYRatio
+        offset(diffX * focusXRatio, diffY * focusYRatio)
 
         currentScale = newScale
 

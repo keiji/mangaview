@@ -141,13 +141,8 @@ class BookView(
     }
 
     fun showPage(rect: Rectangle, smoothScroll: Boolean = false) {
-        val layoutManagerSnapshot = layoutManager ?: return
-
         if (!smoothScroll) {
-            viewState.offsetTo(
-                rect.left.roundToInt(),
-                rect.top.roundToInt()
-            )
+            viewState.offsetTo(rect.left, rect.top)
             invalidate()
             return
         }
@@ -179,7 +174,7 @@ class BookView(
                 abortAnimation()
             }
             MotionEvent.ACTION_UP -> {
-                delayedPopulate()
+                populate()
             }
         }
 
@@ -195,32 +190,27 @@ class BookView(
         return super.onTouchEvent(event)
     }
 
-    private var delayedPopulate: Job? = null
+    private fun populate() {
+        val layoutManagerSnapshot = layoutManager ?: return
 
-    private fun delayedPopulate() {
-        delayedPopulate = coroutineScope.launch(Dispatchers.Unconfined) {
-            delay(200)
-            withContext(Dispatchers.Main) {
-                val touchSlop = if (scalingState == ScalingState.End) {
-                    Float.MAX_VALUE
-                } else {
-                    pagingTouchSlop
-                }
-
-                val layoutManagerSnapshot = layoutManager ?: return@withContext
-                layoutManagerSnapshot.populateHelper
-                    .init(
-                        viewState,
-                        layoutManagerSnapshot,
-                        settleScroller,
-                        touchSlop,
-                        SCROLLING_DURATION
-                    )
-                    .populate()
-                startAnimation()
-                scalingState = ScalingState.Finish
-            }
+        val touchSlop = if (scalingState == ScalingState.End) {
+            Float.MAX_VALUE
+        } else {
+            pagingTouchSlop
         }
+
+        layoutManagerSnapshot.populateHelper
+            .init(
+                viewState,
+                layoutManagerSnapshot,
+                settleScroller,
+                touchSlop,
+                SCROLLING_DURATION
+            )
+            .populate()
+        startAnimation()
+
+        scalingState = ScalingState.Finish
     }
 
     private var settleScroller = OverScroller(context, DecelerateInterpolator())
@@ -243,12 +233,12 @@ class BookView(
         super.computeScroll()
 
         if (!scroller.isFinished && scroller.computeScrollOffset()) {
-            viewState.offsetTo(scroller.currX, scroller.currY)
+            viewState.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
             ViewCompat.postInvalidateOnAnimation(this)
         }
 
         if (!settleScroller.isFinished && settleScroller.computeScrollOffset()) {
-            viewState.offsetTo(settleScroller.currX, settleScroller.currY)
+            viewState.offsetTo(settleScroller.currX.toFloat(), settleScroller.currY.toFloat())
             ViewCompat.postInvalidateOnAnimation(this)
         }
 
@@ -257,7 +247,7 @@ class BookView(
             val input = elapsed.toFloat() / it.durationMillis
             val scaleFactor = scaleInterpolator.getInterpolation(input)
             val newScale = it.from + it.diff * scaleFactor
-            viewState.setScale(newScale, it.focusX, it.focusY)
+            viewState.scaleTo(newScale, it.focusX, it.focusY)
 
             if (input > 1.0F) {
                 scaling = null
@@ -345,14 +335,14 @@ class BookView(
         }
 
         val minX = currentRect.left.roundToInt()
-        val maxX = (currentRect.right - viewState.width).roundToInt()
+        val maxX = (currentRect.right - viewState.scaledWidth).roundToInt()
 
         val minY = currentRect.top.roundToInt()
-        val maxY = (currentRect.bottom - viewState.height).roundToInt()
+        val maxY = (currentRect.bottom - viewState.scaledHeight).roundToInt()
 
         scroller.fling(
-            viewState.scrollX.roundToInt(),
-            viewState.scrollY.roundToInt(),
+            viewState.currentX.roundToInt(),
+            viewState.currentY.roundToInt(),
             -scaledVelocityX.roundToInt(),
             -scaledVelocityY.roundToInt(),
             minX, maxX,
@@ -367,9 +357,10 @@ class BookView(
         e2: MotionEvent?,
         distanceX: Float,
         distanceY: Float
-    ): Boolean {
-        return viewState.onScroll(distanceX, distanceY)
-    }
+    ): Boolean = viewState.scroll(
+        distanceX / viewState.currentScale,
+        distanceY / viewState.currentScale
+    )
 
     override fun onLongPress(e: MotionEvent?) {
         Log.d(TAG, "onLongPress")
@@ -384,7 +375,10 @@ class BookView(
 
     private var scalingState = ScalingState.Finish
         set(value) {
-            Log.d(TAG, "$field -> $value")
+            if (field == value) {
+                return
+            }
+            Log.d(TAG, "ScalingState changed: $field -> $value")
             field = value
         }
 
@@ -400,7 +394,7 @@ class BookView(
         detector ?: return false
 
         scalingState = ScalingState.Scaling
-        return viewState.onScale(detector.scaleFactor, detector.focusX, detector.focusY)
+        return viewState.scale(detector.scaleFactor, detector.focusX, detector.focusY)
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector?) {
@@ -409,21 +403,9 @@ class BookView(
         scalingState = ScalingState.End
     }
 
-    override fun onDoubleTap(e: MotionEvent?): Boolean {
-        e ?: return false
-
-        delayedPopulate?.cancel()
-        delayedPopulate = null
-
-        Log.d(TAG, "onDoubleTap")
-
-        scale(2.5F, e.x, e.y, smoothScale = true)
-        return true
-    }
-
     private fun scale(scale: Float, focusX: Float, focusY: Float, smoothScale: Boolean = false) {
         if (!smoothScale) {
-            viewState.setScale(scale, focusX, focusY)
+            viewState.scaleTo(scale, focusX, focusY)
             invalidate()
             return
         }
@@ -437,10 +419,25 @@ class BookView(
         startAnimation()
     }
 
+    override fun onDoubleTap(e: MotionEvent?): Boolean {
+        e ?: return false
+
+        Log.d(TAG, "onDoubleTap")
+
+        scale(2.5F, e.x, e.y, smoothScale = true)
+        return true
+    }
+
     override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
+        e ?: return false
 
         Log.d(TAG, "onDoubleTapEvent")
 
+        when (e.action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_UP -> {
+                abortAnimation()
+            }
+        }
         return true
     }
 

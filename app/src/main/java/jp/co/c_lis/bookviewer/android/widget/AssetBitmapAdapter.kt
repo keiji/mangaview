@@ -9,9 +9,9 @@ class AssetBitmapAdapter(
 
     override fun getPageCount() = fileNames.size
 
-    override fun getPage(number: Int): Page {
-        return Page(number).also {
-            it.layers.add(AssetBitmapLayer(assetManager, fileNames[number]))
+    override fun getPage(index: Int): Page {
+        return Page(index).also {
+            it.layers.add(AssetBitmapLayer(assetManager, fileNames[index]))
         }
     }
 }

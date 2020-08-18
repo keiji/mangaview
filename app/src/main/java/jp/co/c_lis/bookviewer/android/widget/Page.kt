@@ -7,7 +7,7 @@ import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
 
 class Page(
-    val number: Int
+    val index: Int
 ) {
     companion object {
         private val TAG = Page::class.java.simpleName
@@ -52,10 +52,10 @@ class Page(
         rectangle: Rectangle,
         viewState: ViewState
     ) {
-        val leftRatio = rectangle.left / viewState.width
-        val rightRatio = rectangle.right / viewState.width
-        val topRatio = rectangle.top / viewState.height
-        val bottomRatio = rectangle.bottom / viewState.height
+        val leftRatio = rectangle.left / viewState.scaledWidth
+        val rightRatio = rectangle.right / viewState.scaledWidth
+        val topRatio = rectangle.top / viewState.scaledHeight
+        val bottomRatio = rectangle.bottom / viewState.scaledHeight
 
         rectangle.left = viewState.viewWidth * leftRatio
         rectangle.right = viewState.viewWidth * rightRatio
@@ -64,7 +64,7 @@ class Page(
     }
 
     fun recycle() {
-        Log.d(TAG, "recycle ${number}")
+        Log.d(TAG, "recycle ${index}")
 
         layers.forEach {
             it.recycle()
