@@ -2,7 +2,9 @@ package jp.co.c_lis.bookviewer.android.widget
 
 import jp.co.c_lis.bookviewer.android.Rectangle
 
-class DoublePageLayout : PageLayout() {
+class DoublePageLayout(
+    private val isSpread: Boolean
+) : PageLayout() {
 
     override val isFilled: Boolean
         get() = (oddPage != null && evenPage != null)
@@ -21,6 +23,9 @@ class DoublePageLayout : PageLayout() {
                 it.top = position.top
                 it.bottom = position.bottom
             }
+            if (isSpread) {
+                page.setAlignment(PageHorizontalAlign.Left)
+            }
             evenPage = page
 
         } else {
@@ -30,6 +35,9 @@ class DoublePageLayout : PageLayout() {
                 it.right = position.right
                 it.top = position.top
                 it.bottom = position.bottom
+            }
+            if (isSpread) {
+                page.setAlignment(PageHorizontalAlign.Right)
             }
             oddPage = page
         }
@@ -58,6 +66,19 @@ class DoublePageLayout : PageLayout() {
         tmp.set(oddPageSnapshot.position)
         oddPageSnapshot.position.set(evenPageSnapshot.position)
         evenPageSnapshot.position.set(tmp)
+
+        if (isSpread) {
+            when (isFlip) {
+                true -> {
+                    oddPageSnapshot.setAlignment(PageHorizontalAlign.Left)
+                    evenPageSnapshot.setAlignment(PageHorizontalAlign.Right)
+                }
+                false -> {
+                    oddPageSnapshot.setAlignment(PageHorizontalAlign.Right)
+                    evenPageSnapshot.setAlignment(PageHorizontalAlign.Left)
+                }
+            }
+        }
 
         isFlip = !isFlip
     }

@@ -1,6 +1,8 @@
 package jp.co.c_lis.bookviewer.android.widget
 
-class DoublePageLayoutManager : PageLayoutManager() {
+class DoublePageLayoutManager(
+    private val isSpread: Boolean = true
+) : PageLayoutManager() {
 
     override fun getCount(pageCount: Int): Int {
         return pageCount / 2 + if (pageCount % 2 == 1) {
@@ -15,7 +17,7 @@ class DoublePageLayoutManager : PageLayoutManager() {
 
         pageLayoutList.also {
             it.clear()
-            it.addAll((0 until containerCount).map { DoublePageLayout() })
+            it.addAll((0 until containerCount).map { DoublePageLayout(isSpread) })
         }
 
         return pageLayoutList

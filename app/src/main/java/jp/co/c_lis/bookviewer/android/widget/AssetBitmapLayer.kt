@@ -2,6 +2,7 @@ package jp.co.c_lis.bookviewer.android.widget
 
 import android.content.res.AssetManager
 import android.graphics.*
+import jp.co.c_lis.bookviewer.android.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,9 +11,7 @@ import kotlin.math.roundToInt
 class AssetBitmapLayer(
     private val assetManager: AssetManager,
     private val fileName: String,
-    alignHorizontal: PageHorizontalAlign = PageHorizontalAlign.Center,
-    alignVertical: PageVerticalAlign = PageVerticalAlign.Middle
-) : ContentLayer(alignHorizontal, alignVertical) {
+) : ContentLayer() {
 
     companion object {
         private val TAG = AssetBitmapLayer::class.java.simpleName
@@ -46,11 +45,20 @@ class AssetBitmapLayer(
     ): Boolean {
         val bitmapSnapshot = bitmap ?: return false
 
+        Log.d(
+            TAG,
+            "paddingLeft:$paddingLeft," +
+                    " paddingRight:$paddingRight," +
+                    " paddingTop:$paddingTop," +
+                    " paddingBottom:$paddingBottom"
+        )
+
         srcRect.also {
-            it.left = (contentSrc.left / minScale).roundToInt() - paddingLeft
-            it.right = (contentSrc.right / minScale).roundToInt() - paddingRight
-            it.top = (contentSrc.top / minScale).roundToInt() - paddingTop
-            it.bottom = (contentSrc.bottom / minScale).roundToInt() - paddingBottom
+            it.left = (contentSrc.left / minScale).roundToInt()
+            it.right = (contentSrc.right / minScale).roundToInt()
+            it.top = (contentSrc.top / minScale).roundToInt()
+            it.bottom = (contentSrc.bottom / minScale).roundToInt()
+            it.offset(-paddingLeft, -paddingTop)
         }
         dstRect.also {
             it.left = projection.left

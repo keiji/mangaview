@@ -2,17 +2,28 @@ package jp.co.c_lis.bookviewer.android.widget
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-abstract class ContentLayer(
-    private val alignHorizontal: PageHorizontalAlign = PageHorizontalAlign.Center,
-    private val alignVertical: PageVerticalAlign = PageVerticalAlign.Middle
-) {
+abstract class ContentLayer {
+
+    companion object {
+        private val TAG = ContentLayer::class.java.simpleName
+    }
+
+    private var alignHorizontal: PageHorizontalAlign = PageHorizontalAlign.Center
+    private var alignVertical: PageVerticalAlign = PageVerticalAlign.Middle
+
+    fun setAlignment(horizontal: PageHorizontalAlign, vertical: PageVerticalAlign) {
+        alignHorizontal = horizontal
+        alignVertical = vertical
+    }
 
     abstract val contentWidth: Float
     abstract val contentHeight: Float
@@ -47,6 +58,15 @@ abstract class ContentLayer(
         val paddingVertical = page.position.height - scaledContentHeight
 
         alignment(paddingHorizontal, paddingVertical)
+
+        Log.d(
+            TAG,
+            "${page.index} $alignHorizontal" +
+                    " paddingLeft:$paddingLeft," +
+                    " paddingRight:$paddingRight," +
+                    " paddingTop:$paddingTop," +
+                    " paddingBottom:$paddingBottom"
+        )
     }
 
     private fun alignment(paddingHorizontal: Float, paddingVertical: Float) {
@@ -57,7 +77,7 @@ abstract class ContentLayer(
             }
             PageHorizontalAlign.Left -> {
                 paddingLeft = 0
-                paddingRight = (paddingHorizontal / minScale - paddingLeft).roundToInt()
+                paddingRight = (paddingHorizontal / minScale).roundToInt()
             }
             PageHorizontalAlign.Right -> {
                 paddingLeft = (paddingHorizontal / minScale).roundToInt()
@@ -81,6 +101,8 @@ abstract class ContentLayer(
         }
     }
 
+    private var preparing: Job? = null
+
     fun draw(
         canvas: Canvas?,
         viewState: ViewState,
@@ -88,9 +110,10 @@ abstract class ContentLayer(
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
-        if (!isPrepared) {
-            coroutineScope.launch(Dispatchers.IO) {
+        if (!isPrepared && preparing == null) {
+            preparing = coroutineScope.launch(Dispatchers.IO) {
                 prepare(viewState, page)
+                preparing = null
             }
             return false
         }

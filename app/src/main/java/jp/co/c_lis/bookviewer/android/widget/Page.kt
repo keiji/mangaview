@@ -1,11 +1,13 @@
 package jp.co.c_lis.bookviewer.android.widget
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.util.Log
+import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
+import kotlin.math.roundToInt
 
 class Page(
     val index: Int
@@ -20,6 +22,15 @@ class Page(
     val projection = Rectangle()
 
     internal val layers = ArrayList<ContentLayer>()
+
+    fun setAlignment(
+        horizontal: PageHorizontalAlign = PageHorizontalAlign.Center,
+        vertical: PageVerticalAlign = PageVerticalAlign.Middle
+    ) {
+        layers.forEach {
+            it.setAlignment(horizontal, vertical)
+        }
+    }
 
     fun draw(
         canvas: Canvas?,
