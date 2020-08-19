@@ -1,5 +1,6 @@
 package jp.co.c_lis.bookviewer.android
 
+import android.graphics.Bitmap
 import android.graphics.Rect
 
 class Log {
@@ -20,9 +21,12 @@ class Log {
             )
         }
 
-        fun d(tag: String, message: String, rect: Rectangle) {
+        fun d(tag: String, message: String, rect: Rectangle?) {
             d(tag, "$message, ${rect}")
+        }
 
+        fun d(tag: String, message: String, bitmap: Bitmap) {
+            d(tag, "$message, ${bitmap.width}:${bitmap.height}")
         }
     }
 }

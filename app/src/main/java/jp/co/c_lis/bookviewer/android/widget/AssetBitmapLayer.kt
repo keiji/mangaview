@@ -60,6 +60,10 @@ class AssetBitmapLayer(
             it.bottom = (contentSrc.bottom / minScale).roundToInt()
             it.offset(-paddingLeft, -paddingTop)
         }
+
+        Log.d(TAG, "srcRect", srcRect)
+        Log.d(TAG, "bitmap", bitmapSnapshot)
+
         dstRect.also {
             it.left = projection.left
             it.right = projection.right

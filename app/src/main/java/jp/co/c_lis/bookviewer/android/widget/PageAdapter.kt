@@ -4,5 +4,5 @@ abstract class PageAdapter {
 
     abstract val pageCount: Int
 
-    abstract fun getPage(number: Int): Page
+    abstract fun getPage(index: Int): Page
 }

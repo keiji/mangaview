@@ -1,19 +1,29 @@
 package jp.co.c_lis.bookviewer.android.widget
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
-import android.view.View
-import android.view.ViewGroup
+import android.graphics.RectF
+import jp.co.c_lis.bookviewer.android.BuildConfig
 import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
 
 class Page(
-    val index: Int
+    val index: Int,
+    var width: Int,
+    var height: Int
 ) {
     companion object {
         private val TAG = Page::class.java.simpleName
     }
+
+    var baseScale: Float = 1.0F
+
+    val scaledWidth
+        get() = width * baseScale
+    val scaledHeight
+        get() = height * baseScale
 
     val position = Rectangle()
 
@@ -21,15 +31,6 @@ class Page(
     val projection = Rectangle()
 
     internal val layers = ArrayList<ContentLayer>()
-
-    fun setAlignment(
-        horizontal: PageHorizontalAlign = PageHorizontalAlign.Center,
-        vertical: PageVerticalAlign = PageVerticalAlign.Middle
-    ) {
-        layers.forEach {
-            it.setAlignment(horizontal, vertical)
-        }
-    }
 
     fun draw(
         canvas: Canvas?,
@@ -59,6 +60,16 @@ class Page(
             if (!it.draw(canvas, viewState, this, paint, coroutineScope)) {
                 result = false
             }
+        }
+
+        if (BuildConfig.DEBUG) {
+            paint.apply {
+                color = Color.BLUE
+                style = Paint.Style.STROKE
+            }
+            canvas?.drawRect(projection.let {
+                RectF(it.left, it.top, it.right, it.bottom)
+            }, paint)
         }
 
         return result

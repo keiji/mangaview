@@ -53,7 +53,7 @@ class BookView(
             invalidate()
         }
 
-    var pageLayoutManager: PageLayoutManager = DoublePageLayoutManager(true)
+    var pageLayoutManager: PageLayoutManager = SinglePageLayoutManager()
         set(value) {
             field = value
             isInitialized = false

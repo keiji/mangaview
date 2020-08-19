@@ -17,14 +17,6 @@ abstract class ContentLayer {
         private val TAG = ContentLayer::class.java.simpleName
     }
 
-    private var alignHorizontal: PageHorizontalAlign = PageHorizontalAlign.Center
-    private var alignVertical: PageVerticalAlign = PageVerticalAlign.Middle
-
-    fun setAlignment(horizontal: PageHorizontalAlign, vertical: PageVerticalAlign) {
-        alignHorizontal = horizontal
-        alignVertical = vertical
-    }
-
     abstract val contentWidth: Float
     abstract val contentHeight: Float
 
@@ -57,39 +49,16 @@ abstract class ContentLayer {
         val paddingHorizontal = page.position.width - scaledContentWidth
         val paddingVertical = page.position.height - scaledContentHeight
 
-        alignment(paddingHorizontal, paddingVertical)
-    }
+        val left = paddingHorizontal / 2
+        val right = paddingHorizontal - left
+        val top = paddingVertical / 2
+        val bottom = paddingVertical - top
 
-    private fun alignment(paddingHorizontal: Float, paddingVertical: Float) {
-        when (alignHorizontal) {
-            PageHorizontalAlign.Center -> {
-                paddingLeft = ((paddingHorizontal / 2) / minScale).roundToInt()
-                paddingRight = (paddingHorizontal / minScale - paddingLeft).roundToInt()
-            }
-            PageHorizontalAlign.Left -> {
-                paddingLeft = 0
-                paddingRight = (paddingHorizontal / minScale).roundToInt()
-            }
-            PageHorizontalAlign.Right -> {
-                paddingLeft = (paddingHorizontal / minScale).roundToInt()
-                paddingRight = 0
-            }
-        }
+        paddingLeft = (left / minScale).roundToInt()
+        paddingRight = (right / minScale).roundToInt()
+        paddingTop = (top / minScale).roundToInt()
+        paddingBottom = (bottom / minScale).roundToInt()
 
-        when (alignVertical) {
-            PageVerticalAlign.Middle -> {
-                paddingTop = ((paddingVertical / 2) / minScale).roundToInt()
-                paddingBottom = (paddingVertical / minScale - paddingTop).roundToInt()
-            }
-            PageVerticalAlign.Top -> {
-                paddingTop = 0
-                paddingBottom = (paddingVertical / minScale).roundToInt()
-            }
-            PageVerticalAlign.Bottom -> {
-                paddingTop = (paddingVertical / minScale).roundToInt()
-                paddingBottom = 0
-            }
-        }
     }
 
     private var preparing: Job? = null

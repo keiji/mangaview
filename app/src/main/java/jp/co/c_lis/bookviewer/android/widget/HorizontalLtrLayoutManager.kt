@@ -37,11 +37,11 @@ class HorizontalLtrLayoutManager : LayoutManager() {
 
         // layout pages
         for (index in pageLayoutList.indices) {
-            val pageContainer = pageLayoutList[index]
+            val pageLayout = pageLayoutList[index]
 
             val positionLeft = viewState.viewWidth * index
 
-            pageContainer.position.also {
+            pageLayout.position.also {
                 it.left = positionLeft
                 it.right = it.left + viewState.viewWidth
                 it.top = 0.0F
@@ -55,10 +55,10 @@ class HorizontalLtrLayoutManager : LayoutManager() {
         }
 
         viewState.scrollableArea.also { area ->
-            area.left = pageList.minByOrNull { it.position.left }?.position?.left ?: 0.0F
-            area.right = pageList.maxByOrNull { it.position.right }?.position?.right ?: 0.0F
-            area.top = pageList.minByOrNull { it.position.top }?.position?.top ?: 0.0F
-            area.bottom = pageList.maxByOrNull { it.position.bottom }?.position?.bottom ?: 0.0F
+            area.left = pageLayoutList.minByOrNull { it.position.left }?.position?.left ?: 0.0F
+            area.right = pageLayoutList.maxByOrNull { it.position.right }?.position?.right ?: 0.0F
+            area.top = pageLayoutList.minByOrNull { it.position.top }?.position?.top ?: 0.0F
+            area.bottom = pageLayoutList.maxByOrNull { it.position.bottom }?.position?.bottom ?: 0.0F
         }
 
         viewState.offset(-viewState.viewWidth, 0.0F)

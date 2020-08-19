@@ -1,10 +1,16 @@
 package jp.co.c_lis.bookviewer.android.widget
 
+import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
+import kotlin.math.min
 
 class DoublePageLayout(
     private val isSpread: Boolean
 ) : PageLayout() {
+
+    companion object {
+        private val TAG = DoublePageLayout::class.java.simpleName
+    }
 
     override val isFilled: Boolean
         get() = (oddPage != null && evenPage != null)
@@ -17,30 +23,77 @@ class DoublePageLayout(
 
         if (page.index % 2 == 0) {
             // even
-            page.position.also {
-                it.left = position.left
-                it.right = position.left + layoutWidth
-                it.top = position.top
-                it.bottom = position.bottom
-            }
-            if (isSpread) {
-                page.setAlignment(PageHorizontalAlign.Left)
-            }
-            evenPage = page
-
+            addEvenPage(page, layoutWidth)
         } else {
             // odd
-            page.position.also {
-                it.left = position.left + layoutWidth
-                it.right = position.right
-                it.top = position.top
-                it.bottom = position.bottom
-            }
-            if (isSpread) {
-                page.setAlignment(PageHorizontalAlign.Right)
-            }
-            oddPage = page
+            addOddPage(page, layoutWidth)
         }
+    }
+
+    private fun addOddPage(page: Page, pageWidth: Float) {
+        page.baseScale = min(
+            pageWidth / page.width,
+            position.height / page.height
+        )
+
+        val paddingHorizontal = pageWidth - page.scaledWidth
+        val paddingVertical = position.height - page.scaledHeight
+
+        var paddingLeft = 0.0F
+        var paddingRight = 0.0F
+        val paddingTop = paddingVertical / 2
+        val paddingBottom = paddingVertical - paddingTop
+
+        if (isSpread) {
+            paddingRight = paddingHorizontal
+        } else {
+            paddingRight = paddingHorizontal / 2
+            paddingLeft = paddingHorizontal - paddingRight
+        }
+
+        page.position.also {
+            it.left = pageWidth + paddingLeft
+            it.top = position.top + paddingTop
+            it.right = position.right - paddingRight
+            it.bottom = position.bottom - paddingBottom
+        }
+
+        evenPage = page
+    }
+
+    private fun addEvenPage(page: Page, pageWidth: Float) {
+        page.baseScale = min(
+            pageWidth / page.width,
+            position.height / page.height
+        )
+
+        val paddingHorizontal = pageWidth - page.scaledWidth
+        val paddingVertical = position.height - page.scaledHeight
+
+        Log.d(TAG, "${paddingHorizontal}")
+
+        var paddingLeft = pageWidth
+        var paddingRight = 0.0F
+        val paddingTop = paddingVertical / 2
+        val paddingBottom = paddingVertical - paddingTop
+
+        if (isSpread) {
+            paddingLeft = paddingHorizontal
+        } else {
+            paddingRight = paddingHorizontal / 2
+            paddingLeft = paddingHorizontal - paddingRight
+        }
+
+        Log.d(TAG, "layout position", position)
+        page.position.also {
+            it.left = paddingLeft
+            it.top = position.top + paddingTop
+            it.right = pageWidth - paddingRight
+            it.bottom = position.bottom - paddingBottom
+        }
+
+        Log.d(TAG, "${page.index}")
+        oddPage = page
     }
 
     override val pages: List<Page>
@@ -66,19 +119,6 @@ class DoublePageLayout(
         tmp.set(oddPageSnapshot.position)
         oddPageSnapshot.position.set(evenPageSnapshot.position)
         evenPageSnapshot.position.set(tmp)
-
-        if (isSpread) {
-            when (isFlip) {
-                true -> {
-                    oddPageSnapshot.setAlignment(PageHorizontalAlign.Left)
-                    evenPageSnapshot.setAlignment(PageHorizontalAlign.Right)
-                }
-                false -> {
-                    oddPageSnapshot.setAlignment(PageHorizontalAlign.Right)
-                    evenPageSnapshot.setAlignment(PageHorizontalAlign.Left)
-                }
-            }
-        }
 
         isFlip = !isFlip
     }

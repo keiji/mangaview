@@ -4,13 +4,13 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import jp.co.c_lis.bookviewer.android.widget.*
 
-private val FILE_NAMES = arrayOf(
-    "sample1.png",
-    "sample2.png",
-    "sample3.png",
-    "sample4.png",
-    "sample5.png",
-    "sample6.png"
+private val DATA = arrayOf(
+    AssetBitmap("sample1.png", 1150, 1700),
+    AssetBitmap("sample2.png", 1150, 1700),
+    AssetBitmap("sample3.png", 1150, 1700),
+    AssetBitmap("sample4.png", 1150, 1700),
+    AssetBitmap("sample5.png", 1150, 1700),
+    AssetBitmap("sample6.png", 1150, 1700),
 )
 
 class MainActivity : AppCompatActivity() {
@@ -22,8 +22,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         bookView = findViewById<BookView>(R.id.book_view).also {
-            it.layoutManager = VerticalLayoutManager()
-            it.adapter = AssetBitmapAdapter(assets, FILE_NAMES)
+            it.layoutManager = HorizontalRtlLayoutManager()
+            it.adapter = AssetBitmapAdapter(assets, DATA)
         }
     }
 }
