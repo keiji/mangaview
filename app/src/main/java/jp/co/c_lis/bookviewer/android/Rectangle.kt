@@ -83,6 +83,19 @@ data class Rectangle(
         return and(this, rectB, this)
     }
 
+    fun validate() {
+        if (left > right) {
+            val tmp = left
+            left = right
+            right = tmp
+        }
+        if (top > bottom) {
+            val tmp = top
+            top = bottom
+            bottom = tmp
+        }
+    }
+
     companion object {
         private val TAG = Rectangle::class.java.simpleName
 

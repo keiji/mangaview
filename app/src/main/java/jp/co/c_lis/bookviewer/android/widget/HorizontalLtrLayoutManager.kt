@@ -60,8 +60,6 @@ class HorizontalLtrLayoutManager : LayoutManager() {
             area.top = pageLayoutList.minByOrNull { it.position.top }?.position?.top ?: 0.0F
             area.bottom = pageLayoutList.maxByOrNull { it.position.bottom }?.position?.bottom ?: 0.0F
         }
-
-        viewState.offset(-viewState.viewWidth, 0.0F)
     }
 
     override fun calcFirstVisiblePageLayoutIndex(viewState: ViewState): Int {

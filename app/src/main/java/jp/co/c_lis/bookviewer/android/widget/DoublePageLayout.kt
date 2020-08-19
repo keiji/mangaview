@@ -47,12 +47,12 @@ class DoublePageLayout(
         if (isSpread) {
             paddingRight = paddingHorizontal
         } else {
-            paddingRight = paddingHorizontal / 2
+            paddingRight = paddingHorizontal / 3 * 2
             paddingLeft = paddingHorizontal - paddingRight
         }
 
         page.position.also {
-            it.left = pageWidth + paddingLeft
+            it.left = position.left + pageWidth + paddingLeft
             it.top = position.top + paddingTop
             it.right = position.right - paddingRight
             it.bottom = position.bottom - paddingBottom
@@ -80,19 +80,17 @@ class DoublePageLayout(
         if (isSpread) {
             paddingLeft = paddingHorizontal
         } else {
-            paddingRight = paddingHorizontal / 2
-            paddingLeft = paddingHorizontal - paddingRight
+            paddingLeft = paddingHorizontal / 3 * 2
+            paddingRight = paddingHorizontal - paddingLeft
         }
 
-        Log.d(TAG, "layout position", position)
         page.position.also {
-            it.left = paddingLeft
+            it.left = position.left + paddingLeft
             it.top = position.top + paddingTop
-            it.right = pageWidth - paddingRight
+            it.right = position.right - pageWidth - paddingRight
             it.bottom = position.bottom - paddingBottom
         }
 
-        Log.d(TAG, "${page.index}")
         oddPage = page
     }
 

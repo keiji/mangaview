@@ -5,19 +5,15 @@ class DoublePageLayoutManager(
 ) : PageLayoutManager() {
 
     override fun getCount(pageCount: Int): Int {
-        return pageCount / 2 + if (pageCount % 2 == 1) {
-            1
-        } else {
-            0
-        }
+        return pageCount / 2 + (pageCount % 2)
     }
 
     override fun init(pageList: List<Page>): ArrayList<PageLayout> {
-        val containerCount = getCount(pageList.size)
+        val layoutCount = getCount(pageList.size)
 
         pageLayoutList.also {
             it.clear()
-            it.addAll((0 until containerCount).map { DoublePageLayout(isSpread) })
+            it.addAll((0 until layoutCount).map { DoublePageLayout(isSpread) })
         }
 
         return pageLayoutList
