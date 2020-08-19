@@ -48,6 +48,11 @@ class Page(
             ?.relativeBy(viewState.viewport)
         project(projection, viewState, projection)
 
+        if (projection.area == 0.0F) {
+            // do not draw
+            return true
+        }
+
         var result = true
 
         layers.forEach {
