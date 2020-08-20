@@ -27,6 +27,16 @@ data class ViewState(
     val scaledHeight: Float
         get() = viewHeight / currentScale
 
+    fun setViewSize(w: Int, h: Int) {
+        viewWidth = w.toFloat()
+        viewHeight = h.toFloat()
+
+        viewport.left = 0.0F
+        viewport.top = 0.0F
+        viewport.right = viewWidth
+        viewport.bottom = viewHeight
+    }
+
     private fun validate(): Boolean {
         var result = true
 

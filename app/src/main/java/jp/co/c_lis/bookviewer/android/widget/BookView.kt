@@ -68,15 +68,7 @@ class BookView(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        viewState.also {
-            it.viewWidth = w.toFloat()
-            it.viewHeight = h.toFloat()
-
-            it.viewport.left = 0.0F
-            it.viewport.top = 0.0F
-            it.viewport.right = it.viewWidth
-            it.viewport.bottom = it.viewHeight
-        }
+        viewState.setViewSize(w, h)
         isInitialized = false
     }
 
