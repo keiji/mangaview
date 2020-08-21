@@ -5,12 +5,12 @@ import android.os.Bundle
 import jp.co.c_lis.bookviewer.android.widget.*
 
 private val DATA = arrayOf(
-    AssetBitmap("sample1.png", 1150, 1700),
-    AssetBitmap("sample2.png", 1150, 1700),
-    AssetBitmap("sample3.png", 1150, 1700),
-    AssetBitmap("sample4.png", 1150, 1700),
-    AssetBitmap("sample5.png", 1150, 1700),
-    AssetBitmap("sample6.png", 1150, 1700),
+    AssetBitmap("sample1.png"),
+    AssetBitmap("sample2.png"),
+    AssetBitmap("sample3.png"),
+    AssetBitmap("sample4.png"),
+    AssetBitmap("sample5.png"),
+    AssetBitmap("sample6.png"),
 )
 
 class MainActivity : AppCompatActivity() {
@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
 
         bookView = findViewById<BookView>(R.id.book_view).also {
             it.layoutManager = HorizontalRtlLayoutManager()
-            it.adapter = AssetBitmapAdapter(assets, DATA)
+            it.adapter = AssetBitmapAdapter(assets, DATA, 1150, 1700)
         }
     }
 }

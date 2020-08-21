@@ -28,7 +28,8 @@ class BookView(
     companion object {
         private val TAG = BookView::class.java.simpleName
 
-        private const val SCROLLING_DURATION = 250
+        private const val SCROLLING_DURATION = 280
+        private const val REVERSE_SCROLLING_DURATION = 350
         private const val SCALING_DURATION = 350L
     }
 
@@ -38,6 +39,9 @@ class BookView(
 
     private val viewConfiguration: ViewConfiguration = ViewConfiguration.get(context)
     private val density = context.resources.displayMetrics.scaledDensity
+
+    private val overScrollDistance =
+        (viewConfiguration.scaledOverscrollDistance * density).roundToInt()
     private val pagingTouchSlop = viewConfiguration.scaledPagingTouchSlop * density
 
     var layoutManager: LayoutManager? = null
@@ -69,6 +73,7 @@ class BookView(
         super.onSizeChanged(w, h, oldw, oldh)
 
         viewState.setViewSize(w, h)
+        layoutManager?.setViewSize(w, h)
         isInitialized = false
     }
 
@@ -204,7 +209,8 @@ class BookView(
                 layoutManagerSnapshot,
                 settleScroller,
                 touchSlop,
-                SCROLLING_DURATION
+                SCROLLING_DURATION,
+                REVERSE_SCROLLING_DURATION
             )
             .populate()
         startAnimation()
@@ -213,6 +219,7 @@ class BookView(
     }
 
     private var settleScroller = OverScroller(context, DecelerateInterpolator())
+
     private var scroller = OverScroller(context, DecelerateInterpolator())
 
     private fun startAnimation() {
@@ -231,15 +238,7 @@ class BookView(
     override fun computeScroll() {
         super.computeScroll()
 
-        if (!scroller.isFinished && scroller.computeScrollOffset()) {
-            viewState.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
-            ViewCompat.postInvalidateOnAnimation(this)
-        }
-
-        if (!settleScroller.isFinished && settleScroller.computeScrollOffset()) {
-            viewState.offsetTo(settleScroller.currX.toFloat(), settleScroller.currY.toFloat())
-            ViewCompat.postInvalidateOnAnimation(this)
-        }
+        var needPostInvalidateOnAnimation = false
 
         scaling?.also {
             val elapsed = System.currentTimeMillis() - it.startTimeMillis
@@ -250,8 +249,26 @@ class BookView(
 
             if (input > 1.0F) {
                 scaling = null
+                needPostInvalidateOnAnimation = false
+                populate()
+            } else {
+                needPostInvalidateOnAnimation = true
             }
+        }
 
+        if (scroller.isFinished && !settleScroller.isFinished && settleScroller.computeScrollOffset()) {
+            // secondary
+            viewState.offsetTo(settleScroller.currX.toFloat(), settleScroller.currY.toFloat())
+            needPostInvalidateOnAnimation =
+                needPostInvalidateOnAnimation || !settleScroller.isFinished
+
+        } else if (!scroller.isFinished && scroller.computeScrollOffset()) {
+            // primary
+            viewState.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
+            needPostInvalidateOnAnimation = needPostInvalidateOnAnimation || !scroller.isFinished
+        }
+
+        if (needPostInvalidateOnAnimation) {
             ViewCompat.postInvalidateOnAnimation(this)
         }
     }
@@ -275,6 +292,8 @@ class BookView(
         return handled
     }
 
+    private val tmpCurrentScrollArea = Rectangle()
+
     private fun fling(velocityX: Float, velocityY: Float): Boolean {
         val layoutManagerSnapshot = layoutManager ?: return false
 
@@ -284,7 +303,9 @@ class BookView(
         Log.d(TAG, "scaledVelocityX $scaledVelocityX")
         Log.d(TAG, "scaledVelocityY $scaledVelocityY")
 
-        val currentRect = layoutManagerSnapshot.currentPageLayout(viewState).position
+        val currentScrollArea = layoutManagerSnapshot
+            .currentPageLayout(viewState)
+            .calcScrollArea(tmpCurrentScrollArea, viewState.currentScale)
 
         val populateHelper = layoutManagerSnapshot.populateHelper
             .init(
@@ -292,50 +313,61 @@ class BookView(
                 layoutManagerSnapshot,
                 settleScroller,
                 pagingTouchSlop,
-                SCROLLING_DURATION
+                SCROLLING_DURATION,
+                REVERSE_SCROLLING_DURATION
             )
 
-        if (abs(scaledVelocityX) > abs(scaledVelocityY)) {
-            // horizontal
-            if (scaledVelocityX > 0.0F && !viewState.canScrollLeft(currentRect)) {
-                // left
-                Log.d(TAG, "left Page")
-                val leftRect = layoutManagerSnapshot.leftPageLayout(viewState)
-                leftRect ?: return false
+        var handleHorizontal = false
+        var handleVertical = false
+
+        val horizontal = (abs(scaledVelocityX) > abs(scaledVelocityY))
+        Log.d(TAG, "horizontal: $horizontal")
+
+        if (horizontal) {
+            val leftRect = layoutManagerSnapshot.leftPageLayout(viewState)
+            val rightRect = layoutManagerSnapshot.rightPageLayout(viewState)
+
+            handleHorizontal = if (scaledVelocityX > 0.0F && leftRect != null
+                && !viewState.canScrollLeft(currentScrollArea)
+            ) {
                 populateHelper.populateToLeft(leftRect)
-                return true
-            } else if (scaledVelocityX < 0.0F && !viewState.canScrollRight(currentRect)) {
-                // right
-                Log.d(TAG, "right Page")
-                val rightRect = layoutManagerSnapshot.rightPageLayout(viewState)
-                rightRect ?: return false
+                true
+            } else if (scaledVelocityX < 0.0F && rightRect != null
+                && !viewState.canScrollRight(currentScrollArea)
+            ) {
                 populateHelper.populateToRight(rightRect)
-                return true
+                true
+            } else {
+                false
             }
         } else {
-            // vertical
-            if (scaledVelocityY > 0.0F && !viewState.canScrollTop(currentRect)) {
-                // top
-                Log.d(TAG, "top Page")
-                val topRect = layoutManagerSnapshot.topPageLayout(viewState)
-                topRect ?: return false
+            val topRect = layoutManagerSnapshot.topPageLayout(viewState)
+            val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewState)
+
+            handleVertical = if (scaledVelocityY > 0.0F && topRect != null
+                && !viewState.canScrollTop(currentScrollArea)
+            ) {
                 populateHelper.populateToTop(topRect)
-                return true
-            } else if (scaledVelocityY < 0.0F && !viewState.canScrollBottom(currentRect)) {
-                // bottom
-                Log.d(TAG, "bottom Page")
-                val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewState)
-                bottomRect ?: return false
+                true
+            } else if (scaledVelocityY < 0.0F && bottomRect != null
+                && !viewState.canScrollBottom(currentScrollArea)
+            ) {
                 populateHelper.populateToBottom(bottomRect)
-                return true
+                true
+            } else {
+                false
             }
         }
 
-        val minX = currentRect.left.roundToInt()
-        val maxX = (currentRect.right - viewState.scaledWidth).roundToInt()
+        if (handleHorizontal || handleVertical) {
+            return true
+        }
 
-        val minY = currentRect.top.roundToInt()
-        val maxY = (currentRect.bottom - viewState.scaledHeight).roundToInt()
+        val minX = currentScrollArea.left.roundToInt()
+        val maxX = (currentScrollArea.right - viewState.scaledWidth).roundToInt()
+
+        val minY = currentScrollArea.top.roundToInt()
+        val maxY = (currentScrollArea.bottom - viewState.scaledHeight).roundToInt()
 
         scroller.fling(
             viewState.currentX.roundToInt(),
@@ -343,7 +375,8 @@ class BookView(
             -scaledVelocityX.roundToInt(),
             -scaledVelocityY.roundToInt(),
             minX, maxX,
-            minY, maxY
+            minY, maxY,
+            overScrollDistance, overScrollDistance
         )
 
         return true
@@ -398,6 +431,7 @@ class BookView(
         detector ?: return
 
         scalingState = ScalingState.End
+        populate()
     }
 
     private fun scale(scale: Float, focusX: Float, focusY: Float, smoothScale: Boolean = false) {

@@ -10,6 +10,12 @@ class HorizontalLtrLayoutManager : LayoutManager() {
 
     override val populateHelper: PopulateHelper = HorizontalPopulateHelper()
 
+    private var layoutWidth: Float = 0.0F
+    private var layoutHeight: Float = 0.0F
+
+    override fun init() {
+    }
+
     override fun currentPageLayoutIndex(
         viewState: ViewState
     ): Int = abs(viewState.viewport.centerX / viewState.viewWidth).toInt()
@@ -58,7 +64,8 @@ class HorizontalLtrLayoutManager : LayoutManager() {
             area.left = pageLayoutList.minByOrNull { it.position.left }?.position?.left ?: 0.0F
             area.right = pageLayoutList.maxByOrNull { it.position.right }?.position?.right ?: 0.0F
             area.top = pageLayoutList.minByOrNull { it.position.top }?.position?.top ?: 0.0F
-            area.bottom = pageLayoutList.maxByOrNull { it.position.bottom }?.position?.bottom ?: 0.0F
+            area.bottom =
+                pageLayoutList.maxByOrNull { it.position.bottom }?.position?.bottom ?: 0.0F
         }
     }
 

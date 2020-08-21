@@ -75,6 +75,16 @@ data class ViewState(
         offsetY: Float
     ) = offsetTo(currentX + offsetX, currentY + offsetY)
 
+    fun offsetXTo(x: Float): Boolean {
+        currentX = x
+        return validate()
+    }
+
+    fun offsetYTo(y: Float): Boolean {
+        currentY = y
+        return validate()
+    }
+
     fun offsetTo(x: Float, y: Float): Boolean {
         currentX = x
         currentY = y

@@ -22,7 +22,11 @@ class Log {
         }
 
         fun d(tag: String, message: String, rect: Rectangle?) {
-            d(tag, "$message, ${rect}")
+            if (rect == null) {
+                d(tag, "$message, rect is null")
+                return
+            }
+            d(tag, "$message, ${rect}, width=${rect.width}, height=${rect.height}")
         }
 
         fun d(tag: String, message: String, bitmap: Bitmap) {

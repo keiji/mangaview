@@ -10,6 +10,9 @@ class HorizontalRtlLayoutManager : LayoutManager() {
 
     override val populateHelper: PopulateHelper = HorizontalPopulateHelper()
 
+    override fun init() {
+    }
+
     override fun currentPageLayoutIndex(
         viewState: ViewState
     ): Int = abs(viewState.viewport.centerX / viewState.viewWidth).toInt()

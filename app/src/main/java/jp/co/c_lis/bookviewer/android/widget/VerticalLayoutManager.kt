@@ -10,6 +10,9 @@ class VerticalLayoutManager : LayoutManager() {
 
     override val populateHelper: PopulateHelper = VerticalPopulateHelper()
 
+    override fun init() {
+    }
+
     override fun currentPageLayoutIndex(
         viewState: ViewState
     ): Int = abs(viewState.viewport.centerY / viewState.viewHeight).toInt()

@@ -4,6 +4,7 @@ class DoublePageLayoutManager(
     private val isSpread: Boolean = true
 ) : PageLayoutManager() {
 
+
     override fun getCount(pageCount: Int): Int {
         return pageCount / 2 + (pageCount % 2)
     }

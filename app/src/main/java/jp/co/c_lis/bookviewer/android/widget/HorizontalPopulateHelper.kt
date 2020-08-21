@@ -11,100 +11,109 @@ class HorizontalPopulateHelper : PopulateHelper() {
 
     private val shouldPopulateHorizontal = fun(rect: Rectangle?): Boolean {
         rect ?: return false
-        return rect.width > pagingTouchSlop / viewState.currentScale
+        val diff = viewState.viewport.width - rect.width
+        return diff > (pagingTouchSlop / viewState.currentScale)
     }
-
-    private val calcDiffBlank = fun(_: Rectangle) = 0
 
     private val calcDiffXToLeft = fun(rect: Rectangle): Int {
-        val result = -(viewState.viewport.width - rect.width).roundToInt()
-        return result
+        return (rect.right - viewState.viewport.right).roundToInt()
     }
     private val calcDiffXToRight = fun(rect: Rectangle): Int {
-        val result = (viewState.viewport.width - rect.width).roundToInt()
-        return result
+        return (rect.left - viewState.viewport.left).roundToInt()
     }
-
-    private val shouldPopulateAlwaysTrue = fun(rect: Rectangle?) = true
 
     override fun populate() {
         Log.d(TAG, "populate!")
 
         val layoutManagerSnapshot = layoutManager ?: return
 
-        // detect overscroll
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
-        if (currentRect.position.contains(viewState.viewport)) {
-            Log.d(TAG, "not overscrolled.")
+        val scrollArea = currentRect.calcScrollArea(
+            tmpCurrentScrollArea,
+            viewState.currentScale
+        )
+
+        // detect overscroll
+        if (scrollArea.contains(viewState.viewport)) {
+            Log.d(TAG, "no overscroll detected.")
             return
         }
 
-        val leftRect = layoutManagerSnapshot.leftPageLayout(viewState)
-        val rightRect = layoutManagerSnapshot.rightPageLayout(viewState)
+        val toLeft = (viewState.viewport.centerX < tmpCurrentScrollArea.centerX)
 
-        Log.d(TAG, "currentRect: $currentRect")
-        Log.d(TAG, "leftRect: $leftRect")
-        Log.d(TAG, "rightRect: $rightRect")
-
-        val handled = populateTo(
-            leftRect,
-            shouldPopulateHorizontal,
-            calcDiffXToLeft, calcDiffBlank
-        ) or populateTo(
-            rightRect,
-            shouldPopulateHorizontal,
-            calcDiffXToRight, calcDiffBlank
-        )
+        val handled = if (toLeft) {
+            val leftRect = layoutManagerSnapshot.leftPageLayout(viewState)
+            val leftArea =
+                leftRect?.calcScrollArea(
+                    tmpLeftScrollArea,
+                    viewState.currentScale
+                )
+            populateTo(
+                scrollArea,
+                leftArea,
+                shouldPopulateHorizontal,
+                calcDiffXToLeft, calcDiffVertical,
+                populateDuration
+            )
+        } else {
+            val rightRect = layoutManagerSnapshot.rightPageLayout(viewState)
+            val rightArea =
+                rightRect?.calcScrollArea(
+                    tmpRightScrollArea,
+                    viewState.currentScale
+                )
+            populateTo(
+                scrollArea,
+                rightArea,
+                shouldPopulateHorizontal,
+                calcDiffXToRight, calcDiffVertical,
+                populateDuration
+            )
+        }
 
         if (!handled) {
-            Log.d(TAG, "tryPopulate to current")
-            val matchHorizontalRect = arrayOf(leftRect, rightRect)
-                .filterNotNull()
-                .maxByOrNull {
-                    Rectangle.jaccardIndex(it.position, viewState.viewport, populateTmp)
-                }
-
-            Log.d(TAG, "populate to current")
-            matchHorizontalRect?.let {
-                Log.d(TAG, "leftRect ${leftRect.toString()}")
-                Log.d(TAG, "rightRect ${rightRect.toString()}")
-                Log.d(TAG, "currentRect ${currentRect}")
-                Log.d(TAG, "matchHorizontalRect $it")
-            }
-
-            val fromLeft = (matchHorizontalRect === leftRect)
-
-            val calcDiffXToCurrent = if (fromLeft) {
-                Log.d(TAG, "fromLeft ${viewState.viewport}")
-                Log.d(TAG, "fromLeft ${currentRect}")
-                calcDiffXToRight
-            } else {
-                Log.d(TAG, "fromRight ${viewState.viewport}")
-                Log.d(TAG, "fromRight ${currentRect}")
-                calcDiffXToLeft
-            }
-
-            populateTo(
-                currentRect,
-                shouldPopulateAlwaysTrue,
-                calcDiffXToCurrent, calcDiffBlank
+            populateToCurrent(
+                scrollArea,
+                reverseScrollDuration
             )
         }
     }
 
     override fun populateToLeft(leftRect: PageLayout) {
+        val layoutManagerSnapshot = layoutManager ?: return
+
+        val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
+        val scrollArea = currentRect.calcScrollArea(
+            tmpCurrentScrollArea,
+            viewState.currentScale
+        )
+
         populateTo(
-            leftRect,
+            scrollArea,
+            leftRect.calcScrollArea(tmpLeftScrollArea, viewState.currentScale),
             shouldPopulateHorizontal,
-            calcDiffXToLeft, calcDiffBlank
+            calcDiffXToLeft, calcDiffVertical,
+            populateDuration
         )
     }
 
     override fun populateToRight(rightRect: PageLayout) {
+        val layoutManagerSnapshot = layoutManager ?: return
+
+        val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
+        val scrollArea = currentRect.calcScrollArea(
+            tmpCurrentScrollArea,
+            viewState.currentScale
+        )
+
         populateTo(
-            rightRect,
+            scrollArea,
+            rightRect.calcScrollArea(
+                tmpRightScrollArea, viewState.currentScale
+            ),
             shouldPopulateHorizontal,
-            calcDiffXToRight, calcDiffBlank
+            calcDiffXToRight, calcDiffVertical,
+            populateDuration
         )
     }
 }

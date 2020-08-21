@@ -10,96 +10,109 @@ class VerticalPopulateHelper : PopulateHelper() {
         private val TAG = VerticalPopulateHelper::class.java.simpleName
     }
 
-    private val calcDiffBlank = fun(_: Rectangle) = 0
-
     private val shouldPopulateVertical = fun(rect: Rectangle?): Boolean {
         rect ?: return false
-        return rect.height > pagingTouchSlop / viewState.currentScale
+        val diff = viewState.viewport.height - rect.height
+        return diff > (pagingTouchSlop / viewState.currentScale)
     }
 
     private val calcDiffYToTop = fun(rect: Rectangle): Int {
-        return -(viewState.viewport.height - rect.height).roundToInt()
-    }
-    private val calcDiffYToBottom = fun(rect: Rectangle): Int {
-        return (viewState.viewport.height - rect.height).roundToInt()
+        return (rect.bottom - viewState.viewport.bottom).roundToInt()
     }
 
-    private val shouldPopulateAlwaysTrue = fun(rect: Rectangle?) = true
+    private val calcDiffYToBottom = fun(rect: Rectangle): Int {
+        return (rect.top - viewState.viewport.top).roundToInt()
+    }
 
     override fun populate() {
         Log.d(TAG, "populate!")
 
         val layoutManagerSnapshot = layoutManager ?: return
 
-        // detect overscroll
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
-        if (currentRect.position.contains(viewState.viewport)) {
-            Log.d(TAG, "not overscrolled.")
+        val scrollArea = currentRect.calcScrollArea(
+            tmpCurrentScrollArea,
+            viewState.currentScale
+        )
+
+        // detect overscroll
+        if (scrollArea.contains(viewState.viewport)) {
             return
         }
 
-        val topRect = layoutManagerSnapshot.topPageLayout(viewState)
-        val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewState)
+        val toTop = (viewState.viewport.centerY < tmpCurrentScrollArea.centerY)
 
-        Log.d(TAG, "currentRect: $currentRect")
-        Log.d(TAG, "topRect: $topRect")
-        Log.d(TAG, "bottomRect: $bottomRect")
-
-        val handled = populateTo(
-            topRect,
-            shouldPopulateVertical,
-            calcDiffBlank, calcDiffYToTop
-        ) or populateTo(
-            bottomRect,
-            shouldPopulateVertical,
-            calcDiffBlank, calcDiffYToBottom
-        )
+        val handled = if (toTop) {
+            val topRect = layoutManagerSnapshot.topPageLayout(viewState)
+            val topArea =
+                topRect?.calcScrollArea(
+                    tmpTopScrollArea,
+                    viewState.currentScale
+                )
+            populateTo(
+                scrollArea,
+                topArea,
+                shouldPopulateVertical,
+                calcDiffHorizontal, calcDiffYToTop,
+                populateDuration
+            )
+        } else {
+            val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewState)
+            val bottomArea =
+                bottomRect?.calcScrollArea(
+                    tmpBottomScrollArea,
+                    viewState.currentScale
+                )
+            populateTo(
+                scrollArea,
+                bottomArea,
+                shouldPopulateVertical,
+                calcDiffHorizontal, calcDiffYToBottom,
+                populateDuration
+            )
+        }
 
         if (!handled) {
-            Log.d(TAG, "tryPopulate to current")
-            val matchVerticalRect = arrayOf(topRect, bottomRect)
-                .filterNotNull()
-                .maxBy {
-                    Rectangle.jaccardIndex(it.position, viewState.viewport, populateTmp)
-                }
-
-            Log.d(TAG, "populate to current")
-            matchVerticalRect?.let {
-                Log.d(TAG, "topRect ${topRect.toString()}")
-                Log.d(TAG, "bottomRect ${bottomRect.toString()}")
-                Log.d(TAG, "currentRect ${currentRect}")
-                Log.d(TAG, "matchVerticalRect $it")
-            }
-
-            val fromTop = (matchVerticalRect === topRect)
-
-            val calcDiffYToCurrent = if (fromTop) {
-                calcDiffYToBottom
-            } else {
-                calcDiffYToTop
-            }
-
-            populateTo(
-                currentRect,
-                shouldPopulateAlwaysTrue,
-                calcDiffBlank, calcDiffYToCurrent
+            populateToCurrent(
+                scrollArea,
+                reverseScrollDuration
             )
         }
     }
 
     override fun populateToTop(topRect: PageLayout) {
+        val layoutManagerSnapshot = layoutManager ?: return
+
+        val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
+        val scrollArea = currentRect.calcScrollArea(
+            tmpCurrentScrollArea,
+            viewState.currentScale
+        )
+
         populateTo(
-            topRect,
+            scrollArea,
+            topRect.calcScrollArea(tmpLeftScrollArea, viewState.currentScale),
             shouldPopulateVertical,
-            calcDiffBlank, calcDiffYToTop
+            calcDiffHorizontal, calcDiffYToTop,
+            populateDuration
         )
     }
 
     override fun populateToBottom(bottomRect: PageLayout) {
+        val layoutManagerSnapshot = layoutManager ?: return
+
+        val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
+        val scrollArea = currentRect.calcScrollArea(
+            tmpCurrentScrollArea,
+            viewState.currentScale
+        )
+
         populateTo(
-            bottomRect,
+            scrollArea,
+            bottomRect.calcScrollArea(tmpLeftScrollArea, viewState.currentScale),
             shouldPopulateVertical,
-            calcDiffBlank, calcDiffYToBottom
+            calcDiffHorizontal, calcDiffYToBottom,
+            populateDuration
         )
     }
 

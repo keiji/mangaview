@@ -10,6 +10,18 @@ abstract class LayoutManager {
     internal var pageLayoutList: List<PageLayout> = ArrayList()
     internal var pageList: List<Page> = ArrayList()
 
+    private var viewWidth: Int = 0
+    private var viewHeight: Int = 0
+
+    fun setViewSize(width: Int, height: Int) {
+        viewWidth = width
+        viewHeight = height
+
+        init()
+    }
+
+    abstract fun init()
+
     abstract fun currentPageLayoutIndex(
         viewState: ViewState
     ): Int
