@@ -6,9 +6,11 @@ class SinglePageLayoutManager : PageLayoutManager() {
         return pageCount
     }
 
-    override fun calcFirstPageIndex(index: Int): Int = index
+    override fun calcPageLayoutIndex(pageIndex: Int) : Int = pageIndex
 
-    override fun calcLastPageIndex(index: Int): Int = index
+    override fun calcFirstPageIndex(pageLayoutIndex: Int): Int = pageLayoutIndex
+
+    override fun calcLastPageIndex(pageLayoutIndex: Int): Int = pageLayoutIndex
 
     override fun createPageLayout(): PageLayout = SinglePageLayout()
 }

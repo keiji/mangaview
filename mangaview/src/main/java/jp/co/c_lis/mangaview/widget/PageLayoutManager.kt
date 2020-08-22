@@ -18,8 +18,10 @@ abstract class PageLayoutManager {
         return pageLayout
     }
 
-    abstract fun calcFirstPageIndex(index: Int): Int
-    abstract fun calcLastPageIndex(index: Int): Int
+    abstract fun calcPageLayoutIndex(pageIndex: Int): Int
+
+    abstract fun calcFirstPageIndex(pageLayoutIndex: Int): Int
+    abstract fun calcLastPageIndex(pageLayoutIndex: Int): Int
 
     abstract fun createPageLayout(): PageLayout
 }

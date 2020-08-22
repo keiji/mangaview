@@ -47,6 +47,7 @@ class MangaView(
     var layoutManager: LayoutManager? = null
         set(value) {
             field = value
+            isInitialized = false
             postInvalidate()
         }
 
@@ -57,6 +58,7 @@ class MangaView(
             postInvalidate()
         }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     var pageLayoutManager: PageLayoutManager = DoublePageLayoutManager(isSpread = true)
         set(value) {
             field = value
@@ -152,21 +154,43 @@ class MangaView(
         }
     }
 
-    fun showPage(rect: Rectangle, smoothScroll: Boolean = false) {
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun showPage(pageIndex: Int, smoothScroll: Boolean = false) {
+        val pageLayoutIndex = pageLayoutManager.calcPageLayoutIndex(pageIndex)
+        val pageLayout = layoutManager?.getPageLayout(pageLayoutIndex, viewState)
+
+        if (pageLayout == null) {
+            Log.d(TAG, "pageIndex: ${pageIndex} -> pageLayoutIndex ${pageLayoutIndex} not found.")
+            return
+        }
+
+        val scrollArea = pageLayout.position
+
         if (!smoothScroll) {
-            viewState.offsetTo(rect.left, rect.top)
+            scale(
+                1.0F,
+                viewState.viewport.centerY,
+                viewState.viewport.centerY,
+                smoothScale = false
+            ) {}
+            viewState.offsetTo(scrollArea.left, scrollArea.top)
             postInvalidate()
             return
         }
 
-        val currentLeft = viewState.viewport.left.roundToInt()
-        val currentTop = viewState.viewport.top.roundToInt()
+        scale(viewState.minScale, null, null, smoothScale = true) {
+            val currentLeft = viewState.viewport.left.roundToInt()
+            val currentTop = viewState.viewport.top.roundToInt()
 
-        scroller.startScroll(
-            currentLeft, currentTop,
-            rect.left.roundToInt() - currentLeft, rect.top.roundToInt() - currentTop,
-            SCROLLING_DURATION
-        )
+            scroller.startScroll(
+                currentLeft,
+                currentTop,
+                scrollArea.left.roundToInt() - currentLeft,
+                scrollArea.top.roundToInt() - currentTop,
+                SCROLLING_DURATION
+            )
+            startAnimation()
+        }
 
         startAnimation()
     }
@@ -240,7 +264,7 @@ class MangaView(
 
     private var scaleInterpolator = DecelerateInterpolator()
 
-    private var scaling: Scaling? = null
+    private var scaleOperation: ScaleOperation? = null
 
     override fun computeScroll() {
         super.computeScroll()
@@ -251,17 +275,22 @@ class MangaView(
 
         var needPostInvalidateOnAnimation = false
 
-        scaling?.also {
+        scaleOperation?.also {
             val elapsed = System.currentTimeMillis() - it.startTimeMillis
             val input = elapsed.toFloat() / it.durationMillis
             val scaleFactor = scaleInterpolator.getInterpolation(input)
             val newScale = it.from + it.diff * scaleFactor
-            viewState.scaleTo(newScale, it.focusX, it.focusY)
+            val focusX = it.focusX ?: viewState.viewWidth / 2
+            val focusY = it.focusY ?: viewState.viewHeight / 2
+            viewState.scaleTo(newScale, focusX, focusY)
+            populate()
 
-            if (input > 1.0F) {
-                scaling = null
+            if (input > 1.0F || elapsed <= 0) {
+                viewState.scaleTo(it.to, focusX, focusY)
+                it.onScaleFinish()
+
+                scaleOperation = null
                 needPostInvalidateOnAnimation = false
-                populate()
             } else {
                 needPostInvalidateOnAnimation = true
             }
@@ -478,17 +507,27 @@ class MangaView(
         scalingState = ScalingState.End
     }
 
-    private fun scale(scale: Float, focusX: Float, focusY: Float, smoothScale: Boolean = false) {
+    private fun scale(
+        scale: Float,
+        focusX: Float?,
+        focusY: Float?,
+        smoothScale: Boolean = false,
+        onScaleFinish: () -> Unit,
+    ) {
         if (!smoothScale) {
-            viewState.scaleTo(scale, focusX, focusY)
+            viewState.scaleTo(
+                scale,
+                focusX ?: viewState.viewport.centerX,
+                focusY ?: viewState.viewport.centerY
+            )
             postInvalidate()
             return
         }
 
-        scaling = Scaling(
+        scaleOperation = ScaleOperation(
             viewState.currentScale, scale,
             System.currentTimeMillis(), SCALING_DURATION,
-            focusX, focusY
+            focusX, focusY, onScaleFinish
         )
 
         startAnimation()
@@ -499,20 +538,12 @@ class MangaView(
 
         Log.d(TAG, "onDoubleTap")
 
-        scale(2.5F, e.x, e.y, smoothScale = true)
+        scale(2.5F, e.x, e.y, smoothScale = true) {}
         return true
     }
 
     override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
         e ?: return false
-
-        Log.d(TAG, "onDoubleTapEvent ${e.action}")
-
-        when (e.action and MotionEvent.ACTION_MASK) {
-            MotionEvent.ACTION_UP -> {
-                abortAnimation()
-            }
-        }
         return true
     }
 
@@ -522,13 +553,14 @@ class MangaView(
         return false
     }
 
-    private data class Scaling(
+    private data class ScaleOperation(
         val from: Float,
         val to: Float,
         val startTimeMillis: Long,
         val durationMillis: Long,
-        val focusX: Float,
-        val focusY: Float
+        val focusX: Float?,
+        val focusY: Float?,
+        val onScaleFinish: () -> Unit
     ) {
         val diff: Float = to - from
     }
