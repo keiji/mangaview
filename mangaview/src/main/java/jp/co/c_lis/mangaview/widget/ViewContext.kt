@@ -36,66 +36,50 @@ data class ViewContext(
         viewport.bottom = viewHeight
     }
 
-    private fun validate(): Boolean {
-        var result = true
-
+    private fun applyViewport() {
         viewport.set(
             currentX,
             currentY,
             currentX + scaledWidth,
             currentY + scaledHeight
         )
-
-        return result
     }
 
     fun scroll(
         distanceX: Float,
         distanceY: Float
-    ): Boolean = offset(distanceX, distanceY)
+    ) = offset(distanceX, distanceY)
 
     fun offset(
         offsetX: Float,
         offsetY: Float
     ) = offsetTo(currentX + offsetX, currentY + offsetY)
 
-    fun offsetXTo(x: Float): Boolean {
-        currentX = x
-        return validate()
-    }
-
-    fun offsetYTo(y: Float): Boolean {
-        currentY = y
-        return validate()
-    }
-
-    fun offsetTo(x: Float, y: Float): Boolean {
+    fun offsetTo(x: Float, y: Float) {
         currentX = x
         currentY = y
 
-        return validate()
+        applyViewport()
     }
 
-    fun scale(factor: Float, focusX: Float, focusY: Float): Boolean {
+    fun scale(factor: Float, focusX: Float, focusY: Float) {
         val scale = currentScale * factor
 
-        val result = scaleTo(
+        scaleTo(
             scale,
             focusX,
             focusY
         )
-
-        return result
     }
 
     fun scaleTo(
         scale: Float,
         focusX: Float,
         focusY: Float
-    ): Boolean {
+    ) {
         val newScale = max(min(scale, maxScale), minScale)
         if (currentScale == newScale) {
-            return false
+            return
         }
 
         val focusXRatio = focusX / viewWidth
@@ -111,7 +95,7 @@ data class ViewContext(
 
         currentScale = newScale
 
-        return validate()
+        applyViewport()
     }
 
     fun canScrollLeft(rectangle: Rectangle, delta: Float = 0.0F): Boolean {

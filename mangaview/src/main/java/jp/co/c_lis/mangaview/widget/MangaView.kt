@@ -454,7 +454,7 @@ class MangaView(
         distanceX: Float,
         distanceY: Float
     ): Boolean {
-        val result = viewState.scroll(
+        viewState.scroll(
             distanceX / viewState.currentScale,
             distanceY / viewState.currentScale
         )
@@ -463,7 +463,7 @@ class MangaView(
             currentPageLayout = it
         }
 
-        return result
+        return true
     }
 
     override fun onLongPress(e: MotionEvent?) {
@@ -498,7 +498,9 @@ class MangaView(
         detector ?: return false
 
         scalingState = ScalingState.Scaling
-        return viewState.scale(detector.scaleFactor, detector.focusX, detector.focusY)
+        viewState.scale(detector.scaleFactor, detector.focusX, detector.focusY)
+
+        return true
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector?) {
