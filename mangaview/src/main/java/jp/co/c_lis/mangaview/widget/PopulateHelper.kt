@@ -115,21 +115,16 @@ abstract class PopulateHelper {
     }
 
     fun populateToCurrent(area: Rectangle, scrollDuration: Int) {
-        val overlap = Rectangle.and(area, viewState.viewport, tmp)
-        overlap ?: return
-
         val startX = viewState.viewport.left.roundToInt()
         val startY = viewState.viewport.top.roundToInt()
-        val dx =
-            (overlap.left - viewState.viewport.left) + (overlap.right - viewState.viewport.right)
-        val dy =
-            (overlap.top - viewState.viewport.top) + (overlap.bottom - viewState.viewport.bottom)
+        val dx = calcDiffHorizontal(area)
+        val dy = calcDiffVertical(area)
 
         settleScroller.startScroll(
             startX,
             startY,
-            dx.roundToInt(),
-            dy.roundToInt(),
+            dx,
+            dy,
             scrollDuration
         )
     }

@@ -205,7 +205,7 @@ class MangaView(
     private fun populate() {
         val layoutManagerSnapshot = layoutManager ?: return
 
-        val currentScrollArea = layoutManagerSnapshot.currentPageLayout(viewState)
+        val currentScrollArea = currentPageLayout
             ?.calcScrollArea(tmpCurrentScrollArea, viewState.currentScale) ?: return
 
         layoutManagerSnapshot.populateHelper
