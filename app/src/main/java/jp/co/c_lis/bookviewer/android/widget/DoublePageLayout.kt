@@ -124,9 +124,9 @@ class DoublePageLayout(
 
     private var isFlip = false
 
-    override fun flip() {
-        val evenPageSnapshot = evenPage ?: return
-        val oddPageSnapshot = oddPage ?: return
+    override fun flip(): PageLayout {
+        val evenPageSnapshot = evenPage ?: return this
+        val oddPageSnapshot = oddPage ?: return this
 
         val tmp = Rectangle()
 
@@ -135,6 +135,8 @@ class DoublePageLayout(
         evenPageSnapshot.position.set(tmp)
 
         isFlip = !isFlip
+
+        return this
     }
 
     override fun calcScrollArea(

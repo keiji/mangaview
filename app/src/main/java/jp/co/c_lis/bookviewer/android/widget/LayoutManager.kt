@@ -1,17 +1,23 @@
 package jp.co.c_lis.bookviewer.android.widget
 
+import androidx.collection.SparseArrayCompat
+import jp.co.c_lis.bookviewer.android.Log
 import kotlin.math.max
 import kotlin.math.min
 
 abstract class LayoutManager {
 
+    companion object {
+        private val TAG = LayoutManager::class.java.simpleName
+    }
+
     internal abstract val populateHelper: PopulateHelper
 
-    internal var pageLayoutList: List<PageLayout> = ArrayList()
-    internal var pageList: List<Page> = ArrayList()
+    internal lateinit var adapter: PageAdapter
+    internal lateinit var pageLayoutManager: PageLayoutManager
 
-    private var viewWidth: Int = 0
-    private var viewHeight: Int = 0
+    var viewWidth: Int = 0
+    var viewHeight: Int = 0
 
     fun setViewSize(width: Int, height: Int) {
         viewWidth = width
@@ -26,8 +32,18 @@ abstract class LayoutManager {
         viewState: ViewState
     ): Int
 
+    fun getPageLayout(index: Int, viewState: ViewState): PageLayout {
+        val pageLayout = caches[index] ?: layout(
+            index,
+            pageLayoutManager.createPageLayout(),
+            viewState
+        )
+        caches.put(index, pageLayout)
+        return pageLayout
+    }
+
     fun currentPageLayout(viewState: ViewState): PageLayout {
-        return pageLayoutList[currentPageLayoutIndex(viewState)]
+        return getPageLayout(currentPageLayoutIndex(viewState), viewState)
     }
 
     open fun leftPageLayout(viewState: ViewState): PageLayout? = null
@@ -35,17 +51,15 @@ abstract class LayoutManager {
     open fun topPageLayout(viewState: ViewState): PageLayout? = null
     open fun bottomPageLayout(viewState: ViewState): PageLayout? = null
 
-    fun getPageLayout(index: Int): PageLayout {
-        return pageLayoutList[index]
-    }
+    private val caches = SparseArrayCompat<PageLayout>()
 
     fun visiblePages(
         viewState: ViewState,
-        resultList: ArrayList<Page> = ArrayList(),
+        resultList: ArrayList<PageLayout> = ArrayList(),
         offsetScreenPageLimit: Int = 1
-    ): List<Page> {
+    ): List<PageLayout> {
         val firstVisiblePageLayoutIndex = calcFirstVisiblePageLayoutIndex(viewState)
-        val endVisiblePageLayoutIndex = calcEndVisiblePageLayoutIndex(viewState)
+        val endVisiblePageLayoutIndex = calcLastVisiblePageLayoutIndex(viewState)
 
         var startIndex = min(endVisiblePageLayoutIndex, firstVisiblePageLayoutIndex)
         var endIndex = max(endVisiblePageLayoutIndex, firstVisiblePageLayoutIndex)
@@ -54,21 +68,30 @@ abstract class LayoutManager {
         endIndex += offsetScreenPageLimit
 
         startIndex = max(0, startIndex)
-        endIndex = min(endIndex, pageLayoutList.size - 1)
+        endIndex = min(
+            endIndex,
+            pageLayoutManager.getCount() - 1
+        )
 
         resultList.clear()
 
         (startIndex..endIndex).forEach { index ->
-            val pageLayout = pageLayoutList[index]
-            resultList.addAll(pageLayout.pages)
+            val pageLayout = getPageLayout(index, viewState) ?: return@forEach
+            if (!pageLayout.isFilled) {
+                pageLayoutManager.layout(pageLayout, index)
+            }
+            resultList.add(pageLayout)
         }
 
         return resultList
     }
 
-    abstract fun layout(viewState: ViewState, pageLayoutManager: PageLayoutManager)
+    abstract val initialScrollX: Float
+    abstract val initialScrollY: Float
+
+    abstract fun layout(index: Int, pageLayout: PageLayout, viewState: ViewState): PageLayout
 
     abstract fun calcFirstVisiblePageLayoutIndex(viewState: ViewState): Int
 
-    abstract fun calcEndVisiblePageLayoutIndex(viewState: ViewState): Int
+    abstract fun calcLastVisiblePageLayoutIndex(viewState: ViewState): Int
 }

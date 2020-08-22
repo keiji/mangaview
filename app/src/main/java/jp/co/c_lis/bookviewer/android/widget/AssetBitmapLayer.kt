@@ -45,14 +45,6 @@ class AssetBitmapLayer(
     ): Boolean {
         val bitmapSnapshot = bitmap ?: return false
 
-        Log.d(
-            TAG,
-            "paddingLeft:$paddingLeft," +
-                    " paddingRight:$paddingRight," +
-                    " paddingTop:$paddingTop," +
-                    " paddingBottom:$paddingBottom"
-        )
-
         srcRect.also {
             it.left = (contentSrc.left / minScale).roundToInt()
             it.right = (contentSrc.right / minScale).roundToInt()
@@ -60,9 +52,6 @@ class AssetBitmapLayer(
             it.bottom = (contentSrc.bottom / minScale).roundToInt()
             it.offset(-paddingLeft, -paddingTop)
         }
-
-        Log.d(TAG, "srcRect", srcRect)
-        Log.d(TAG, "bitmap", bitmapSnapshot)
 
         dstRect.also {
             it.left = projection.left

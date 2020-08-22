@@ -73,17 +73,21 @@ class BookView(
         super.onSizeChanged(w, h, oldw, oldh)
 
         viewState.setViewSize(w, h)
-        layoutManager?.setViewSize(w, h)
+        layoutManager?.also {
+            it.setViewSize(w, h)
+            viewState.offsetTo(it.initialScrollX, it.initialScrollY)
+        }
+
         isInitialized = false
     }
 
     private fun init() {
-        val adapterSnapshot = adapter ?: return
         val layoutManagerSnapshot = layoutManager ?: return
+        val adapterSnapshot = adapter ?: return
 
-        layoutManagerSnapshot.pageList = (0 until adapterSnapshot.pageCount)
-            .map { adapterSnapshot.getPage(it) }
-        layoutManagerSnapshot.layout(viewState, pageLayoutManager)
+        layoutManagerSnapshot.adapter = adapterSnapshot
+        layoutManagerSnapshot.pageLayoutManager = pageLayoutManager
+        pageLayoutManager.pageAdapter = adapterSnapshot
 
         isInitialized = true
     }
@@ -101,8 +105,8 @@ class BookView(
             field = value
         }
 
-    private val visiblePages = ArrayList<Page>()
-    private val recycleBin = ArrayList<Page>()
+    private val visiblePages = ArrayList<PageLayout>()
+    private val recycleBin = ArrayList<PageLayout>()
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
@@ -116,26 +120,30 @@ class BookView(
         var result = true
 
         recycleBin.addAll(visiblePages)
+
         layoutManager?.visiblePages(viewState, visiblePages)
 
-        visiblePages.forEach { page ->
-            if (!page.position.intersect(viewState.viewport)) {
-                return@forEach
-            }
+        visiblePages.forEach { pageLayout ->
+            recycleBin.remove(pageLayout)
 
-            if (!page.draw(canvas, viewState, paint, coroutineScope)) {
-                result = false
+            pageLayout.pages.forEach { page ->
+                if (!page.position.intersect(viewState.viewport)) {
+                    return@forEach
+                }
+
+                if (!page.draw(canvas, viewState, paint, coroutineScope)) {
+                    result = false
+                }
             }
         }
 
         coroutineScope.launch(Dispatchers.Unconfined) {
             synchronized(recycleBin) {
-                recycleBin.forEach {
-                    if (!visiblePages.contains(it)) {
+                recycleBin.forEach { pageLayout ->
+                    pageLayout.pages.forEach {
                         it.recycle()
                     }
                 }
-                recycleBin.clear()
             }
         }
 
@@ -222,7 +230,7 @@ class BookView(
     private var scroller = OverScroller(context, DecelerateInterpolator())
 
     private fun startAnimation() {
-        ViewCompat.postInvalidateOnAnimation(this);
+        ViewCompat.postInvalidateOnAnimation(this)
     }
 
     private fun abortAnimation() {
@@ -320,7 +328,6 @@ class BookView(
         var handleVertical = false
 
         val horizontal = (abs(scaledVelocityX) > abs(scaledVelocityY))
-        Log.d(TAG, "horizontal: $horizontal")
 
         if (horizontal) {
             val leftRect = layoutManagerSnapshot.leftPageLayout(viewState)
@@ -329,11 +336,13 @@ class BookView(
             handleHorizontal = if (scaledVelocityX > 0.0F && leftRect != null
                 && !viewState.canScrollLeft(currentScrollArea)
             ) {
+                Log.d(TAG, "populateToLeft")
                 populateHelper.populateToLeft(leftRect)
                 true
             } else if (scaledVelocityX < 0.0F && rightRect != null
                 && !viewState.canScrollRight(currentScrollArea)
             ) {
+                Log.d(TAG, "populateToRight")
                 populateHelper.populateToRight(rightRect)
                 true
             } else {
@@ -362,11 +371,15 @@ class BookView(
             return true
         }
 
-        val minX = currentScrollArea.left.roundToInt()
-        val maxX = (currentScrollArea.right - viewState.scaledWidth).roundToInt()
+        val minX = currentScrollArea.left.roundToInt() - overScrollDistance
+        val maxX =
+            (currentScrollArea.right - viewState.scaledWidth).roundToInt() + overScrollDistance
 
-        val minY = currentScrollArea.top.roundToInt()
-        val maxY = (currentScrollArea.bottom - viewState.scaledHeight).roundToInt()
+        val minY = currentScrollArea.top.roundToInt() - overScrollDistance
+        val maxY =
+            (currentScrollArea.bottom - viewState.scaledHeight).roundToInt() + overScrollDistance
+
+        Log.d(TAG, "fling")
 
         scroller.fling(
             viewState.currentX.roundToInt(),

@@ -13,7 +13,7 @@ abstract class PageLayout {
 
     abstract val pages: List<Page>
 
-    open fun flip() {}
+    open fun flip(): PageLayout { return this }
 
     abstract fun initScrollArea()
 

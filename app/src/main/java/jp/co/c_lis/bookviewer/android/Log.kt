@@ -14,7 +14,11 @@ class Log {
             android.util.Log.d(tag, message)
         }
 
-        fun d(tag: String, message: String, rect: Rect) {
+        fun d(tag: String, message: String, rect: Rect?) {
+            if (rect == null) {
+                d(tag, "$message, rect is null")
+                return
+            }
             d(
                 tag,
                 "$message, Rect(left=${rect.left}, top=${rect.top}, right=${rect.right}, bottom=${rect.bottom})"
@@ -29,7 +33,11 @@ class Log {
             d(tag, "$message, ${rect}, width=${rect.width}, height=${rect.height}")
         }
 
-        fun d(tag: String, message: String, bitmap: Bitmap) {
+        fun d(tag: String, message: String, bitmap: Bitmap?) {
+            if (bitmap == null) {
+                d(tag, "$message, bitmap is null")
+                return
+            }
             d(tag, "$message, ${bitmap.width}:${bitmap.height}")
         }
     }

@@ -1,7 +1,10 @@
 package jp.co.c_lis.bookviewer.android.widget
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
+import jp.co.c_lis.bookviewer.android.BuildConfig
 import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
 import kotlinx.coroutines.CoroutineScope
@@ -58,7 +61,6 @@ abstract class ContentLayer {
         paddingRight = (right / minScale).roundToInt()
         paddingTop = (top / minScale).roundToInt()
         paddingBottom = (bottom / minScale).roundToInt()
-
     }
 
     private var preparing: Job? = null
@@ -70,6 +72,9 @@ abstract class ContentLayer {
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
+        contentSrc.set(page.contentSrc)
+        projection.set(page.projection)
+
         if (!isPrepared && preparing == null) {
             preparing = coroutineScope.launch(Dispatchers.IO) {
                 prepare(viewState, page)
@@ -77,11 +82,6 @@ abstract class ContentLayer {
             }
             return false
         }
-
-        contentSrc.set(page.contentSrc)
-        projection.set(page.projection)
-
-        Log.d(TAG, "contentSrc", contentSrc)
 
         return onDraw(canvas, viewState, paint, coroutineScope)
     }

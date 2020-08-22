@@ -10,8 +10,11 @@ class HorizontalLtrLayoutManager : LayoutManager() {
 
     override val populateHelper: PopulateHelper = HorizontalPopulateHelper()
 
-    private var layoutWidth: Float = 0.0F
-    private var layoutHeight: Float = 0.0F
+    override val initialScrollX: Float
+        get() = 0.0F
+
+    override val initialScrollY: Float
+        get() = 0.0F
 
     override fun init() {
     }
@@ -25,55 +28,36 @@ class HorizontalLtrLayoutManager : LayoutManager() {
         if (leftIndex < 0) {
             return null
         }
-        return getPageLayout(leftIndex)
+        return getPageLayout(leftIndex, viewState)
 
     }
 
     override fun rightPageLayout(viewState: ViewState): PageLayout? {
         val rightIndex = currentPageLayoutIndex(viewState) + 1
-        if (rightIndex >= pageLayoutList.size) {
+        if (rightIndex >= pageLayoutManager.getCount()) {
             return null
         }
-        return getPageLayout(rightIndex)
+        return getPageLayout(rightIndex, viewState)
     }
 
-    override fun layout(viewState: ViewState, pageLayoutManager: PageLayoutManager) {
+    override fun layout(index: Int, pageLayout: PageLayout, viewState: ViewState): PageLayout {
+        val positionLeft = viewState.viewWidth * index
 
-        pageLayoutList = pageLayoutManager.init(pageList)
-
-        // layout pages
-        for (index in pageLayoutList.indices) {
-            val pageLayout = pageLayoutList[index]
-
-            val positionLeft = viewState.viewWidth * index
-
-            pageLayout.position.also {
-                it.left = positionLeft
-                it.right = it.left + viewState.viewWidth
-                it.top = 0.0F
-                it.bottom = viewState.viewHeight
-            }
+        pageLayout.position.also {
+            it.left = positionLeft
+            it.right = it.left + viewState.viewWidth
+            it.top = 0.0F
+            it.bottom = viewState.viewHeight
         }
 
-        // layout page
-        pageList.forEach {
-            pageLayoutManager.add(it)
-        }
-
-        viewState.scrollableArea.also { area ->
-            area.left = pageLayoutList.minByOrNull { it.position.left }?.position?.left ?: 0.0F
-            area.right = pageLayoutList.maxByOrNull { it.position.right }?.position?.right ?: 0.0F
-            area.top = pageLayoutList.minByOrNull { it.position.top }?.position?.top ?: 0.0F
-            area.bottom =
-                pageLayoutList.maxByOrNull { it.position.bottom }?.position?.bottom ?: 0.0F
-        }
+        return pageLayout
     }
 
     override fun calcFirstVisiblePageLayoutIndex(viewState: ViewState): Int {
         return abs(floor(viewState.viewport.left / viewState.viewWidth)).toInt()
     }
 
-    override fun calcEndVisiblePageLayoutIndex(viewState: ViewState): Int {
+    override fun calcLastVisiblePageLayoutIndex(viewState: ViewState): Int {
         return abs(ceil(viewState.viewport.left / viewState.viewWidth)).toInt()
     }
 }

@@ -16,4 +16,10 @@ class SinglePageLayoutManager : PageLayoutManager() {
 
         return pageLayoutList
     }
+
+    override fun calcFirstPageIndex(index: Int): Int = index
+
+    override fun calcLastPageIndex(index: Int): Int = index
+
+    override fun createPageLayout(): PageLayout = SinglePageLayout()
 }

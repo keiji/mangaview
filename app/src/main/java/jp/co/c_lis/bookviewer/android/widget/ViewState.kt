@@ -10,8 +10,7 @@ data class ViewState(
     internal var currentX: Float = 0.0F,
     internal var currentY: Float = 0.0F,
     internal var currentScale: Float = 1.0F,
-    internal val viewport: Rectangle = Rectangle(0.0F, 0.0F, viewWidth, viewHeight),
-    internal val scrollableArea: Rectangle = Rectangle(0.0F, 0.0F, 1.0F, 1.0F)
+    internal val viewport: Rectangle = Rectangle(0.0F, 0.0F, viewWidth, viewHeight)
 ) {
 
     companion object {
@@ -46,21 +45,6 @@ data class ViewState(
             currentX + scaledWidth,
             currentY + scaledHeight
         )
-
-        if (viewport.left < scrollableArea.left) {
-            offset(scrollableArea.left - viewport.left, 0.0F)
-            result = false
-        } else if (viewport.right > scrollableArea.right) {
-            offset(scrollableArea.right - viewport.right, 0.0F)
-            result = false
-        }
-        if (viewport.top < scrollableArea.top) {
-            offset(0.0F, scrollableArea.top - viewport.top)
-            result = false
-        } else if (viewport.bottom > scrollableArea.bottom) {
-            offset(0.0F, scrollableArea.bottom - viewport.bottom)
-            result = false
-        }
 
         return result
     }
