@@ -2,7 +2,10 @@ package jp.co.c_lis.mangaview.android
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import jp.co.c_lis.mangaview.android.widget.*
+import jp.co.c_lis.mangaview.widget.AssetBitmap
+import jp.co.c_lis.mangaview.widget.AssetBitmapAdapter
+import jp.co.c_lis.mangaview.widget.BookView
+import jp.co.c_lis.mangaview.widget.VerticalLayoutManager
 
 private val DATA = arrayOf(
     AssetBitmap("sample1.png"),

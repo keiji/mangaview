@@ -1,2 +1,3 @@
+include ':mangaview'
 include ':app'
 rootProject.name = "BookViewer"
