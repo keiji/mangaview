@@ -230,7 +230,7 @@ class MangaView(
         val layoutManagerSnapshot = layoutManager ?: return
 
         val currentScrollArea = currentPageLayout
-            ?.calcScrollArea(tmpCurrentScrollArea, viewState.currentScale) ?: return
+            ?.calcScrollArea(tmpCurrentScrollArea, viewState) ?: return
 
         layoutManagerSnapshot.populateHelper
             .init(
@@ -359,7 +359,7 @@ class MangaView(
         val currentPageLayoutSnapshot = currentPageLayout ?: return false
 
         val currentScrollArea =
-            currentPageLayoutSnapshot.calcScrollArea(tmpCurrentScrollArea, viewState.currentScale)
+            currentPageLayoutSnapshot.calcScrollArea(tmpCurrentScrollArea, viewState)
 
         Log.d(TAG, "fling ${currentPageLayoutSnapshot.pages[0].index}")
 

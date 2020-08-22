@@ -23,15 +23,17 @@ abstract class PageLayout {
     private var cachedScaledScrollAreaScale = 0.0F
     private val cachedScaledScrollArea = Rectangle()
 
-    fun getScaledScrollArea(scale: Float): Rectangle {
+    fun getScaledScrollArea(viewContext: ViewContext): Rectangle {
+        val scale = viewContext.currentScale
+
         if (cachedScaledScrollAreaScale == scale) {
             return cachedScaledScrollArea
         }
 
-        return calcScrollArea(cachedScaledScrollArea, scale).also {
+        return calcScrollArea(cachedScaledScrollArea, viewContext).also {
             cachedScaledScrollAreaScale = scale
         }
     }
 
-    abstract fun calcScrollArea(rectangle: Rectangle, scale: Float): Rectangle
+    abstract fun calcScrollArea(rectangle: Rectangle, viewContext: ViewContext): Rectangle
 }

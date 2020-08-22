@@ -154,8 +154,10 @@ class DoublePageLayout(
 
     override fun calcScrollArea(
         rectangle: Rectangle,
-        scale: Float
+        viewContext: ViewContext
     ): Rectangle {
+        val scale = viewContext.currentScale
+
         val scaledScrollWidth = scrollArea.width * scale
         val scaledScrollHeight = scrollArea.height * scale
 

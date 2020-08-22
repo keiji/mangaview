@@ -29,7 +29,7 @@ class HorizontalPopulateHelper : PopulateHelper() {
 
         val currentPageLayout = layoutManagerSnapshot.currentPageLayout(viewContext)
         val scrollArea = currentPageLayout
-            ?.getScaledScrollArea(viewContext.currentScale) ?: return
+            ?.getScaledScrollArea(viewContext) ?: return
 
         // detect overscroll
         if (scrollArea.contains(viewContext.viewport)) {
@@ -44,7 +44,7 @@ class HorizontalPopulateHelper : PopulateHelper() {
             val leftArea =
                 leftRect?.calcScrollArea(
                     tmpLeftScrollArea,
-                    viewContext.currentScale
+                    viewContext
                 )
             populateTo(
                 scrollArea,
@@ -58,7 +58,7 @@ class HorizontalPopulateHelper : PopulateHelper() {
             val rightArea =
                 rightRect?.calcScrollArea(
                     tmpRightScrollArea,
-                    viewContext.currentScale
+                    viewContext
                 )
             populateTo(
                 scrollArea,
@@ -82,11 +82,11 @@ class HorizontalPopulateHelper : PopulateHelper() {
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
         val scrollArea = currentRect
-            ?.getScaledScrollArea(viewContext.currentScale)
+            ?.getScaledScrollArea(viewContext)
 
         populateTo(
             scrollArea,
-            leftRect.calcScrollArea(tmpLeftScrollArea, viewContext.currentScale),
+            leftRect.calcScrollArea(tmpLeftScrollArea, viewContext),
             shouldPopulateHorizontal,
             calcDiffXToLeft, calcDiffVertical,
             populateDuration
@@ -98,12 +98,12 @@ class HorizontalPopulateHelper : PopulateHelper() {
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
         val scrollArea = currentRect
-            ?.getScaledScrollArea(viewContext.currentScale)
+            ?.getScaledScrollArea(viewContext)
 
         populateTo(
             scrollArea,
             rightRect.calcScrollArea(
-                tmpRightScrollArea, viewContext.currentScale
+                tmpRightScrollArea, viewContext
             ),
             shouldPopulateHorizontal,
             calcDiffXToRight, calcDiffVertical,

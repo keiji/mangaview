@@ -56,7 +56,8 @@ class SinglePageLayout : PageLayout() {
         Log.d(TAG, "page:${pageSnapshot.index}", scrollArea)
     }
 
-    override fun calcScrollArea(rectangle: Rectangle, scale: Float): Rectangle {
+    override fun calcScrollArea(rectangle: Rectangle, viewContext: ViewContext): Rectangle {
+        val scale = viewContext.currentScale
         val scaledScrollWidth = scrollArea.width * scale
         val scaledScrollHeight = scrollArea.height * scale
 
