@@ -6,17 +6,6 @@ class SinglePageLayoutManager : PageLayoutManager() {
         return pageCount
     }
 
-    override fun init(pageList: List<Page>): ArrayList<PageLayout> {
-        val containerCount = getCount(pageList.size)
-
-        pageLayoutList.also {
-            it.clear()
-            it.addAll((0 until containerCount).map { SinglePageLayout() })
-        }
-
-        return pageLayoutList
-    }
-
     override fun calcFirstPageIndex(index: Int): Int = index
 
     override fun calcLastPageIndex(index: Int): Int = index

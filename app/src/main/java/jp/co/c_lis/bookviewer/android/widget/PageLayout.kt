@@ -3,6 +3,7 @@ package jp.co.c_lis.bookviewer.android.widget
 import jp.co.c_lis.bookviewer.android.Rectangle
 
 abstract class PageLayout {
+
     val position = Rectangle()
 
     val scrollArea = Rectangle()

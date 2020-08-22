@@ -17,6 +17,7 @@ class AssetBitmapLayer(
         private val TAG = AssetBitmapLayer::class.java.simpleName
     }
 
+    @Volatile
     private var bitmap: Bitmap? = null
 
     override val contentWidth: Float

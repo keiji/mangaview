@@ -5,11 +5,7 @@ abstract class PageLayoutManager {
     lateinit var viewState: ViewState
     lateinit var pageAdapter: PageAdapter
 
-    val pageLayoutList: ArrayList<PageLayout> = ArrayList()
-
-    abstract fun getCount(pageCount: Int = pageAdapter.pageCount ?: 0): Int
-
-    abstract fun init(pageList: List<Page>): ArrayList<PageLayout>
+    abstract fun getCount(pageCount: Int = pageAdapter.pageCount): Int
 
     open fun layout(pageLayout: PageLayout, index: Int): PageLayout {
         val firstPageIndex = calcFirstPageIndex(index)
