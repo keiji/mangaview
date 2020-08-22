@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <jp.co.c_lis.mangaview.widget.MangaView
+    <dev.keiji.mangaview.widget.MangaView
         android:id="@+id/book_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

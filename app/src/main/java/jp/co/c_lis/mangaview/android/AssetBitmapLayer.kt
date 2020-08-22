@@ -7,9 +7,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
-import jp.co.c_lis.mangaview.widget.ContentLayer
-import jp.co.c_lis.mangaview.widget.Page
-import jp.co.c_lis.mangaview.widget.ViewContext
+import dev.keiji.mangaview.widget.ContentLayer
+import dev.keiji.mangaview.widget.Page
+import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

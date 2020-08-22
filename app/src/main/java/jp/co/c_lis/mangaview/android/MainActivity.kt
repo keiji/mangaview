@@ -2,8 +2,8 @@ package jp.co.c_lis.mangaview.android
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import jp.co.c_lis.mangaview.widget.HorizontalRtlLayoutManager
-import jp.co.c_lis.mangaview.widget.MangaView
+import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
+import dev.keiji.mangaview.widget.MangaView
 
 private val FILE_NAMES = arrayOf(
     "sample1.png",

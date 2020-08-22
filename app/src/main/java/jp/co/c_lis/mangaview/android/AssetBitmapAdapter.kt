@@ -1,8 +1,8 @@
 package jp.co.c_lis.mangaview.android
 
 import android.content.res.AssetManager
-import jp.co.c_lis.mangaview.widget.Page
-import jp.co.c_lis.mangaview.widget.PageAdapter
+import dev.keiji.mangaview.widget.Page
+import dev.keiji.mangaview.widget.PageAdapter
 
 class AssetBitmapAdapter(
     private val assetManager: AssetManager,
