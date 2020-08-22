@@ -30,10 +30,10 @@ class VerticalPopulateHelper : PopulateHelper() {
         val layoutManagerSnapshot = layoutManager ?: return
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
-        val scrollArea = currentRect.calcScrollArea(
+        val scrollArea = currentRect?.calcScrollArea(
             tmpCurrentScrollArea,
             viewState.currentScale
-        )
+        ) ?: return
 
         // detect overscroll
         if (scrollArea.contains(viewState.viewport)) {
@@ -84,10 +84,10 @@ class VerticalPopulateHelper : PopulateHelper() {
         val layoutManagerSnapshot = layoutManager ?: return
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
-        val scrollArea = currentRect.calcScrollArea(
+        val scrollArea = currentRect?.calcScrollArea(
             tmpCurrentScrollArea,
             viewState.currentScale
-        )
+        ) ?: return
 
         populateTo(
             scrollArea,
@@ -102,10 +102,10 @@ class VerticalPopulateHelper : PopulateHelper() {
         val layoutManagerSnapshot = layoutManager ?: return
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewState)
-        val scrollArea = currentRect.calcScrollArea(
+        val scrollArea = currentRect?.calcScrollArea(
             tmpCurrentScrollArea,
             viewState.currentScale
-        )
+        ) ?: return
 
         populateTo(
             scrollArea,

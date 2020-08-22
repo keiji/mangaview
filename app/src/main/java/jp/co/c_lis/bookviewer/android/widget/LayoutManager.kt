@@ -28,11 +28,16 @@ abstract class LayoutManager {
 
     abstract fun init()
 
-    abstract fun currentPageLayoutIndex(
-        viewState: ViewState
-    ): Int
+    abstract fun currentPageLayoutIndex(viewState: ViewState): Int
 
-    fun getPageLayout(index: Int, viewState: ViewState): PageLayout {
+    fun getPageLayout(index: Int, viewState: ViewState): PageLayout? {
+        if (index < 0) {
+            return null
+        }
+        if (index >= pageLayoutManager.getCount()) {
+            return null
+        }
+
         val pageLayout = caches[index] ?: layout(
             index,
             pageLayoutManager.createPageLayout(),
@@ -42,7 +47,7 @@ abstract class LayoutManager {
         return pageLayout
     }
 
-    fun currentPageLayout(viewState: ViewState): PageLayout {
+    fun currentPageLayout(viewState: ViewState): PageLayout? {
         return getPageLayout(currentPageLayoutIndex(viewState), viewState)
     }
 

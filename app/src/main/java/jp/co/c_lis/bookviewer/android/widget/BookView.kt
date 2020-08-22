@@ -206,7 +206,7 @@ class BookView(
         val layoutManagerSnapshot = layoutManager ?: return
 
         val currentScrollArea = layoutManagerSnapshot.currentPageLayout(viewState)
-            .calcScrollArea(tmpCurrentScrollArea, viewState.currentScale)
+            ?.calcScrollArea(tmpCurrentScrollArea, viewState.currentScale) ?: return
 
         layoutManagerSnapshot.populateHelper
             .init(
@@ -245,6 +245,10 @@ class BookView(
     override fun computeScroll() {
         super.computeScroll()
 
+        if (!isInitialized) {
+            return
+        }
+
         var needPostInvalidateOnAnimation = false
 
         scaling?.also {
@@ -275,6 +279,10 @@ class BookView(
             needPostInvalidateOnAnimation = needPostInvalidateOnAnimation || !scroller.isFinished
         }
 
+        layoutManager?.currentPageLayout(viewState)?.also {
+            currentPageLayout = it
+        }
+
         if (needPostInvalidateOnAnimation) {
             ViewCompat.postInvalidateOnAnimation(this)
         }
@@ -299,6 +307,15 @@ class BookView(
         return handled
     }
 
+    var currentPageLayout: PageLayout? = null
+        set(value) {
+            if (field == value) {
+                return
+            }
+            Log.d(TAG, "currentPageLayout has Changed. " + value?.position)
+            field = value
+        }
+
     private val tmpCurrentScrollArea = Rectangle()
 
     private fun fling(velocityX: Float, velocityY: Float): Boolean {
@@ -310,9 +327,12 @@ class BookView(
         Log.d(TAG, "scaledVelocityX $scaledVelocityX")
         Log.d(TAG, "scaledVelocityY $scaledVelocityY")
 
-        val currentScrollArea = layoutManagerSnapshot
-            .currentPageLayout(viewState)
-            .calcScrollArea(tmpCurrentScrollArea, viewState.currentScale)
+        val currentPageLayoutSnapshot = currentPageLayout ?: return false
+
+        val currentScrollArea =
+            currentPageLayoutSnapshot.calcScrollArea(tmpCurrentScrollArea, viewState.currentScale)
+
+        Log.d(TAG, "fling ${currentPageLayoutSnapshot.pages[0].index}")
 
         val populateHelper = layoutManagerSnapshot.populateHelper
             .init(
@@ -379,7 +399,13 @@ class BookView(
         val maxY =
             (currentScrollArea.bottom - viewState.scaledHeight).roundToInt() + overScrollDistance
 
-        Log.d(TAG, "fling")
+        Log.d(
+            TAG, "fling " +
+                    "currentX ${viewState.currentX}, currentY ${viewState.currentY}, " +
+                    "scaledVelocityX ${scaledVelocityX}, scaledVelocityY ${scaledVelocityY}, " +
+                    "minX ${minX}, maxX ${maxX}, " +
+                    "minY ${minY}, maxY ${maxY}"
+        )
 
         scroller.fling(
             viewState.currentX.roundToInt(),
@@ -398,10 +424,18 @@ class BookView(
         e2: MotionEvent?,
         distanceX: Float,
         distanceY: Float
-    ): Boolean = viewState.scroll(
-        distanceX / viewState.currentScale,
-        distanceY / viewState.currentScale
-    )
+    ): Boolean {
+        val result = viewState.scroll(
+            distanceX / viewState.currentScale,
+            distanceY / viewState.currentScale
+        )
+
+        layoutManager?.currentPageLayout(viewState)?.also {
+            currentPageLayout = it
+        }
+
+        return result
+    }
 
     override fun onLongPress(e: MotionEvent?) {
         Log.d(TAG, "onLongPress")
