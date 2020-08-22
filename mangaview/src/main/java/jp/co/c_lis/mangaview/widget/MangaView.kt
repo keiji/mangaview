@@ -123,7 +123,7 @@ class MangaView(
 
         layoutManager?.visiblePages(viewState, visiblePageLayoutList)
 
-        visiblePageLayoutList.forEach { pageLayout ->
+        for (pageLayout in visiblePageLayoutList) {
             recycleBin.remove(pageLayout)
 
             pageLayout.pages.forEach { page ->
