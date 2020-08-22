@@ -7,11 +7,6 @@ abstract class PageLayout {
 
     val scrollArea = Rectangle()
 
-    val populateAreaLeft = Rectangle()
-    val populateAreaTop = Rectangle()
-    val populateAreaRight = Rectangle()
-    val populateAreaBottom = Rectangle()
-
     abstract val isFilled: Boolean
 
     abstract fun add(page: Page)
@@ -19,6 +14,8 @@ abstract class PageLayout {
     abstract val pages: List<Page>
 
     open fun flip() {}
+
+    abstract fun initScrollArea()
 
     abstract fun calcScrollArea(rectangle: Rectangle, scale: Float): Rectangle
 }

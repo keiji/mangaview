@@ -36,11 +36,9 @@ class DoublePageLayout(
         }
 
         initScrollArea()
-
-        setPopulateAreas(evenPage, oddPage)
     }
 
-    private fun initScrollArea() {
+    override fun initScrollArea() {
         val evenPagePosition = evenPage?.position ?: return
         val oddPagePosition = oddPage?.position ?: return
 
@@ -122,32 +120,6 @@ class DoublePageLayout(
         oddPage = page
     }
 
-    private fun setPopulateAreas(evenPage: Page?, oddPage: Page?) {
-        val evenPagePosition = evenPage?.position ?: return
-        val oddPagePosition = oddPage?.position ?: return
-
-        populateAreaLeft.set(
-            position.left, position.top,
-            min(evenPagePosition.left, oddPagePosition.left),
-            position.bottom
-        )
-        populateAreaTop.set(
-            position.left, position.top,
-            position.right,
-            min(evenPagePosition.top, oddPagePosition.top),
-        )
-        populateAreaRight.set(
-            max(evenPagePosition.right, oddPagePosition.right),
-            position.top,
-            position.right, position.bottom
-        )
-        populateAreaBottom.set(
-            position.left,
-            max(evenPagePosition.bottom, oddPagePosition.bottom),
-            position.right, position.bottom
-        )
-    }
-
     override val pages: List<Page>
         get() {
             val evenPageSnapshot = evenPage ?: return emptyList<Page>()
@@ -192,7 +164,6 @@ class DoublePageLayout(
             it.bottom += marginVertical - marginVertical / 2
         }
 
-        Log.d(TAG, "scrollArea", rectangle)
         return rectangle
     }
 }

@@ -1,9 +1,7 @@
 package jp.co.c_lis.bookviewer.android.widget
 
-import android.graphics.Rect
 import jp.co.c_lis.bookviewer.android.Log
 import jp.co.c_lis.bookviewer.android.Rectangle
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
@@ -40,21 +38,22 @@ class SinglePageLayout : PageLayout() {
         }
 
         this.page = page
-        setPopulateAreas(page)
-        setScrollArea(page)
+        initScrollArea()
 
         Log.d(TAG, "singlepage", page.position)
     }
 
-    private fun setScrollArea(page: Page) {
-        val pagePosition = page.position
+    override fun initScrollArea() {
+        val pageSnapshot = page ?: return
+        val pagePosition = pageSnapshot.position
+
         scrollArea.set(
             pagePosition.left,
             pagePosition.top,
             pagePosition.right,
             pagePosition.bottom
         )
-        Log.d(TAG, "page:${page.index}", scrollArea)
+        Log.d(TAG, "page:${pageSnapshot.index}", scrollArea)
     }
 
     override fun calcScrollArea(rectangle: Rectangle, scale: Float): Rectangle {
@@ -72,35 +71,6 @@ class SinglePageLayout : PageLayout() {
         }
 
         return rectangle
-    }
-
-    private fun setPopulateAreas(page: Page) {
-        val pagePosition = page.position
-
-        populateAreaLeft.set(
-            position.left, position.top,
-            pagePosition.left, position.bottom
-        ).also {
-            it.left -= pagePosition.width
-        }
-        populateAreaTop.set(
-            position.left, position.top,
-            position.right, pagePosition.top
-        ).also {
-            it.top -= pagePosition.height
-        }
-        populateAreaRight.set(
-            pagePosition.right, position.top,
-            position.right, position.bottom
-        ).also {
-            it.right += pagePosition.width
-        }
-        populateAreaBottom.set(
-            position.left, pagePosition.bottom,
-            position.right, position.bottom
-        ).also {
-            it.bottom += pagePosition.height
-        }
     }
 
     override val pages: List<Page>
