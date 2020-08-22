@@ -18,6 +18,9 @@ class Page(
         private val TAG = Page::class.java.simpleName
     }
 
+    var horizontalAlign: PageHorizontalAlign = PageHorizontalAlign.Center
+    var verticalAlign: PageVerticalAlign = PageVerticalAlign.Middle
+
     var baseScale: Float = 1.0F
 
     val scaledWidth

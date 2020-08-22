@@ -20,7 +20,7 @@ abstract class PageLayout {
 
     abstract fun initScrollArea()
 
-    private var cachedScaledScrollAreaScale = 1.0F
+    private var cachedScaledScrollAreaScale = 0.0F
     private val cachedScaledScrollArea = Rectangle()
 
     fun getScaledScrollArea(scale: Float): Rectangle {

@@ -22,7 +22,13 @@ class DoublePageLayout(
     override fun add(page: Page) {
         val layoutWidth = position.width / 2
 
-        if (page.index % 2 == 0) {
+        val value = page.index + if (isFlip) {
+            1
+        } else {
+            0
+        }
+
+        if (value % 2 == 0) {
             // even
             addEvenPage(page, layoutWidth)
         } else {
@@ -46,7 +52,7 @@ class DoublePageLayout(
     }
 
 
-    private fun addOddPage(page: Page, pageWidth: Float) {
+    private fun addEvenPage(page: Page, pageWidth: Float) {
         page.baseScale = min(
             pageWidth / page.width,
             position.height / page.height
@@ -61,6 +67,7 @@ class DoublePageLayout(
         val paddingBottom = paddingVertical - paddingTop
 
         if (isSpread) {
+            page.horizontalAlign = PageHorizontalAlign.Left
             paddingRight = paddingHorizontal
         } else {
             paddingRight = paddingHorizontal / 3 * 2
@@ -77,7 +84,7 @@ class DoublePageLayout(
         evenPage = page
     }
 
-    private fun addEvenPage(page: Page, pageWidth: Float) {
+    private fun addOddPage(page: Page, pageWidth: Float) {
         page.baseScale = min(
             pageWidth / page.width,
             position.height / page.height
@@ -94,6 +101,7 @@ class DoublePageLayout(
         val paddingBottom = paddingVertical - paddingTop
 
         if (isSpread) {
+            page.horizontalAlign = PageHorizontalAlign.Right
             paddingLeft = paddingHorizontal
         } else {
             paddingLeft = paddingHorizontal / 3 * 2
@@ -133,6 +141,11 @@ class DoublePageLayout(
         tmp.set(oddPageSnapshot.position)
         oddPageSnapshot.position.set(evenPageSnapshot.position)
         evenPageSnapshot.position.set(tmp)
+
+        if (isSpread) {
+            oddPageSnapshot.horizontalAlign = PageHorizontalAlign.Left
+            evenPageSnapshot.horizontalAlign = PageHorizontalAlign.Right
+        }
 
         isFlip = !isFlip
 

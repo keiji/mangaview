@@ -11,10 +11,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-abstract class ContentLayer(
-    private val horizontalAlign: PageHorizontalAlign = PageHorizontalAlign.Center,
-    private val verticalAlign: PageVerticalAlign = PageVerticalAlign.Middle
-) {
+abstract class ContentLayer{
 
     companion object {
         private val TAG = ContentLayer::class.java.simpleName
@@ -54,12 +51,12 @@ abstract class ContentLayer(
         val paddingHorizontal = (page.position.width - scaledContentWidth) / baseScale
         val paddingVertical = (page.position.height - scaledContentHeight) / baseScale
 
-        offsetX = when (horizontalAlign) {
+        offsetX = when (page.horizontalAlign) {
             PageHorizontalAlign.Center -> paddingHorizontal / 2
             PageHorizontalAlign.Left -> 0.0F
             PageHorizontalAlign.Right -> paddingHorizontal
         }
-        offsetY = when (verticalAlign) {
+        offsetY = when (page.verticalAlign) {
             PageVerticalAlign.Middle -> paddingVertical / 2
             PageVerticalAlign.Top -> 0.0F
             PageVerticalAlign.Bottom -> paddingVertical

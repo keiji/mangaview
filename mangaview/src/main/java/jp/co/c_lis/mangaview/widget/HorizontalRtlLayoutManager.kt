@@ -52,7 +52,7 @@ class HorizontalRtlLayoutManager : LayoutManager() {
             it.bottom = viewState.viewHeight
         }
 
-        return pageLayout
+        return pageLayout.flip()
     }
 
     override fun calcLastVisiblePageLayoutIndex(viewState: ViewState): Int {
