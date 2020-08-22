@@ -45,20 +45,20 @@ class PageTest {
         pages[0].also { page ->
             page.layers[0].also { layer ->
                 assertTrue(layer.isPrepared)
-                assertEquals(0.9375F, layer.minScale, FLOAT_DELTA)
-                assertEquals(0, layer.paddingLeft)
+                assertEquals(0.9375F, layer.baseScale, FLOAT_DELTA)
+                assertEquals(0, layer.offsetX)
                 assertEquals(0, layer.paddingRight)
-                assertEquals(207, layer.paddingTop)
+                assertEquals(207, layer.offsetY)
                 assertEquals(207, layer.paddingBottom)
             }
         }
         pages[1].also { page ->
             page.layers[0].also { layer ->
                 assertTrue(layer.isPrepared)
-                assertEquals(0.94158673F, layer.minScale, FLOAT_DELTA)
-                assertEquals(0, layer.paddingLeft)
+                assertEquals(0.94158673F, layer.baseScale, FLOAT_DELTA)
+                assertEquals(0, layer.offsetX)
                 assertEquals(0, layer.paddingRight)
-                assertEquals(236, layer.paddingTop)
+                assertEquals(236, layer.offsetY)
                 assertEquals(236, layer.paddingBottom)
             }
         }

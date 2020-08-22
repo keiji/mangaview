@@ -1,8 +1,11 @@
 package jp.co.c_lis.mangaview
 
+import android.graphics.Rect
+import android.graphics.RectF
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 data class Rectangle(
     var left: Float = 0.0F,
@@ -175,5 +178,19 @@ data class Rectangle(
             return false
         }
         return true
+    }
+
+    fun copyTo(rect: Rect) {
+        rect.left = left.roundToInt()
+        rect.right = right.roundToInt()
+        rect.top = top.roundToInt()
+        rect.bottom = bottom.roundToInt()
+    }
+
+    fun copyTo(rect: RectF) {
+        rect.left = left
+        rect.right = right
+        rect.top = top
+        rect.bottom = bottom
     }
 }

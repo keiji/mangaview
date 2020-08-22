@@ -13,7 +13,6 @@ import jp.co.c_lis.mangaview.widget.ViewState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.math.roundToInt
 
 class AssetBitmapLayer(
     private val assetManager: AssetManager,
@@ -42,31 +41,15 @@ class AssetBitmapLayer(
             }
         }
 
-    private val srcRect = Rect()
-    private val dstRect = RectF()
-
     override fun onDraw(
         canvas: Canvas?,
+        srcRect: Rect,
+        dstRect: RectF,
         viewState: ViewState,
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
         val bitmapSnapshot = bitmap ?: return false
-
-        srcRect.also {
-            it.left = contentSrc.left.roundToInt()
-            it.right = contentSrc.right.roundToInt()
-            it.top = contentSrc.top.roundToInt()
-            it.bottom = contentSrc.bottom.roundToInt()
-            it.offset(-paddingLeft, -paddingTop)
-        }
-
-        dstRect.also {
-            it.left = projection.left
-            it.right = projection.right
-            it.top = projection.top
-            it.bottom = projection.bottom
-        }
 
         canvas?.drawBitmap(
             bitmapSnapshot,

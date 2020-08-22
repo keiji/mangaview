@@ -2,15 +2,19 @@ package jp.co.c_lis.mangaview.widget
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
 import jp.co.c_lis.mangaview.Rectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-abstract class ContentLayer {
+abstract class ContentLayer(
+    private val horizontalAlign: PageHorizontalAlign = PageHorizontalAlign.Center,
+    private val verticalAlign: PageVerticalAlign = PageVerticalAlign.Middle
+) {
 
     companion object {
         private val TAG = ContentLayer::class.java.simpleName
@@ -19,47 +23,53 @@ abstract class ContentLayer {
     abstract val contentWidth: Float
     abstract val contentHeight: Float
 
-    internal var minScale: Float = 1.0F
+    internal var baseScale: Float = 1.0F
 
-    var paddingLeft = 0
-    var paddingTop = 0
-    var paddingRight = 0
-    var paddingBottom = 0
+    var offsetX = 0.0F
+    var offsetY = 0.0F
 
-    val contentSrc = Rectangle()
-    val projection = Rectangle()
+    private val contentSrc = Rectangle()
+    private val projection = Rectangle()
 
     abstract suspend fun prepareContent(viewState: ViewState, page: Page)
 
     open val isPrepared
         get() = false
 
+    internal var isPreparing = false
+
     private suspend fun prepare(viewState: ViewState, page: Page) {
+        isPreparing = true
+
         prepareContent(viewState, page)
 
-        minScale = min(
+        baseScale = min(
             page.position.width / contentWidth,
             page.position.height / contentHeight
         )
 
-        val scaledContentWidth = contentWidth * minScale
-        val scaledContentHeight = contentHeight * minScale
+        val scaledContentWidth = contentWidth * baseScale
+        val scaledContentHeight = contentHeight * baseScale
 
-        val paddingHorizontal = page.position.width - scaledContentWidth
-        val paddingVertical = page.position.height - scaledContentHeight
+        val paddingHorizontal = (page.position.width - scaledContentWidth) / baseScale
+        val paddingVertical = (page.position.height - scaledContentHeight) / baseScale
 
-        val left = paddingHorizontal / 2
-        val right = paddingHorizontal - left
-        val top = paddingVertical / 2
-        val bottom = paddingVertical - top
+        offsetX = when (horizontalAlign) {
+            PageHorizontalAlign.Center -> paddingHorizontal / 2
+            PageHorizontalAlign.Left -> 0.0F
+            PageHorizontalAlign.Right -> paddingHorizontal
+        }
+        offsetY = when (verticalAlign) {
+            PageVerticalAlign.Middle -> paddingVertical / 2
+            PageVerticalAlign.Top -> 0.0F
+            PageVerticalAlign.Bottom -> paddingVertical
+        }
 
-        paddingLeft = (left / minScale).roundToInt()
-        paddingRight = (right / minScale).roundToInt()
-        paddingTop = (top / minScale).roundToInt()
-        paddingBottom = (bottom / minScale).roundToInt()
+        isPreparing = false
     }
 
-    private var preparing: Job? = null
+    private val srcRect = Rect()
+    private val dstRect = RectF()
 
     fun draw(
         canvas: Canvas?,
@@ -68,27 +78,33 @@ abstract class ContentLayer {
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
-        contentSrc.set(page.contentSrc).also {
-            it.left = it.left / minScale
-            it.top = it.top / minScale
-            it.right = it.right / minScale
-            it.bottom = it.bottom / minScale
-        }
-        projection.set(page.projection)
-
-        if (!isPrepared && preparing == null) {
-            preparing = coroutineScope.launch(Dispatchers.IO) {
+        if (!isPrepared && !isPreparing) {
+            coroutineScope.launch(Dispatchers.IO) {
                 prepare(viewState, page)
-                preparing = null
             }
             return false
         }
 
-        return onDraw(canvas, viewState, paint, coroutineScope)
+        contentSrc.set(page.contentSrc).also {
+            it.left = it.left / baseScale
+            it.top = it.top / baseScale
+            it.right = it.right / baseScale
+            it.bottom = it.bottom / baseScale
+
+            it.offset(-offsetX, -offsetY)
+        }
+
+        contentSrc.copyTo(srcRect)
+        projection.set(page.projection)
+            .copyTo(dstRect)
+
+        return onDraw(canvas, srcRect, dstRect, viewState, paint, coroutineScope)
     }
 
     abstract fun onDraw(
         canvas: Canvas?,
+        srcRect: Rect,
+        dstRect: RectF,
         viewState: ViewState,
         paint: Paint,
         coroutineScope: CoroutineScope
