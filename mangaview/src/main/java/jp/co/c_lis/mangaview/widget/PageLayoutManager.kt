@@ -2,7 +2,7 @@ package jp.co.c_lis.mangaview.widget
 
 abstract class PageLayoutManager {
 
-    lateinit var viewState: ViewState
+    lateinit var viewContext: ViewContext
     lateinit var pageAdapter: PageAdapter
 
     abstract fun getCount(pageCount: Int = pageAdapter.pageCount): Int

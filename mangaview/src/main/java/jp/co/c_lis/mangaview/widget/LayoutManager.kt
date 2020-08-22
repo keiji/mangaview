@@ -27,9 +27,9 @@ abstract class LayoutManager {
 
     abstract fun init()
 
-    abstract fun currentPageLayoutIndex(viewState: ViewState): Int
+    abstract fun currentPageLayoutIndex(viewContext: ViewContext): Int
 
-    fun getPageLayout(index: Int, viewState: ViewState): PageLayout? {
+    fun getPageLayout(index: Int, viewContext: ViewContext): PageLayout? {
         if (index < 0) {
             return null
         }
@@ -40,30 +40,30 @@ abstract class LayoutManager {
         val pageLayout = caches[index] ?: layout(
             index,
             pageLayoutManager.createPageLayout(),
-            viewState
+            viewContext
         )
         caches.put(index, pageLayout)
         return pageLayout
     }
 
-    fun currentPageLayout(viewState: ViewState): PageLayout? {
-        return getPageLayout(currentPageLayoutIndex(viewState), viewState)
+    fun currentPageLayout(viewContext: ViewContext): PageLayout? {
+        return getPageLayout(currentPageLayoutIndex(viewContext), viewContext)
     }
 
-    open fun leftPageLayout(viewState: ViewState): PageLayout? = null
-    open fun rightPageLayout(viewState: ViewState): PageLayout? = null
-    open fun topPageLayout(viewState: ViewState): PageLayout? = null
-    open fun bottomPageLayout(viewState: ViewState): PageLayout? = null
+    open fun leftPageLayout(viewContext: ViewContext): PageLayout? = null
+    open fun rightPageLayout(viewContext: ViewContext): PageLayout? = null
+    open fun topPageLayout(viewContext: ViewContext): PageLayout? = null
+    open fun bottomPageLayout(viewContext: ViewContext): PageLayout? = null
 
     private val caches = SparseArrayCompat<PageLayout>()
 
     fun visiblePages(
-        viewState: ViewState,
+        viewContext: ViewContext,
         resultList: ArrayList<PageLayout> = ArrayList(),
         offsetScreenPageLimit: Int = 1
     ): List<PageLayout> {
-        val firstVisiblePageLayoutIndex = calcFirstVisiblePageLayoutIndex(viewState)
-        val endVisiblePageLayoutIndex = calcLastVisiblePageLayoutIndex(viewState)
+        val firstVisiblePageLayoutIndex = calcFirstVisiblePageLayoutIndex(viewContext)
+        val endVisiblePageLayoutIndex = calcLastVisiblePageLayoutIndex(viewContext)
 
         var startIndex = min(endVisiblePageLayoutIndex, firstVisiblePageLayoutIndex)
         var endIndex = max(endVisiblePageLayoutIndex, firstVisiblePageLayoutIndex)
@@ -80,7 +80,7 @@ abstract class LayoutManager {
         resultList.clear()
 
         (startIndex..endIndex).forEach { index ->
-            val pageLayout = getPageLayout(index, viewState) ?: return@forEach
+            val pageLayout = getPageLayout(index, viewContext) ?: return@forEach
             if (!pageLayout.isFilled) {
                 pageLayoutManager.layout(pageLayout, index)
             }
@@ -93,9 +93,9 @@ abstract class LayoutManager {
     abstract val initialScrollX: Float
     abstract val initialScrollY: Float
 
-    abstract fun layout(index: Int, pageLayout: PageLayout, viewState: ViewState): PageLayout
+    abstract fun layout(index: Int, pageLayout: PageLayout, viewContext: ViewContext): PageLayout
 
-    abstract fun calcFirstVisiblePageLayoutIndex(viewState: ViewState): Int
+    abstract fun calcFirstVisiblePageLayoutIndex(viewContext: ViewContext): Int
 
-    abstract fun calcLastVisiblePageLayoutIndex(viewState: ViewState): Int
+    abstract fun calcLastVisiblePageLayoutIndex(viewContext: ViewContext): Int
 }

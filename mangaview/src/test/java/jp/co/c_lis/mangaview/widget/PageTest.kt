@@ -21,7 +21,7 @@ class PageTest {
 
     @Test
     fun layout_isCorrect() {
-        val viewState = ViewState(VIEW_WIDTH, VIEW_HEIGHT)
+        val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
         val layoutManager = HorizontalLayoutManager(reversed = true)
@@ -66,7 +66,7 @@ class PageTest {
 
     @Test
     fun draw_isCorrect() {
-        val viewState = ViewState(VIEW_WIDTH, VIEW_HEIGHT)
+        val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
         val layoutManager = HorizontalLayoutManager(reversed = true)
@@ -131,7 +131,7 @@ class PageTest {
 
     @Test
     fun draw_isCorrect2() {
-        val viewState = ViewState(VIEW_WIDTH, VIEW_HEIGHT)
+        val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
         val layoutManager = HorizontalLayoutManager(reversed = true)
@@ -196,7 +196,7 @@ class PageTest {
 
     @Test
     fun scroll_isCorrect1() {
-        val viewState = ViewState(VIEW_WIDTH, VIEW_HEIGHT)
+        val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
         val layoutManager = HorizontalLayoutManager(reversed = true)
@@ -242,7 +242,7 @@ class PageTest {
 
     @Test
     fun scale_isCorrect1() {
-        val viewState = ViewState(VIEW_WIDTH, VIEW_HEIGHT)
+        val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
         val layoutManager = HorizontalLayoutManager(reversed = true)
@@ -314,7 +314,7 @@ class PageTest {
 
     @Test
     fun scale_isCorrect2() {
-        val viewState = ViewState(VIEW_WIDTH, VIEW_HEIGHT)
+        val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
         val layoutManager = HorizontalLayoutManager(reversed = true)
@@ -368,7 +368,7 @@ class PageTest {
 
     @Test
     fun scroll_isCorrect2() {
-        val viewState = ViewState(VIEW_WIDTH, VIEW_HEIGHT)
+        val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
         val layoutManager = HorizontalLayoutManager(reversed = true)
@@ -459,7 +459,7 @@ class PageTest {
 
     @Test
     fun scroll_isCorrect3() {
-        val viewState = ViewState(VIEW_WIDTH, VIEW_HEIGHT)
+        val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
         val layoutManager = HorizontalLayoutManager(reversed = true)
@@ -558,13 +558,13 @@ class DummyLayer(
     override val isPrepared: Boolean
         get() = isContentLoaded
 
-    override suspend fun prepareContent(viewState: ViewState, page: Page) {
+    override suspend fun prepareContent(viewContext: ViewContext, page: Page) {
         isContentLoaded = true
     }
 
     override fun onDraw(
         canvas: Canvas?,
-        viewState: ViewState,
+        viewContext: ViewContext,
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {

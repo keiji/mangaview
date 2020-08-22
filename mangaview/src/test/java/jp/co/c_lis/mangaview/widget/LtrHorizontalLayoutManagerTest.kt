@@ -14,7 +14,7 @@ class HorizontalLayoutManagerTest {
 
     @Test
     fun layout_isCorrect() {
-        val viewState = ViewState(VIEW_WIDTH, VIEW_HEIGHT)
+        val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val layoutManager = HorizontalLayoutManager(reversed = false)
 
         layoutManager.pageList = (0 until 5).map { Page(it) }
@@ -44,7 +44,7 @@ class HorizontalLayoutManagerTest {
 
     @Test
     fun layout_reverse_isCorrect() {
-        val viewState = ViewState(VIEW_WIDTH, VIEW_HEIGHT)
+        val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val layoutManager = HorizontalLayoutManager(reversed = true)
 
         layoutManager.pageList = (0 until 5).map { Page(it) }

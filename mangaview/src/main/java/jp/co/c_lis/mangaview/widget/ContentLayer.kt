@@ -9,7 +9,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.min
-import kotlin.math.roundToInt
 
 abstract class ContentLayer{
 
@@ -28,17 +27,17 @@ abstract class ContentLayer{
     private val contentSrc = Rectangle()
     private val projection = Rectangle()
 
-    abstract suspend fun prepareContent(viewState: ViewState, page: Page)
+    abstract suspend fun prepareContent(viewContext: ViewContext, page: Page)
 
     open val isPrepared
         get() = false
 
     internal var isPreparing = false
 
-    private suspend fun prepare(viewState: ViewState, page: Page) {
+    private suspend fun prepare(viewContext: ViewContext, page: Page) {
         isPreparing = true
 
-        prepareContent(viewState, page)
+        prepareContent(viewContext, page)
 
         baseScale = min(
             page.position.width / contentWidth,
@@ -70,14 +69,14 @@ abstract class ContentLayer{
 
     fun draw(
         canvas: Canvas?,
-        viewState: ViewState,
+        viewContext: ViewContext,
         page: Page,
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
         if (!isPrepared && !isPreparing) {
             coroutineScope.launch(Dispatchers.IO) {
-                prepare(viewState, page)
+                prepare(viewContext, page)
             }
             return false
         }
@@ -95,14 +94,14 @@ abstract class ContentLayer{
         projection.set(page.projection)
             .copyTo(dstRect)
 
-        return onDraw(canvas, srcRect, dstRect, viewState, paint, coroutineScope)
+        return onDraw(canvas, srcRect, dstRect, viewContext, paint, coroutineScope)
     }
 
     abstract fun onDraw(
         canvas: Canvas?,
         srcRect: Rect,
         dstRect: RectF,
-        viewState: ViewState,
+        viewContext: ViewContext,
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean

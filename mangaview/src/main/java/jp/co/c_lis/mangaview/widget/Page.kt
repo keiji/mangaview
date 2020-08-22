@@ -41,20 +41,20 @@ class Page(
 
     fun draw(
         canvas: Canvas?,
-        viewState: ViewState,
+        viewContext: ViewContext,
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
         contentSrc
-            .set(viewState.viewport)
+            .set(viewContext.viewport)
             .and(position)
             ?.relativeBy(position)
 
         projection
-            .set(viewState.viewport)
+            .set(viewContext.viewport)
             .and(position)
-            ?.relativeBy(viewState.viewport)
-        project(projection, viewState, projection)
+            ?.relativeBy(viewContext.viewport)
+        project(projection, viewContext, projection)
 
         if (projection.area == 0.0F) {
             // do not draw
@@ -64,7 +64,7 @@ class Page(
         var result = true
 
         layers.forEach {
-            if (!it.draw(canvas, viewState, this, paint, coroutineScope)) {
+            if (!it.draw(canvas, viewContext, this, paint, coroutineScope)) {
                 result = false
             }
         }
@@ -84,18 +84,18 @@ class Page(
 
     private fun project(
         rectangle: Rectangle,
-        viewState: ViewState,
+        viewContext: ViewContext,
         result: Rectangle
     ) {
-        val leftRatio = rectangle.left / viewState.scaledWidth
-        val rightRatio = rectangle.right / viewState.scaledWidth
-        val topRatio = rectangle.top / viewState.scaledHeight
-        val bottomRatio = rectangle.bottom / viewState.scaledHeight
+        val leftRatio = rectangle.left / viewContext.scaledWidth
+        val rightRatio = rectangle.right / viewContext.scaledWidth
+        val topRatio = rectangle.top / viewContext.scaledHeight
+        val bottomRatio = rectangle.bottom / viewContext.scaledHeight
 
-        result.left = viewState.viewWidth * leftRatio
-        result.right = viewState.viewWidth * rightRatio
-        result.top = viewState.viewHeight * topRatio
-        result.bottom = viewState.viewHeight * bottomRatio
+        result.left = viewContext.viewWidth * leftRatio
+        result.right = viewContext.viewWidth * rightRatio
+        result.top = viewContext.viewHeight * topRatio
+        result.bottom = viewContext.viewHeight * bottomRatio
     }
 
     fun recycle() {

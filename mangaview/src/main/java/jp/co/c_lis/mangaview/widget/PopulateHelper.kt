@@ -14,7 +14,7 @@ abstract class PopulateHelper {
     var populateDuration: Int = 250
     var reverseScrollDuration: Int = 250
 
-    lateinit var viewState: ViewState
+    lateinit var viewContext: ViewContext
     var layoutManager: LayoutManager? = null
 
     lateinit var settleScroller: OverScroller
@@ -27,8 +27,8 @@ abstract class PopulateHelper {
     val tmpBottomScrollArea = Rectangle()
 
     val calcDiffHorizontal = fun(rect: Rectangle): Int {
-        val diffLeft = rect.left - viewState.viewport.left
-        val diffRight = rect.right - viewState.viewport.right
+        val diffLeft = rect.left - viewContext.viewport.left
+        val diffRight = rect.right - viewContext.viewport.right
 
         if (diffLeft.sign != diffRight.sign) {
             // no overflow
@@ -37,16 +37,16 @@ abstract class PopulateHelper {
 
         val overflowLeft = diffLeft > 0
         val dx = if (overflowLeft) {
-            rect.left - viewState.viewport.left
+            rect.left - viewContext.viewport.left
         } else {
-            rect.right - viewState.viewport.right
+            rect.right - viewContext.viewport.right
         }
         return dx.roundToInt()
     }
 
     val calcDiffVertical = fun(rect: Rectangle): Int {
-        val diffTop = rect.top - viewState.viewport.top
-        val diffBottom = rect.bottom - viewState.viewport.bottom
+        val diffTop = rect.top - viewContext.viewport.top
+        val diffBottom = rect.bottom - viewContext.viewport.bottom
 
         if (diffTop.sign != diffBottom.sign) {
             // no overflow
@@ -55,9 +55,9 @@ abstract class PopulateHelper {
 
         val overflowTop = diffTop > 0
         val dy = if (overflowTop) {
-            rect.top - viewState.viewport.top
+            rect.top - viewContext.viewport.top
         } else {
-            rect.bottom - viewState.viewport.bottom
+            rect.bottom - viewContext.viewport.bottom
         }
         return dy.roundToInt()
     }
@@ -65,14 +65,14 @@ abstract class PopulateHelper {
     val tmp = Rectangle()
 
     fun init(
-        viewState: ViewState,
+        viewContext: ViewContext,
         layoutManager: LayoutManager,
         settleScroller: OverScroller,
         pagingTouchSlop: Float,
         scrollDuration: Int,
         reverseScrollDuration: Int,
     ): PopulateHelper {
-        this.viewState = viewState
+        this.viewContext = viewContext
         this.layoutManager = layoutManager
         this.settleScroller = settleScroller
         this.pagingTouchSlop = pagingTouchSlop
@@ -94,11 +94,11 @@ abstract class PopulateHelper {
         fromArea ?: return false
         toArea ?: return false
 
-        val overlap = Rectangle.and(fromArea, viewState.viewport, tmp)
+        val overlap = Rectangle.and(fromArea, viewContext.viewport, tmp)
 
         if (shouldPopulate(overlap)) {
-            val startX = viewState.viewport.left
-            val startY = viewState.viewport.top
+            val startX = viewContext.viewport.left
+            val startY = viewContext.viewport.top
             settleScroller.startScroll(
                 startX.roundToInt(),
                 startY.roundToInt(),
@@ -113,8 +113,8 @@ abstract class PopulateHelper {
     }
 
     fun populateToCurrent(area: Rectangle, scrollDuration: Int) {
-        val startX = viewState.viewport.left.roundToInt()
-        val startY = viewState.viewport.top.roundToInt()
+        val startX = viewContext.viewport.left.roundToInt()
+        val startY = viewContext.viewport.top.roundToInt()
         val dx = calcDiffHorizontal(area)
         val dy = calcDiffVertical(area)
 

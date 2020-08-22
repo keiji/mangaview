@@ -4,7 +4,7 @@ import jp.co.c_lis.mangaview.Rectangle
 import kotlin.math.max
 import kotlin.math.min
 
-data class ViewState(
+data class ViewContext(
     internal var viewWidth: Float = 0.0F,
     internal var viewHeight: Float = 0.0F,
     internal var currentX: Float = 0.0F,
@@ -14,7 +14,7 @@ data class ViewState(
 ) {
 
     companion object {
-        private val TAG = ViewState::class.java.simpleName
+        private val TAG = ViewContext::class.java.simpleName
     }
 
     var minScale = 1.0F

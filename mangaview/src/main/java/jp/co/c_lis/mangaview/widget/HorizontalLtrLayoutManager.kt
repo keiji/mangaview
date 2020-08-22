@@ -22,45 +22,45 @@ class HorizontalLtrLayoutManager : LayoutManager() {
     }
 
     override fun currentPageLayoutIndex(
-        viewState: ViewState
-    ): Int = abs(viewState.viewport.centerX / viewState.viewWidth).toInt()
+        viewContext: ViewContext
+    ): Int = abs(viewContext.viewport.centerX / viewContext.viewWidth).toInt()
 
-    override fun leftPageLayout(viewState: ViewState): PageLayout? {
-        val leftIndex = currentPageLayoutIndex(viewState) - 1
+    override fun leftPageLayout(viewContext: ViewContext): PageLayout? {
+        val leftIndex = currentPageLayoutIndex(viewContext) - 1
         if (leftIndex < 0) {
             return null
         }
-        return getPageLayout(leftIndex, viewState)
+        return getPageLayout(leftIndex, viewContext)
 
     }
 
-    override fun rightPageLayout(viewState: ViewState): PageLayout? {
-        val rightIndex = currentPageLayoutIndex(viewState) + 1
+    override fun rightPageLayout(viewContext: ViewContext): PageLayout? {
+        val rightIndex = currentPageLayoutIndex(viewContext) + 1
         if (rightIndex >= pageLayoutManager.getCount()) {
             return null
         }
-        return getPageLayout(rightIndex, viewState)
+        return getPageLayout(rightIndex, viewContext)
     }
 
-    override fun layout(index: Int, pageLayout: PageLayout, viewState: ViewState): PageLayout {
-        val positionLeft = viewState.viewWidth * index
+    override fun layout(index: Int, pageLayout: PageLayout, viewContext: ViewContext): PageLayout {
+        val positionLeft = viewContext.viewWidth * index
 
         pageLayout.position.also {
             it.left = positionLeft
-            it.right = it.left + viewState.viewWidth
+            it.right = it.left + viewContext.viewWidth
             it.top = 0.0F
-            it.bottom = viewState.viewHeight
+            it.bottom = viewContext.viewHeight
         }
 
         return pageLayout
     }
 
-    override fun calcFirstVisiblePageLayoutIndex(viewState: ViewState): Int {
-        return abs(floor(viewState.viewport.left / viewState.viewWidth)).toInt()
+    override fun calcFirstVisiblePageLayoutIndex(viewContext: ViewContext): Int {
+        return abs(floor(viewContext.viewport.left / viewContext.viewWidth)).toInt()
     }
 
-    override fun calcLastVisiblePageLayoutIndex(viewState: ViewState): Int {
-        return abs(ceil(viewState.viewport.left / viewState.viewWidth)).toInt()
+    override fun calcLastVisiblePageLayoutIndex(viewContext: ViewContext): Int {
+        return abs(ceil(viewContext.viewport.left / viewContext.viewWidth)).toInt()
     }
 }
 

@@ -67,7 +67,7 @@ class MangaView(
         }
 
 
-    private val viewState = ViewState()
+    private val viewState = ViewContext()
 
     private var isInitialized = false
 

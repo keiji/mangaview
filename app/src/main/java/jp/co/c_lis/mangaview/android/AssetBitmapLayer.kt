@@ -9,7 +9,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import jp.co.c_lis.mangaview.widget.ContentLayer
 import jp.co.c_lis.mangaview.widget.Page
-import jp.co.c_lis.mangaview.widget.ViewState
+import jp.co.c_lis.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -34,7 +34,7 @@ class AssetBitmapLayer(
     override val isPrepared: Boolean
         get() = bitmap != null
 
-    override suspend fun prepareContent(viewState: ViewState, page: Page) =
+    override suspend fun prepareContent(viewContext: ViewContext, page: Page) =
         withContext(Dispatchers.IO) {
             bitmap = assetManager.open(fileName).use {
                 BitmapFactory.decodeStream(it)
@@ -45,7 +45,7 @@ class AssetBitmapLayer(
         canvas: Canvas?,
         srcRect: Rect,
         dstRect: RectF,
-        viewState: ViewState,
+        viewContext: ViewContext,
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
