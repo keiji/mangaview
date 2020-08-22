@@ -197,22 +197,21 @@ class BookView(
     private fun populate() {
         val layoutManagerSnapshot = layoutManager ?: return
 
-        val touchSlop = if (scalingState == ScalingState.End) {
-            Float.MAX_VALUE
-        } else {
-            pagingTouchSlop
-        }
+        val currentScrollArea = layoutManagerSnapshot.currentPageLayout(viewState)
+            .calcScrollArea(tmpCurrentScrollArea, viewState.currentScale)
 
         layoutManagerSnapshot.populateHelper
             .init(
                 viewState,
                 layoutManagerSnapshot,
                 settleScroller,
-                touchSlop,
+                pagingTouchSlop,
                 SCROLLING_DURATION,
                 REVERSE_SCROLLING_DURATION
             )
-            .populate()
+            .populateToCurrent(
+                currentScrollArea, SCROLLING_DURATION
+            )
         startAnimation()
 
         scalingState = ScalingState.Finish
@@ -376,7 +375,6 @@ class BookView(
             -scaledVelocityY.roundToInt(),
             minX, maxX,
             minY, maxY,
-            overScrollDistance, overScrollDistance
         )
 
         return true
@@ -431,7 +429,6 @@ class BookView(
         detector ?: return
 
         scalingState = ScalingState.End
-        populate()
     }
 
     private fun scale(scale: Float, focusX: Float, focusY: Float, smoothScale: Boolean = false) {
