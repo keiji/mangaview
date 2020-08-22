@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import jp.co.c_lis.mangaview.widget.AssetBitmap
 import jp.co.c_lis.mangaview.widget.AssetBitmapAdapter
-import jp.co.c_lis.mangaview.widget.BookView
+import jp.co.c_lis.mangaview.widget.MangaView
 import jp.co.c_lis.mangaview.widget.VerticalLayoutManager
 
 private val DATA = arrayOf(
@@ -18,13 +18,13 @@ private val DATA = arrayOf(
 
 class MainActivity : AppCompatActivity() {
 
-    private var bookView: BookView? = null
+    private var mangaView: MangaView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        bookView = findViewById<BookView>(R.id.book_view).also {
+        mangaView = findViewById<MangaView>(R.id.book_view).also {
             it.layoutManager = VerticalLayoutManager()
             it.adapter = AssetBitmapAdapter(assets, DATA, 1150, 1700)
         }

@@ -16,7 +16,7 @@ import kotlinx.coroutines.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-class BookView(
+class MangaView(
     context: Context,
     attrs: AttributeSet?,
     defStyleAttr: Int
@@ -26,7 +26,7 @@ class BookView(
     ScaleGestureDetector.OnScaleGestureListener {
 
     companion object {
-        private val TAG = BookView::class.java.simpleName
+        private val TAG = MangaView::class.java.simpleName
 
         private const val SCROLLING_DURATION = 280
         private const val REVERSE_SCROLLING_DURATION = 350
