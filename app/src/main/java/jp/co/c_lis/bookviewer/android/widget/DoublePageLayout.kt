@@ -13,11 +13,6 @@ class DoublePageLayout(
         private val TAG = DoublePageLayout::class.java.simpleName
     }
 
-    private var marginLeft: Float = 0.0F
-    private var marginTop: Float = 0.0F
-    private var marginRight: Float = 0.0F
-    private var marginBottom: Float = 0.0F
-
     override val isFilled: Boolean
         get() = (oddPage != null && evenPage != null)
 
@@ -48,11 +43,6 @@ class DoublePageLayout(
             max(evenPagePosition.right, oddPagePosition.right),
             max(evenPagePosition.bottom, oddPagePosition.bottom)
         )
-
-        marginLeft = scrollArea.left - position.left
-        marginTop = scrollArea.top - position.top
-        marginRight = position.right - scrollArea.right
-        marginBottom = position.bottom - scrollArea.bottom
     }
 
 
