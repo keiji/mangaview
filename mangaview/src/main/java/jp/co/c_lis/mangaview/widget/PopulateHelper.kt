@@ -21,8 +21,6 @@ abstract class PopulateHelper {
 
     var pagingTouchSlop: Float = 0.0F
 
-    val tmpCurrentScrollArea = Rectangle()
-
     val tmpLeftScrollArea = Rectangle()
     val tmpRightScrollArea = Rectangle()
     val tmpTopScrollArea = Rectangle()
