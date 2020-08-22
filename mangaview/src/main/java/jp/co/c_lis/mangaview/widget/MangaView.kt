@@ -47,21 +47,21 @@ class MangaView(
     var layoutManager: LayoutManager? = null
         set(value) {
             field = value
-            invalidate()
+            postInvalidate()
         }
 
     var adapter: PageAdapter? = null
         set(value) {
             field = value
             isInitialized = false
-            invalidate()
+            postInvalidate()
         }
 
     var pageLayoutManager: PageLayoutManager = DoublePageLayoutManager(isSpread = true)
         set(value) {
             field = value
             isInitialized = false
-            invalidate()
+            postInvalidate()
         }
 
 
@@ -105,7 +105,7 @@ class MangaView(
             field = value
         }
 
-    private val visiblePages = ArrayList<PageLayout>()
+    private val visiblePageLayoutList = ArrayList<PageLayout>()
     private val recycleBin = ArrayList<PageLayout>()
 
     override fun onDraw(canvas: Canvas?) {
@@ -113,17 +113,17 @@ class MangaView(
 
         if (!isInitialized) {
             init()
-            invalidate()
+            postInvalidate()
             return
         }
 
         var result = true
 
-        recycleBin.addAll(visiblePages)
+        recycleBin.addAll(visiblePageLayoutList)
 
-        layoutManager?.visiblePages(viewState, visiblePages)
+        layoutManager?.visiblePages(viewState, visiblePageLayoutList)
 
-        visiblePages.forEach { pageLayout ->
+        visiblePageLayoutList.forEach { pageLayout ->
             recycleBin.remove(pageLayout)
 
             pageLayout.pages.forEach { page ->
@@ -148,14 +148,14 @@ class MangaView(
         }
 
         if (!result) {
-            invalidate()
+            postInvalidate()
         }
     }
 
     fun showPage(rect: Rectangle, smoothScroll: Boolean = false) {
         if (!smoothScroll) {
             viewState.offsetTo(rect.left, rect.top)
-            invalidate()
+            postInvalidate()
             return
         }
 
@@ -191,11 +191,11 @@ class MangaView(
         }
 
         if (scaleGestureDetector.onTouchEvent(event)) {
-            invalidate()
+            postInvalidate()
         }
 
         if (gestureDetector.onTouchEvent(event)) {
-            invalidate()
+            postInvalidate()
             return true
         }
 
@@ -481,7 +481,7 @@ class MangaView(
     private fun scale(scale: Float, focusX: Float, focusY: Float, smoothScale: Boolean = false) {
         if (!smoothScale) {
             viewState.scaleTo(scale, focusX, focusY)
-            invalidate()
+            postInvalidate()
             return
         }
 

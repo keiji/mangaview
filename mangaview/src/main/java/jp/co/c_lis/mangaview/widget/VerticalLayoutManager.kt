@@ -1,6 +1,8 @@
 package jp.co.c_lis.mangaview.widget
 
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.floor
 
 class VerticalLayoutManager : LayoutManager() {
 

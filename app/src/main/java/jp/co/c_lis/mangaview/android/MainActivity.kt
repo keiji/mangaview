@@ -4,8 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import jp.co.c_lis.mangaview.widget.AssetBitmap
 import jp.co.c_lis.mangaview.widget.AssetBitmapAdapter
+import jp.co.c_lis.mangaview.widget.HorizontalRtlLayoutManager
 import jp.co.c_lis.mangaview.widget.MangaView
-import jp.co.c_lis.mangaview.widget.VerticalLayoutManager
 
 private val DATA = arrayOf(
     AssetBitmap("sample1.png"),
@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         mangaView = findViewById<MangaView>(R.id.book_view).also {
-            it.layoutManager = VerticalLayoutManager()
+            it.layoutManager = HorizontalRtlLayoutManager()
             it.adapter = AssetBitmapAdapter(assets, DATA, 1150, 1700)
         }
     }
