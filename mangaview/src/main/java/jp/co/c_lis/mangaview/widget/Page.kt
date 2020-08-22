@@ -32,6 +32,10 @@ class Page(
 
     internal val layers = ArrayList<ContentLayer>()
 
+    fun addLayer(layer: ContentLayer) {
+        layers.add(layer)
+    }
+
     fun draw(
         canvas: Canvas?,
         viewState: ViewState,

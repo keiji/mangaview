@@ -1,4 +1,4 @@
-package jp.co.c_lis.mangaview.widget
+package jp.co.c_lis.mangaview.android
 
 import android.content.res.AssetManager
 import android.graphics.Bitmap
@@ -7,6 +7,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import jp.co.c_lis.mangaview.widget.ContentLayer
+import jp.co.c_lis.mangaview.widget.Page
+import jp.co.c_lis.mangaview.widget.ViewState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -51,10 +54,10 @@ class AssetBitmapLayer(
         val bitmapSnapshot = bitmap ?: return false
 
         srcRect.also {
-            it.left = (contentSrc.left / minScale).roundToInt()
-            it.right = (contentSrc.right / minScale).roundToInt()
-            it.top = (contentSrc.top / minScale).roundToInt()
-            it.bottom = (contentSrc.bottom / minScale).roundToInt()
+            it.left = contentSrc.left.roundToInt()
+            it.right = contentSrc.right.roundToInt()
+            it.top = contentSrc.top.roundToInt()
+            it.bottom = contentSrc.bottom.roundToInt()
             it.offset(-paddingLeft, -paddingTop)
         }
 

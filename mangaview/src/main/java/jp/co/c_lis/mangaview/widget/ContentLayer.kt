@@ -68,7 +68,12 @@ abstract class ContentLayer {
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
-        contentSrc.set(page.contentSrc)
+        contentSrc.set(page.contentSrc).also {
+            it.left = it.left / minScale
+            it.top = it.top / minScale
+            it.right = it.right / minScale
+            it.bottom = it.bottom / minScale
+        }
         projection.set(page.projection)
 
         if (!isPrepared && preparing == null) {
