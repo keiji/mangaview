@@ -26,17 +26,18 @@ abstract class ContentLayer {
 
     private val contentSrc = Rectangle()
 
-    abstract suspend fun prepareContent(viewContext: ViewContext, page: Page)
+    abstract fun prepareContent(viewContext: ViewContext, page: Page)
 
     open val isPrepared
         get() = false
 
+    @Volatile
     private var isPreparing = false
 
     private val needPrepare: Boolean
         get() = !isPrepared && !isPreparing
 
-    private suspend fun prepare(viewContext: ViewContext, page: Page) {
+    private fun prepare(viewContext: ViewContext, page: Page) {
         isPreparing = true
 
         prepareContent(viewContext, page)
@@ -103,7 +104,7 @@ abstract class ContentLayer {
         page.projection
             .copyTo(dstRect)
 
-        return onDraw(canvas, srcRect, dstRect, viewContext, paint, coroutineScope)
+        return onDraw(canvas, srcRect, dstRect, viewContext, paint)
     }
 
     abstract fun onDraw(
@@ -112,7 +113,6 @@ abstract class ContentLayer {
         dstRect: RectF,
         viewContext: ViewContext,
         paint: Paint,
-        coroutineScope: CoroutineScope
     ): Boolean
 
     open fun recycle() {

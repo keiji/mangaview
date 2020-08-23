@@ -10,9 +10,6 @@ import android.graphics.RectF
 import dev.keiji.mangaview.widget.ContentLayer
 import dev.keiji.mangaview.widget.Page
 import dev.keiji.mangaview.widget.ViewContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class AssetBitmapLayer(
     private val assetManager: AssetManager,
@@ -34,20 +31,18 @@ class AssetBitmapLayer(
     override val isPrepared: Boolean
         get() = bitmap != null
 
-    override suspend fun prepareContent(viewContext: ViewContext, page: Page) =
-        withContext(Dispatchers.IO) {
-            bitmap = assetManager.open(fileName).use {
-                BitmapFactory.decodeStream(it)
-            }
+    override fun prepareContent(viewContext: ViewContext, page: Page) {
+        bitmap = assetManager.open(fileName).use {
+            BitmapFactory.decodeStream(it)
         }
+    }
 
     override fun onDraw(
         canvas: Canvas?,
         srcRect: Rect,
         dstRect: RectF,
         viewContext: ViewContext,
-        paint: Paint,
-        coroutineScope: CoroutineScope
+        paint: Paint
     ): Boolean {
         val bitmapSnapshot = bitmap ?: return false
 
