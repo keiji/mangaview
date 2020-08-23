@@ -22,6 +22,12 @@ interface OnTapListener {
     fun onTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
 }
 
+interface OnDoubleTapListener {
+    fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
+    fun onDoubleTap(page: Page, x: Float, y: Float): Boolean = false
+    fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
+}
+
 class MangaView(
     context: Context,
     attrs: AttributeSet?,
@@ -536,12 +542,64 @@ class MangaView(
         startAnimation()
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
+    var onDoubleTapListener = object : OnDoubleTapListener {
+
+        override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
+            scale(2.5F, x, y, smoothScale = true) {}
+            return true
+        }
+
+        override fun onDoubleTap(page: Page, x: Float, y: Float): Boolean {
+            Log.d(TAG, "onDoubleTap page:${page.index}, x:$x, y:$y")
+
+            return false
+        }
+
+        override fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean {
+            Log.d(TAG, "onDoubleTap ${layer.page?.index}, layer, x:$x, y:$y")
+
+            return false
+        }
+    }
+
     override fun onDoubleTap(e: MotionEvent?): Boolean {
         e ?: return false
 
         Log.d(TAG, "onDoubleTap")
 
-        scale(2.5F, e.x, e.y, smoothScale = true) {}
+        var handled = onDoubleTapListener.onDoubleTap(this, e.x, e.y)
+        if (handled) {
+            return true
+        }
+
+        // mapping global point
+        val globalPosition = projectGlobalPosition(e.x, e.y)
+
+        visiblePageLayoutList
+            .flatMap { it.pages }
+            .forEach pageLoop@{ page ->
+                handled = page.requestHandleEvent(
+                    globalPosition.centerX,
+                    globalPosition.centerY,
+                    onDoubleTapListener
+                )
+                if (handled) {
+                    return@pageLoop
+                }
+
+                page.layers.forEach { layer ->
+                    handled = layer.requestHandleEvent(
+                        globalPosition.centerX,
+                        globalPosition.centerY,
+                        onDoubleTapListener
+                    )
+                    if (handled) {
+                        return@pageLoop
+                    }
+                }
+            }
+
         return true
     }
 
@@ -561,7 +619,7 @@ class MangaView(
         override fun onTap(layer: ContentLayer, x: Float, y: Float): Boolean {
             Log.d(TAG, "onTap ${layer.page?.index}, layer, x:$x, y:$y")
 
-            return super.onTap(layer, x, y)
+            return false
         }
     }
 
@@ -571,7 +629,10 @@ class MangaView(
         e ?: return false
         Log.d(TAG, "onSingleTapConfirmed")
 
-        onTapListener.onTap(this, e.x, e.y)
+        var handled = onTapListener.onTap(this, e.x, e.y)
+        if (handled) {
+            return true
+        }
 
         // mapping global point
         val globalPosition = projectGlobalPosition(e.x, e.y)
@@ -579,7 +640,7 @@ class MangaView(
         visiblePageLayoutList
             .flatMap { it.pages }
             .forEach pageLoop@{ page ->
-                var handled = page.requestHandleEvent(
+                handled = page.requestHandleEvent(
                     globalPosition.centerX,
                     globalPosition.centerY,
                     onTapListener

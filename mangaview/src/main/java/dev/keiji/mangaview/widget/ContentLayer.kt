@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
-import android.view.MotionEvent
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlinx.coroutines.CoroutineScope
@@ -145,19 +144,41 @@ abstract class ContentLayer {
             return false
         }
 
-        val localPoint = localPointTmp
+        val localPoint = convertToLocal()
+        if (localPoint.right > contentWidth || localPoint.bottom > contentHeight) {
+            return false
+        }
+
+        return onTapListener.onTap(this, localPoint.centerX, localPoint.centerY)
+    }
+
+    fun requestHandleEvent(
+        globalX: Float,
+        globalY: Float,
+        onDoubleTapListener: OnDoubleTapListener
+    ): Boolean {
+        localPointTmp.set(globalX, globalY, globalX, globalY)
+
+        if (!globalRect.contains(localPointTmp)) {
+            return false
+        }
+
+        val localPoint = convertToLocal()
+        if (localPoint.right > contentWidth || localPoint.bottom > contentHeight) {
+            return false
+        }
+
+        return onDoubleTapListener.onDoubleTap(this, localPoint.centerX, localPoint.centerY)
+    }
+
+    private fun convertToLocal(): Rectangle {
+        return localPointTmp
             .relativeBy(globalRect).also {
                 it.left /= baseScale
                 it.top /= baseScale
                 it.right /= baseScale
                 it.bottom /= baseScale
             }
-
-        if (localPoint.right > contentWidth || localPoint.bottom > contentHeight) {
-            return false
-        }
-
-        return onTapListener.onTap(this, localPoint.centerX, localPoint.centerY)
     }
 
     open fun recycle() {

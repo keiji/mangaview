@@ -119,4 +119,21 @@ class Page(
 
         return onTapListener.onTap(this, localPoint.centerX, localPoint.centerY)
     }
+
+    fun requestHandleEvent(
+        globalX: Float,
+        globalY: Float,
+        onDoubleTapListener: OnDoubleTapListener
+    ): Boolean {
+        localPointTmp.set(globalX, globalY, globalX, globalY)
+
+        if (!globalRect.contains(localPointTmp)) {
+            return false
+        }
+
+        val localPoint = localPointTmp
+            .relativeBy(globalRect)
+
+        return onDoubleTapListener.onDoubleTap(this, localPoint.centerX, localPoint.centerY)
+    }
 }
