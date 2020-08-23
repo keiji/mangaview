@@ -128,23 +128,20 @@ class MangaView(
         for (pageLayout in visiblePageLayoutList) {
             recycleBin.remove(pageLayout)
 
-            pageLayout.pages.forEach { page ->
-                if (!page.position.intersect(viewState.viewport)) {
-                    return@forEach
+            result = pageLayout.pages
+                .map { page ->
+                    if (!page.position.intersect(viewState.viewport)) {
+                        return@map true
+                    }
+                    return@map page.draw(canvas, viewState, paint, coroutineScope)
                 }
-
-                if (!page.draw(canvas, viewState, paint, coroutineScope)) {
-                    result = false
-                }
-            }
+                .none { !it }
         }
 
         coroutineScope.launch(Dispatchers.Unconfined) {
-            synchronized(recycleBin) {
-                recycleBin.forEach { pageLayout ->
-                    pageLayout.pages.forEach {
-                        it.recycle()
-                    }
+            recycleBin.forEach { pageLayout ->
+                pageLayout.pages.forEach {
+                    it.recycle()
                 }
             }
         }

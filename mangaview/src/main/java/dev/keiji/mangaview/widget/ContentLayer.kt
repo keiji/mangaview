@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.min
 
-abstract class ContentLayer{
+abstract class ContentLayer {
 
     companion object {
         private val TAG = ContentLayer::class.java.simpleName
@@ -34,7 +34,10 @@ abstract class ContentLayer{
 
     internal var isPreparing = false
 
-    private suspend fun prepare(viewContext: ViewContext, page: Page) {
+    val needPrepare: Boolean
+        get() = !isPrepared && !isPreparing
+
+    suspend fun prepare(viewContext: ViewContext, page: Page) {
         isPreparing = true
 
         prepareContent(viewContext, page)
@@ -74,7 +77,7 @@ abstract class ContentLayer{
         paint: Paint,
         coroutineScope: CoroutineScope
     ): Boolean {
-        if (!isPrepared && !isPreparing) {
+        if (needPrepare) {
             coroutineScope.launch(Dispatchers.IO) {
                 prepare(viewContext, page)
             }
@@ -93,6 +96,11 @@ abstract class ContentLayer{
         contentSrc.copyTo(srcRect)
         projection.set(page.projection)
             .copyTo(dstRect)
+
+        if (projection.area == 0.0F) {
+            // do not draw
+            return true
+        }
 
         return onDraw(canvas, srcRect, dstRect, viewContext, paint, coroutineScope)
     }

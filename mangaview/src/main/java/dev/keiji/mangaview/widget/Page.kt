@@ -8,6 +8,8 @@ import dev.keiji.mangaview.BuildConfig
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class Page(
     val index: Int,
@@ -56,18 +58,11 @@ class Page(
             ?.relativeBy(viewContext.viewport)
         project(projection, viewContext, projection)
 
-        if (projection.area == 0.0F) {
-            // do not draw
-            return true
-        }
-
-        var result = true
-
-        layers.forEach {
-            if (!it.draw(canvas, viewContext, this, paint, coroutineScope)) {
-                result = false
+        val result = layers
+            .map {
+                it.draw(canvas, viewContext, this, paint, coroutineScope)
             }
-        }
+            .none { !it }
 
         if (BuildConfig.DEBUG) {
             paint.apply {
