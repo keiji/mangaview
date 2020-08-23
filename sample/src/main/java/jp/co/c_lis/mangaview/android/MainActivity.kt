@@ -3,7 +3,6 @@ package jp.co.c_lis.mangaview.android
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
 import dev.keiji.mangaview.widget.OnDoubleTapListener

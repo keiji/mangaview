@@ -3,7 +3,7 @@ package dev.keiji.mangaview
 import android.graphics.Bitmap
 import android.graphics.Rect
 
-class Log {
+internal class Log {
 
     companion object {
 
