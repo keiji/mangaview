@@ -42,7 +42,7 @@ class VerticalLayoutManager : LayoutManager() {
     override fun layout(index: Int, pageLayout: PageLayout, viewContext: ViewContext): PageLayout {
         val positionTop = viewContext.viewHeight * index
 
-        pageLayout.position.also {
+        pageLayout.globalPosition.also {
             it.left = 0.0F
             it.right = viewContext.viewWidth
             it.top = positionTop

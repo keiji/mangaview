@@ -20,7 +20,7 @@ class DoublePageLayout(
     var evenPage: Page? = null
 
     override fun add(page: Page) {
-        val layoutWidth = position.width / 2
+        val layoutWidth = globalPosition.width / 2
 
         val value = page.index + if (isFlip) {
             1
@@ -40,8 +40,8 @@ class DoublePageLayout(
     }
 
     override fun initScrollArea() {
-        val evenPagePosition = evenPage?.position ?: return
-        val oddPagePosition = oddPage?.position ?: return
+        val evenPagePosition = evenPage?.globalPosition ?: return
+        val oddPagePosition = oddPage?.globalPosition ?: return
 
         scrollArea.set(
             min(evenPagePosition.left, oddPagePosition.left),
@@ -55,11 +55,11 @@ class DoublePageLayout(
     private fun addEvenPage(page: Page, pageWidth: Float) {
         page.baseScale = min(
             pageWidth / page.width,
-            position.height / page.height
+            globalPosition.height / page.height
         )
 
         val paddingHorizontal = pageWidth - page.scaledWidth
-        val paddingVertical = position.height - page.scaledHeight
+        val paddingVertical = globalPosition.height - page.scaledHeight
 
         var paddingLeft = 0.0F
         var paddingRight = 0.0F
@@ -74,11 +74,11 @@ class DoublePageLayout(
             paddingLeft = paddingHorizontal - paddingRight
         }
 
-        page.position.also {
-            it.left = position.left + pageWidth + paddingLeft
-            it.top = position.top + paddingTop
-            it.right = position.right - paddingRight
-            it.bottom = position.bottom - paddingBottom
+        page.globalPosition.also {
+            it.left = globalPosition.left + pageWidth + paddingLeft
+            it.top = globalPosition.top + paddingTop
+            it.right = globalPosition.right - paddingRight
+            it.bottom = globalPosition.bottom - paddingBottom
         }
 
         evenPage = page
@@ -87,11 +87,11 @@ class DoublePageLayout(
     private fun addOddPage(page: Page, pageWidth: Float) {
         page.baseScale = min(
             pageWidth / page.width,
-            position.height / page.height
+            globalPosition.height / page.height
         )
 
         val paddingHorizontal = pageWidth - page.scaledWidth
-        val paddingVertical = position.height - page.scaledHeight
+        val paddingVertical = globalPosition.height - page.scaledHeight
 
         Log.d(TAG, "${paddingHorizontal}")
 
@@ -108,11 +108,11 @@ class DoublePageLayout(
             paddingRight = paddingHorizontal - paddingLeft
         }
 
-        page.position.also {
-            it.left = position.left + paddingLeft
-            it.top = position.top + paddingTop
-            it.right = position.right - pageWidth - paddingRight
-            it.bottom = position.bottom - paddingBottom
+        page.globalPosition.also {
+            it.left = globalPosition.left + paddingLeft
+            it.top = globalPosition.top + paddingTop
+            it.right = globalPosition.right - pageWidth - paddingRight
+            it.bottom = globalPosition.bottom - paddingBottom
         }
 
         oddPage = page
@@ -138,9 +138,9 @@ class DoublePageLayout(
 
         val tmp = Rectangle()
 
-        tmp.copyFrom(oddPageSnapshot.position)
-        oddPageSnapshot.position.copyFrom(evenPageSnapshot.position)
-        evenPageSnapshot.position.copyFrom(tmp)
+        tmp.copyFrom(oddPageSnapshot.globalPosition)
+        oddPageSnapshot.globalPosition.copyFrom(evenPageSnapshot.globalPosition)
+        evenPageSnapshot.globalPosition.copyFrom(tmp)
 
         if (isSpread) {
             oddPageSnapshot.horizontalAlign = PageHorizontalAlign.Left
@@ -161,8 +161,8 @@ class DoublePageLayout(
         val scaledScrollWidth = scrollArea.width * scale
         val scaledScrollHeight = scrollArea.height * scale
 
-        val marginHorizontal = max(position.width - scaledScrollWidth, 0.0F)
-        val marginVertical = max(position.height - scaledScrollHeight, 0.0F)
+        val marginHorizontal = max(globalPosition.width - scaledScrollWidth, 0.0F)
+        val marginVertical = max(globalPosition.height - scaledScrollHeight, 0.0F)
 
         rectangle.copyFrom(scrollArea).also {
             it.left -= marginHorizontal / 2

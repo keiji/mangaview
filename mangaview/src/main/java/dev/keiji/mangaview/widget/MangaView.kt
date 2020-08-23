@@ -130,7 +130,7 @@ class MangaView(
 
             result = pageLayout.pages
                 .map { page ->
-                    if (!page.position.intersect(viewState.viewport)) {
+                    if (!page.globalPosition.intersect(viewState.viewport)) {
                         return@map true
                     }
                     return@map page.draw(canvas, viewState, paint, coroutineScope)
@@ -161,7 +161,7 @@ class MangaView(
             return
         }
 
-        val scrollArea = pageLayout.position
+        val scrollArea = pageLayout.globalPosition
 
         if (!smoothScroll) {
             scale(
@@ -339,7 +339,7 @@ class MangaView(
             if (field == value) {
                 return
             }
-            Log.d(TAG, "currentPageLayout has Changed. " + value?.position)
+            Log.d(TAG, "currentPageLayout has Changed. " + value?.globalPosition)
             field = value
         }
 

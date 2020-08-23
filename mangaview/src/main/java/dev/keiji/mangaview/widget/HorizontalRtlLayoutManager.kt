@@ -42,7 +42,7 @@ class HorizontalRtlLayoutManager : LayoutManager() {
     override fun layout(index: Int, pageLayout: PageLayout, viewContext: ViewContext): PageLayout {
         val positionLeft = viewContext.viewWidth * -(index + 1)
 
-        pageLayout.position.also {
+        pageLayout.globalPosition.also {
             it.left = positionLeft
             it.right = it.left + viewContext.viewWidth
             it.top = 0.0F

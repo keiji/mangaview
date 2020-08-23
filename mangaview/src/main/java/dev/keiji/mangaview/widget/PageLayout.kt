@@ -4,7 +4,7 @@ import dev.keiji.mangaview.Rectangle
 
 abstract class PageLayout {
 
-    val position = Rectangle()
+    val globalPosition = Rectangle()
 
     val scrollArea = Rectangle()
 
@@ -20,7 +20,7 @@ abstract class PageLayout {
 
     abstract fun initScrollArea()
 
-    private var cachedScaledScrollAreaScale = 0.0F
+    private var cachedScaledScrollAreaScale: Float? = null
     private val cachedScaledScrollArea = Rectangle()
 
     fun getScaledScrollArea(viewContext: ViewContext): Rectangle {

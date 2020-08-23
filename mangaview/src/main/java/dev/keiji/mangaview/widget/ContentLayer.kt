@@ -43,15 +43,15 @@ abstract class ContentLayer {
         prepareContent(viewContext, page)
 
         baseScale = min(
-            page.position.width / contentWidth,
-            page.position.height / contentHeight
+            page.globalPosition.width / contentWidth,
+            page.globalPosition.height / contentHeight
         )
 
         val scaledContentWidth = contentWidth * baseScale
         val scaledContentHeight = contentHeight * baseScale
 
-        val paddingHorizontal = (page.position.width - scaledContentWidth) / baseScale
-        val paddingVertical = (page.position.height - scaledContentHeight) / baseScale
+        val paddingHorizontal = (page.globalPosition.width - scaledContentWidth) / baseScale
+        val paddingVertical = (page.globalPosition.height - scaledContentHeight) / baseScale
 
         offsetX = when (page.horizontalAlign) {
             PageHorizontalAlign.Center -> paddingHorizontal / 2

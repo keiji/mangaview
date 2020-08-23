@@ -18,34 +18,34 @@ class SinglePageLayout : PageLayout() {
 
     override fun add(page: Page) {
         page.baseScale = min(
-            position.width / page.width,
-            position.height / page.height
+            globalPosition.width / page.width,
+            globalPosition.height / page.height
         )
 
-        val paddingHorizontal = position.width - page.scaledWidth
-        val paddingVertical = position.height - page.scaledHeight
+        val paddingHorizontal = globalPosition.width - page.scaledWidth
+        val paddingVertical = globalPosition.height - page.scaledHeight
 
         val paddingLeft = paddingHorizontal / 2
         val paddingRight = paddingHorizontal - paddingLeft
         val paddingTop = paddingVertical / 2
         val paddingBottom = paddingVertical - paddingTop
 
-        page.position.also {
-            it.left = position.left + paddingLeft
-            it.top = position.top + paddingTop
-            it.right = position.right - paddingRight
-            it.bottom = position.bottom - paddingBottom
+        page.globalPosition.also {
+            it.left = globalPosition.left + paddingLeft
+            it.top = globalPosition.top + paddingTop
+            it.right = globalPosition.right - paddingRight
+            it.bottom = globalPosition.bottom - paddingBottom
         }
 
         this.page = page
         initScrollArea()
 
-        Log.d(TAG, "singlepage", page.position)
+        Log.d(TAG, "singlepage", page.globalPosition)
     }
 
     override fun initScrollArea() {
         val pageSnapshot = page ?: return
-        val pagePosition = pageSnapshot.position
+        val pagePosition = pageSnapshot.globalPosition
 
         scrollArea.set(
             pagePosition.left,

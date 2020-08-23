@@ -28,7 +28,7 @@ class Page(
     val scaledHeight
         get() = height * baseScale
 
-    val position = Rectangle()
+    val globalPosition = Rectangle()
 
     val contentSrc = Rectangle()
     val projection = Rectangle()
@@ -47,12 +47,12 @@ class Page(
     ): Boolean {
         contentSrc
             .copyFrom(viewContext.viewport)
-            .and(position)
-            ?.relativeBy(position)
+            .and(globalPosition)
+            ?.relativeBy(globalPosition)
 
         projection
             .copyFrom(viewContext.viewport)
-            .and(position)
+            .and(globalPosition)
             ?.relativeBy(viewContext.viewport)
         project(projection, viewContext, projection)
 
