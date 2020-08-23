@@ -87,16 +87,15 @@ data class Rectangle(
     }
 
     fun validate() {
-        if (left > right) {
-            val tmp = left
-            left = right
-            right = tmp
-        }
-        if (top > bottom) {
-            val tmp = top
-            top = bottom
-            bottom = tmp
-        }
+        val l = left
+        val r = right
+        val t = top
+        val b = bottom
+
+        left = min(l, r)
+        right = max(l, r)
+        top = min(t, b)
+        bottom = max(t, b)
     }
 
     companion object {
