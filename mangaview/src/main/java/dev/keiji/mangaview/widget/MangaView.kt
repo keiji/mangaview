@@ -419,11 +419,11 @@ class MangaView(
 
         val minX = currentScrollArea.left.roundToInt() - overScrollDistance
         val maxX =
-            (currentScrollArea.right - viewState.scaledWidth).roundToInt() + overScrollDistance
+            (currentScrollArea.right - viewState.viewport.width).roundToInt() + overScrollDistance
 
         val minY = currentScrollArea.top.roundToInt() - overScrollDistance
         val maxY =
-            (currentScrollArea.bottom - viewState.scaledHeight).roundToInt() + overScrollDistance
+            (currentScrollArea.bottom - viewState.viewport.height).roundToInt() + overScrollDistance
 
         Log.d(
             TAG, "fling " +

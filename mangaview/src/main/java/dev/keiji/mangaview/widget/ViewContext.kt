@@ -20,10 +20,10 @@ data class ViewContext(
     var minScale = 1.0F
     var maxScale = 5.0F
 
-    val scaledWidth: Float
+    private val viewportWidth: Float
         get() = viewWidth / currentScale
 
-    val scaledHeight: Float
+    private val viewportHeight: Float
         get() = viewHeight / currentScale
 
     fun setViewSize(w: Int, h: Int) {
@@ -40,8 +40,8 @@ data class ViewContext(
         viewport.set(
             currentX,
             currentY,
-            currentX + scaledWidth,
-            currentY + scaledHeight
+            currentX + viewportWidth,
+            currentY + viewportHeight
         )
     }
 
@@ -88,8 +88,8 @@ data class ViewContext(
         val newViewportWidth = viewWidth / newScale
         val newViewportHeight = viewHeight / newScale
 
-        val diffX = scaledWidth - newViewportWidth
-        val diffY = scaledHeight - newViewportHeight
+        val diffX = viewportWidth - newViewportWidth
+        val diffY = viewportHeight - newViewportHeight
 
         offset(diffX * focusXRatio, diffY * focusYRatio)
 

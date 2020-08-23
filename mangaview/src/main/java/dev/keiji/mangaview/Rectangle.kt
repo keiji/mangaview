@@ -36,7 +36,7 @@ data class Rectangle(
         return this
     }
 
-    fun set(rectangle: Rectangle): Rectangle {
+    fun copyFrom(rectangle: Rectangle): Rectangle {
         left = rectangle.left
         right = rectangle.right
         top = rectangle.top

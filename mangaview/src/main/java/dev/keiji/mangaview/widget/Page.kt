@@ -8,8 +8,6 @@ import dev.keiji.mangaview.BuildConfig
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class Page(
     val index: Int,
@@ -48,12 +46,12 @@ class Page(
         coroutineScope: CoroutineScope
     ): Boolean {
         contentSrc
-            .set(viewContext.viewport)
+            .copyFrom(viewContext.viewport)
             .and(position)
             ?.relativeBy(position)
 
         projection
-            .set(viewContext.viewport)
+            .copyFrom(viewContext.viewport)
             .and(position)
             ?.relativeBy(viewContext.viewport)
         project(projection, viewContext, projection)
@@ -82,10 +80,10 @@ class Page(
         viewContext: ViewContext,
         result: Rectangle
     ) {
-        val leftRatio = rectangle.left / viewContext.scaledWidth
-        val rightRatio = rectangle.right / viewContext.scaledWidth
-        val topRatio = rectangle.top / viewContext.scaledHeight
-        val bottomRatio = rectangle.bottom / viewContext.scaledHeight
+        val leftRatio = rectangle.left / viewContext.viewport.width
+        val rightRatio = rectangle.right / viewContext.viewport.width
+        val topRatio = rectangle.top / viewContext.viewport.height
+        val bottomRatio = rectangle.bottom / viewContext.viewport.height
 
         result.left = viewContext.viewWidth * leftRatio
         result.right = viewContext.viewWidth * rightRatio

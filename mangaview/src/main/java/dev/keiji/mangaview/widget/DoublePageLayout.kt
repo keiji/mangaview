@@ -138,9 +138,9 @@ class DoublePageLayout(
 
         val tmp = Rectangle()
 
-        tmp.set(oddPageSnapshot.position)
-        oddPageSnapshot.position.set(evenPageSnapshot.position)
-        evenPageSnapshot.position.set(tmp)
+        tmp.copyFrom(oddPageSnapshot.position)
+        oddPageSnapshot.position.copyFrom(evenPageSnapshot.position)
+        evenPageSnapshot.position.copyFrom(tmp)
 
         if (isSpread) {
             oddPageSnapshot.horizontalAlign = PageHorizontalAlign.Left
@@ -164,7 +164,7 @@ class DoublePageLayout(
         val marginHorizontal = max(position.width - scaledScrollWidth, 0.0F)
         val marginVertical = max(position.height - scaledScrollHeight, 0.0F)
 
-        rectangle.set(scrollArea).also {
+        rectangle.copyFrom(scrollArea).also {
             it.left -= marginHorizontal / 2
             it.right += marginHorizontal - marginHorizontal / 2
             it.top -= marginVertical / 2

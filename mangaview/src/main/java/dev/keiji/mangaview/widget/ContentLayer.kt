@@ -25,19 +25,18 @@ abstract class ContentLayer {
     var offsetY = 0.0F
 
     private val contentSrc = Rectangle()
-    private val projection = Rectangle()
 
     abstract suspend fun prepareContent(viewContext: ViewContext, page: Page)
 
     open val isPrepared
         get() = false
 
-    internal var isPreparing = false
+    private var isPreparing = false
 
-    val needPrepare: Boolean
+    private val needPrepare: Boolean
         get() = !isPrepared && !isPreparing
 
-    suspend fun prepare(viewContext: ViewContext, page: Page) {
+    private suspend fun prepare(viewContext: ViewContext, page: Page) {
         isPreparing = true
 
         prepareContent(viewContext, page)
@@ -84,23 +83,25 @@ abstract class ContentLayer {
             return false
         }
 
-        contentSrc.set(page.contentSrc).also {
-            it.left = it.left / baseScale
-            it.top = it.top / baseScale
-            it.right = it.right / baseScale
-            it.bottom = it.bottom / baseScale
-
-            it.offset(-offsetX, -offsetY)
-        }
-
-        contentSrc.copyTo(srcRect)
-        projection.set(page.projection)
-            .copyTo(dstRect)
-
-        if (projection.area == 0.0F) {
+        if (page.projection.area == 0.0F) {
             // do not draw
             return true
         }
+
+        contentSrc
+            .copyFrom(page.contentSrc)
+            .also {
+                it.left = it.left / baseScale
+                it.top = it.top / baseScale
+                it.right = it.right / baseScale
+                it.bottom = it.bottom / baseScale
+
+                it.offset(-offsetX, -offsetY)
+            }
+
+        contentSrc.copyTo(srcRect)
+        page.projection
+            .copyTo(dstRect)
 
         return onDraw(canvas, srcRect, dstRect, viewContext, paint, coroutineScope)
     }
