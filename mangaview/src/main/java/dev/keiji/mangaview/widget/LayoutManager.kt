@@ -53,7 +53,7 @@ abstract class LayoutManager {
 
     private val caches = SparseArrayCompat<PageLayout>()
 
-    fun visiblePages(
+    fun obtainVisiblePageLayout(
         viewContext: ViewContext,
         resultList: ArrayList<PageLayout> = ArrayList(),
         offsetScreenPageLimit: Int = 1

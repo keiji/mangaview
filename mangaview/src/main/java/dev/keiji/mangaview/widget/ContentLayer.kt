@@ -4,6 +4,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import android.view.MotionEvent
+import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +18,8 @@ abstract class ContentLayer {
         private val TAG = ContentLayer::class.java.simpleName
     }
 
+    var page: Page? = null
+
     abstract val contentWidth: Float
     abstract val contentHeight: Float
 
@@ -24,6 +28,7 @@ abstract class ContentLayer {
     var offsetX = 0.0F
     var offsetY = 0.0F
 
+    private val globalRect = Rectangle()
     private val contentSrc = Rectangle()
 
     abstract fun prepareContent(viewContext: ViewContext, page: Page)
@@ -43,15 +48,15 @@ abstract class ContentLayer {
         prepareContent(viewContext, page)
 
         baseScale = min(
-            page.globalPosition.width / contentWidth,
-            page.globalPosition.height / contentHeight
+            page.globalRect.width / contentWidth,
+            page.globalRect.height / contentHeight
         )
 
         val scaledContentWidth = contentWidth * baseScale
         val scaledContentHeight = contentHeight * baseScale
 
-        val paddingHorizontal = (page.globalPosition.width - scaledContentWidth) / baseScale
-        val paddingVertical = (page.globalPosition.height - scaledContentHeight) / baseScale
+        val paddingHorizontal = (page.globalRect.width - scaledContentWidth) / baseScale
+        val paddingVertical = (page.globalRect.height - scaledContentHeight) / baseScale
 
         offsetX = when (page.horizontalAlign) {
             PageHorizontalAlign.Center -> paddingHorizontal / 2
@@ -63,6 +68,18 @@ abstract class ContentLayer {
             PageVerticalAlign.Top -> 0.0F
             PageVerticalAlign.Bottom -> paddingVertical
         }
+
+        globalRect.copyFrom(page.globalRect).also {
+            it.left += offsetX
+            it.top += offsetY
+            it.right -= offsetX
+            it.bottom -= offsetY
+        }
+
+        Log.d(TAG, "offsetX, $offsetX")
+        Log.d(TAG, "offsetY, $offsetY")
+        Log.d(TAG, "baseScale $baseScale")
+        Log.d(TAG, "globalRect", globalRect)
 
         isPreparing = false
     }
@@ -84,7 +101,7 @@ abstract class ContentLayer {
             return false
         }
 
-        if (page.projection.area == 0.0F) {
+        if (page.displayProjection.area == 0.0F) {
             // do not draw
             return true
         }
@@ -101,7 +118,7 @@ abstract class ContentLayer {
             }
 
         contentSrc.copyTo(srcRect)
-        page.projection
+        page.displayProjection
             .copyTo(dstRect)
 
         return onDraw(canvas, srcRect, dstRect, viewContext, paint)
@@ -114,6 +131,34 @@ abstract class ContentLayer {
         viewContext: ViewContext,
         paint: Paint,
     ): Boolean
+
+    private val localPointTmp = Rectangle()
+
+    fun requestHandleEvent(
+        globalX: Float,
+        globalY: Float,
+        onTapListener: OnTapListener
+    ): Boolean {
+        localPointTmp.set(globalX, globalY, globalX, globalY)
+
+        if (!globalRect.contains(localPointTmp)) {
+            return false
+        }
+
+        val localPoint = localPointTmp
+            .relativeBy(globalRect).also {
+                it.left /= baseScale
+                it.top /= baseScale
+                it.right /= baseScale
+                it.bottom /= baseScale
+            }
+
+        if (localPoint.right > contentWidth || localPoint.bottom > contentHeight) {
+            return false
+        }
+
+        return onTapListener.onTap(this, localPoint.centerX, localPoint.centerY)
+    }
 
     open fun recycle() {
     }

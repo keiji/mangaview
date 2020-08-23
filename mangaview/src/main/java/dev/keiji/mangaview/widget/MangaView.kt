@@ -16,6 +16,12 @@ import kotlinx.coroutines.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
+interface OnTapListener {
+    fun onTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
+    fun onTap(page: Page, x: Float, y: Float): Boolean = false
+    fun onTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
+}
+
 class MangaView(
     context: Context,
     attrs: AttributeSet?,
@@ -108,7 +114,7 @@ class MangaView(
         }
 
     private val visiblePageLayoutList = ArrayList<PageLayout>()
-    private val recycleBin = ArrayList<PageLayout>()
+    private val recycleBin = ArrayList<Page>()
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
@@ -119,31 +125,25 @@ class MangaView(
             return
         }
 
-        var result = true
+        recycleBin.addAll(visiblePageLayoutList.flatMap { it.pages })
 
-        recycleBin.addAll(visiblePageLayoutList)
+        layoutManager?.obtainVisiblePageLayout(viewState, visiblePageLayoutList)
 
-        layoutManager?.visiblePages(viewState, visiblePageLayoutList)
-
-        for (pageLayout in visiblePageLayoutList) {
-            recycleBin.remove(pageLayout)
-
-            result = pageLayout.pages
-                .map { page ->
-                    if (!page.globalPosition.intersect(viewState.viewport)) {
-                        return@map true
-                    }
-                    return@map page.draw(canvas, viewState, paint, coroutineScope)
+        val result = visiblePageLayoutList
+            .flatMap { it.pages }
+            .map { page ->
+                recycleBin.remove(page)
+                if (!page.globalRect.intersect(viewState.viewport)) {
+                    return@map true
                 }
-                .none { !it }
-        }
+                page.draw(canvas, viewState, paint, coroutineScope)
+            }.none { !it }
 
         coroutineScope.launch(Dispatchers.Unconfined) {
-            recycleBin.forEach { pageLayout ->
-                pageLayout.pages.forEach {
-                    it.recycle()
-                }
+            recycleBin.forEach { page ->
+                page.recycle()
             }
+            recycleBin.clear()
         }
 
         if (!result) {
@@ -315,7 +315,10 @@ class MangaView(
         }
     }
 
-    override fun onShowPress(e: MotionEvent?) = abortAnimation()
+    override fun onShowPress(e: MotionEvent?) {
+        Log.d(TAG, "onShowPress")
+        abortAnimation()
+    }
 
     override fun onSingleTapUp(e: MotionEvent?) = false
 
@@ -547,10 +550,67 @@ class MangaView(
         return true
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
+    var onTapListener = object : OnTapListener {
+        override fun onTap(page: Page, x: Float, y: Float): Boolean {
+            Log.d(TAG, "onTap page:${page.index}, x:$x, y:$y")
+
+            return false
+        }
+
+        override fun onTap(layer: ContentLayer, x: Float, y: Float): Boolean {
+            Log.d(TAG, "onTap ${layer.page?.index}, layer, x:$x, y:$y")
+
+            return super.onTap(layer, x, y)
+        }
+    }
+
+    private val eventPointTmp = Rectangle()
+
     override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+        e ?: return false
         Log.d(TAG, "onSingleTapConfirmed")
 
+        onTapListener.onTap(this, e.x, e.y)
+
+        // mapping global point
+        val globalPosition = projectGlobalPosition(e.x, e.y)
+
+        visiblePageLayoutList
+            .flatMap { it.pages }
+            .forEach pageLoop@{ page ->
+                var handled = page.requestHandleEvent(
+                    globalPosition.centerX,
+                    globalPosition.centerY,
+                    onTapListener
+                )
+                if (handled) {
+                    return@pageLoop
+                }
+
+                page.layers.forEach { layer ->
+                    handled = layer.requestHandleEvent(
+                        globalPosition.centerX,
+                        globalPosition.centerY,
+                        onTapListener
+                    )
+                    if (handled) {
+                        return@pageLoop
+                    }
+                }
+            }
         return false
+    }
+
+    private fun projectGlobalPosition(x: Float, y: Float): Rectangle {
+        val horizontalRatio = x / viewState.viewWidth
+        val verticalRatio = y / viewState.viewHeight
+
+        val globalX = viewState.viewport.left + viewState.viewport.width * horizontalRatio
+        val globalY = viewState.viewport.top + viewState.viewport.height * verticalRatio
+
+        return eventPointTmp
+            .set(globalX, globalY, globalX, globalY)
     }
 
     private data class ScaleOperation(

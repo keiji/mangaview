@@ -10,6 +10,7 @@ data class ViewContext(
     internal var currentX: Float = 0.0F,
     internal var currentY: Float = 0.0F,
     internal var currentScale: Float = 1.0F,
+    // Global Viewport
     internal val viewport: Rectangle = Rectangle(0.0F, 0.0F, viewWidth, viewHeight)
 ) {
 

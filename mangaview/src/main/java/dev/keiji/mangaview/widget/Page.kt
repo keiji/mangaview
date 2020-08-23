@@ -28,15 +28,17 @@ class Page(
     val scaledHeight
         get() = height * baseScale
 
-    val globalPosition = Rectangle()
+    val globalRect = Rectangle()
 
     val contentSrc = Rectangle()
-    val projection = Rectangle()
+    val displayProjection = Rectangle()
 
     internal val layers = ArrayList<ContentLayer>()
 
     fun addLayer(layer: ContentLayer) {
-        layers.add(layer)
+        layers.add(layer.also {
+            it.page = this
+        })
     }
 
     fun draw(
@@ -47,14 +49,14 @@ class Page(
     ): Boolean {
         contentSrc
             .copyFrom(viewContext.viewport)
-            .and(globalPosition)
-            ?.relativeBy(globalPosition)
+            .and(globalRect)
+            ?.relativeBy(globalRect)
 
-        projection
+        displayProjection
             .copyFrom(viewContext.viewport)
-            .and(globalPosition)
+            .and(globalRect)
             ?.relativeBy(viewContext.viewport)
-        project(projection, viewContext, projection)
+        project(displayProjection, viewContext, displayProjection)
 
         val result = layers
             .map {
@@ -67,7 +69,7 @@ class Page(
                 color = Color.BLUE
                 style = Paint.Style.STROKE
             }
-            canvas?.drawRect(projection.let {
+            canvas?.drawRect(displayProjection.let {
                 RectF(it.left, it.top, it.right, it.bottom)
             }, paint)
         }
@@ -97,5 +99,24 @@ class Page(
         layers.forEach {
             it.recycle()
         }
+    }
+
+    private val localPointTmp = Rectangle()
+
+    fun requestHandleEvent(
+        globalX: Float,
+        globalY: Float,
+        onTapListener: OnTapListener
+    ): Boolean {
+        localPointTmp.set(globalX, globalY, globalX, globalY)
+
+        if (!globalRect.contains(localPointTmp)) {
+            return false
+        }
+
+        val localPoint = localPointTmp
+            .relativeBy(globalRect)
+
+        return onTapListener.onTap(this, localPoint.centerX, localPoint.centerY)
     }
 }

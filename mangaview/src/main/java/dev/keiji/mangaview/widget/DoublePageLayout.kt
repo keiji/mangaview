@@ -40,8 +40,8 @@ class DoublePageLayout(
     }
 
     override fun initScrollArea() {
-        val evenPagePosition = evenPage?.globalPosition ?: return
-        val oddPagePosition = oddPage?.globalPosition ?: return
+        val evenPagePosition = evenPage?.globalRect ?: return
+        val oddPagePosition = oddPage?.globalRect ?: return
 
         scrollArea.set(
             min(evenPagePosition.left, oddPagePosition.left),
@@ -74,7 +74,7 @@ class DoublePageLayout(
             paddingLeft = paddingHorizontal - paddingRight
         }
 
-        page.globalPosition.also {
+        page.globalRect.also {
             it.left = globalPosition.left + pageWidth + paddingLeft
             it.top = globalPosition.top + paddingTop
             it.right = globalPosition.right - paddingRight
@@ -108,7 +108,7 @@ class DoublePageLayout(
             paddingRight = paddingHorizontal - paddingLeft
         }
 
-        page.globalPosition.also {
+        page.globalRect.also {
             it.left = globalPosition.left + paddingLeft
             it.top = globalPosition.top + paddingTop
             it.right = globalPosition.right - pageWidth - paddingRight
@@ -138,9 +138,9 @@ class DoublePageLayout(
 
         val tmp = Rectangle()
 
-        tmp.copyFrom(oddPageSnapshot.globalPosition)
-        oddPageSnapshot.globalPosition.copyFrom(evenPageSnapshot.globalPosition)
-        evenPageSnapshot.globalPosition.copyFrom(tmp)
+        tmp.copyFrom(oddPageSnapshot.globalRect)
+        oddPageSnapshot.globalRect.copyFrom(evenPageSnapshot.globalRect)
+        evenPageSnapshot.globalRect.copyFrom(tmp)
 
         if (isSpread) {
             oddPageSnapshot.horizontalAlign = PageHorizontalAlign.Left
