@@ -28,6 +28,11 @@ interface OnDoubleTapListener {
     fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
 }
 
+interface OnPageChangeListener {
+    fun onScrollStateChanged(mangaView: MangaView, scrollState: Int) {}
+    fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {}
+}
+
 class MangaView(
     context: Context,
     attrs: AttributeSet?,
@@ -40,6 +45,10 @@ class MangaView(
     companion object {
         private val TAG = MangaView::class.java.simpleName
 
+        const val SCROLL_STATE_IDLE = 0
+        const val SCROLL_STATE_DRAGGING = 1
+        const val SCROLL_STATE_SETTLING = 2
+
         private const val SCROLLING_DURATION = 280
         private const val REVERSE_SCROLLING_DURATION = 350
         private const val SCALING_DURATION = 350L
@@ -49,6 +58,15 @@ class MangaView(
 
     constructor(context: Context, attrs: AttributeSet) : this(context, attrs, 0x0)
 
+    private var scrollState: Int = SCROLL_STATE_IDLE
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            onPageChangeListener.onScrollStateChanged(this, value)
+        }
+
     private val viewConfiguration: ViewConfiguration = ViewConfiguration.get(context)
     private val density = context.resources.displayMetrics.scaledDensity
 
@@ -56,6 +74,15 @@ class MangaView(
         (viewConfiguration.scaledOverscrollDistance * density).roundToInt()
     private val pagingTouchSlop = viewConfiguration.scaledPagingTouchSlop * density
 
+    var onPageChangeListener = object : OnPageChangeListener {
+        override fun onScrollStateChanged(mangaView: MangaView, scrollState: Int) {
+            Log.d(TAG, "scrollState -> ${scrollState}")
+        }
+
+        override fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {
+            Log.d(TAG, "onPageLayoutSelected -> ${pageLayout.pages[0].index}")
+        }
+    }
     var layoutManager: LayoutManager? = null
         set(value) {
             field = value
@@ -185,7 +212,7 @@ class MangaView(
             val currentLeft = viewState.viewport.left.roundToInt()
             val currentTop = viewState.viewport.top.roundToInt()
 
-            scroller.startScroll(
+            settleScroller.startScroll(
                 currentLeft,
                 currentTop,
                 scrollArea.left.roundToInt() - currentLeft,
@@ -213,6 +240,9 @@ class MangaView(
                 abortAnimation()
             }
             MotionEvent.ACTION_UP -> {
+                if (scrollState != SCROLL_STATE_SETTLING) {
+                    scrollState = SCROLL_STATE_IDLE
+                }
                 populate()
             }
         }
@@ -277,9 +307,7 @@ class MangaView(
             return
         }
 
-        var needPostInvalidateOnAnimation = false
-
-        scaleOperation?.also {
+        val needPostInvalidateScale = scaleOperation?.let {
             val elapsed = System.currentTimeMillis() - it.startTimeMillis
             val input = elapsed.toFloat() / it.durationMillis
             val scaleFactor = scaleInterpolator.getInterpolation(input)
@@ -289,34 +317,41 @@ class MangaView(
             viewState.scaleTo(newScale, focusX, focusY)
             populate()
 
-            if (input > 1.0F || elapsed <= 0) {
+            val needPostInvalidateScale = if (input > 1.0F || elapsed <= 0) {
                 viewState.scaleTo(it.to, focusX, focusY)
                 it.onScaleFinish()
 
                 scaleOperation = null
-                needPostInvalidateOnAnimation = false
+                false
             } else {
-                needPostInvalidateOnAnimation = true
+                true
             }
-        }
 
-        if (scroller.isFinished && !settleScroller.isFinished && settleScroller.computeScrollOffset()) {
-            // secondary
-            viewState.offsetTo(settleScroller.currX.toFloat(), settleScroller.currY.toFloat())
-            needPostInvalidateOnAnimation =
-                needPostInvalidateOnAnimation || !settleScroller.isFinished
+            needPostInvalidateScale
+        } ?: false
 
-        } else if (!scroller.isFinished && scroller.computeScrollOffset()) {
-            // primary
-            viewState.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
-            needPostInvalidateOnAnimation = needPostInvalidateOnAnimation || !scroller.isFinished
-        }
+        val needPostInvalidateScroll =
+            if (scroller.isFinished && !settleScroller.isFinished && settleScroller.computeScrollOffset()) {
+                viewState.offsetTo(settleScroller.currX.toFloat(), settleScroller.currY.toFloat())
+                scrollState = SCROLL_STATE_SETTLING
+                !settleScroller.isFinished
+
+            } else if (!scroller.isFinished && scroller.computeScrollOffset()) {
+                viewState.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
+                !scroller.isFinished
+            } else {
+                false
+            }
 
         layoutManager?.currentPageLayout(viewState)?.also {
             currentPageLayout = it
         }
 
-        if (needPostInvalidateOnAnimation) {
+        if (!needPostInvalidateScroll && scrollState == SCROLL_STATE_SETTLING) {
+            scrollState = SCROLL_STATE_IDLE
+        }
+
+        if (needPostInvalidateScale || needPostInvalidateScroll) {
             ViewCompat.postInvalidateOnAnimation(this)
         }
     }
@@ -344,12 +379,12 @@ class MangaView(
     }
 
     var currentPageLayout: PageLayout? = null
-        set(value) {
-            if (field == value) {
+        private set(value) {
+            if (value == null || field == value) {
                 return
             }
-            Log.d(TAG, "currentPageLayout has Changed. " + value?.globalPosition)
             field = value
+            onPageChangeListener.onPageLayoutSelected(this, value)
         }
 
     private val tmpCurrentScrollArea = Rectangle()
@@ -470,6 +505,8 @@ class MangaView(
             currentPageLayout = it
         }
 
+        scrollState = SCROLL_STATE_DRAGGING
+
         return true
     }
 
@@ -544,29 +581,21 @@ class MangaView(
 
     @Suppress("MemberVisibilityCanBePrivate")
     var onDoubleTapListener = object : OnDoubleTapListener {
-
         override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
-            scale(2.5F, x, y, smoothScale = true) {}
-            return true
+            return false
         }
 
         override fun onDoubleTap(page: Page, x: Float, y: Float): Boolean {
-            Log.d(TAG, "onDoubleTap page:${page.index}, x:$x, y:$y")
-
             return false
         }
 
         override fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean {
-            Log.d(TAG, "onDoubleTap ${layer.page?.index}, layer, x:$x, y:$y")
-
             return false
         }
     }
 
     override fun onDoubleTap(e: MotionEvent?): Boolean {
         e ?: return false
-
-        Log.d(TAG, "onDoubleTap")
 
         var handled = onDoubleTapListener.onDoubleTap(this, e.x, e.y)
         if (handled) {

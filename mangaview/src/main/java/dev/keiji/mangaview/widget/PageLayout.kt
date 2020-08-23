@@ -10,7 +10,15 @@ abstract class PageLayout {
 
     abstract val isFilled: Boolean
 
+    abstract val primaryPage: Page?
+
     abstract fun add(page: Page)
+
+    abstract fun replace(targetPage: Page, newPage: Page?)
+
+    fun remove(page: Page) {
+        replace(page, null)
+    }
 
     abstract val pages: List<Page>
 

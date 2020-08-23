@@ -2,8 +2,13 @@ package jp.co.c_lis.mangaview.android
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
+import dev.keiji.mangaview.widget.OnDoubleTapListener
+import dev.keiji.mangaview.widget.OnPageChangeListener
+import dev.keiji.mangaview.widget.PageLayout
 
 private val FILE_NAMES = arrayOf(
     "sample1.png",
@@ -16,7 +21,29 @@ private val FILE_NAMES = arrayOf(
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        private val TAG = MainActivity::class.java.simpleName
+    }
+
     private var mangaView: MangaView? = null
+
+    private val onPageChangeListener = object : OnPageChangeListener {
+        override fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {
+            val page = pageLayout.primaryPage ?: return
+            Toast.makeText(
+                this@MainActivity,
+                "Page Index: ${page.index}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private val onDoubleTapListener = object : OnDoubleTapListener {
+        override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
+            mangaView.showPage(3, smoothScroll = true)
+            return true
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +52,8 @@ class MainActivity : AppCompatActivity() {
         mangaView = findViewById<MangaView>(R.id.manga_view).also {
             it.layoutManager = HorizontalRtlLayoutManager()
             it.adapter = AssetBitmapAdapter(assets, FILE_NAMES, 1150, 1700)
+            it.onPageChangeListener = onPageChangeListener
+            it.onDoubleTapListener = onDoubleTapListener
         }
     }
 }

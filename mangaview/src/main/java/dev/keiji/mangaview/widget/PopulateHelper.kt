@@ -99,11 +99,18 @@ abstract class PopulateHelper {
         if (shouldPopulate(overlap)) {
             val startX = viewContext.viewport.left
             val startY = viewContext.viewport.top
+            val dx = dx(toArea)
+            val dy = dy(toArea)
+
+            if (dx == 0 && dy == 0) {
+                return false
+            }
+
             settleScroller.startScroll(
                 startX.roundToInt(),
                 startY.roundToInt(),
-                dx(toArea),
-                dy(toArea),
+                dx,
+                dy,
                 duration
             )
             return true
@@ -117,6 +124,10 @@ abstract class PopulateHelper {
         val startY = viewContext.viewport.top.roundToInt()
         val dx = calcDiffHorizontal(area)
         val dy = calcDiffVertical(area)
+
+        if (dx == 0 && dy == 0) {
+            return
+        }
 
         settleScroller.startScroll(
             startX,

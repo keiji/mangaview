@@ -16,6 +16,9 @@ class SinglePageLayout : PageLayout() {
 
     var page: Page? = null
 
+    override val primaryPage: Page?
+        get() = page
+
     override fun add(page: Page) {
         page.baseScale = min(
             globalPosition.width / page.width,
@@ -41,6 +44,12 @@ class SinglePageLayout : PageLayout() {
         initScrollArea()
 
         Log.d(TAG, "singlepage", page.globalRect)
+    }
+
+    override fun replace(targetPage: Page, newPage: Page?) {
+        if (page == targetPage) {
+            page = newPage
+        }
     }
 
     override fun initScrollArea() {

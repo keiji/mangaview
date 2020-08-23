@@ -14,10 +14,22 @@ class DoublePageLayout(
     }
 
     override val isFilled: Boolean
-        get() = (oddPage != null && evenPage != null)
+        get() = (leftPage != null && rightPage != null)
 
-    var oddPage: Page? = null
-    var evenPage: Page? = null
+    var leftPage: Page? = null
+        private set
+
+    var rightPage: Page? = null
+        private set
+
+    override val primaryPage: Page?
+        get() {
+            return if (isFlip) {
+                rightPage
+            } else {
+                leftPage
+            }
+        }
 
     override fun add(page: Page) {
         val layoutWidth = globalPosition.width / 2
@@ -29,19 +41,25 @@ class DoublePageLayout(
         }
 
         if (value % 2 == 0) {
-            // even
-            addEvenPage(page, layoutWidth)
+            addRightPage(page, layoutWidth)
         } else {
-            // odd
-            addOddPage(page, layoutWidth)
+            addLeftPage(page, layoutWidth)
         }
 
         initScrollArea()
     }
 
+    override fun replace(targetPage: Page, newPage: Page?) {
+        if (leftPage == targetPage) {
+            leftPage = newPage
+        } else if (rightPage == targetPage) {
+            rightPage = newPage
+        }
+    }
+
     override fun initScrollArea() {
-        val evenPagePosition = evenPage?.globalRect ?: return
-        val oddPagePosition = oddPage?.globalRect ?: return
+        val evenPagePosition = rightPage?.globalRect ?: return
+        val oddPagePosition = leftPage?.globalRect ?: return
 
         scrollArea.set(
             min(evenPagePosition.left, oddPagePosition.left),
@@ -52,7 +70,7 @@ class DoublePageLayout(
     }
 
 
-    private fun addEvenPage(page: Page, pageWidth: Float) {
+    private fun addRightPage(page: Page, pageWidth: Float) {
         page.baseScale = min(
             pageWidth / page.width,
             globalPosition.height / page.height
@@ -81,10 +99,10 @@ class DoublePageLayout(
             it.bottom = globalPosition.bottom - paddingBottom
         }
 
-        evenPage = page
+        rightPage = page
     }
 
-    private fun addOddPage(page: Page, pageWidth: Float) {
+    private fun addLeftPage(page: Page, pageWidth: Float) {
         page.baseScale = min(
             pageWidth / page.width,
             globalPosition.height / page.height
@@ -115,13 +133,13 @@ class DoublePageLayout(
             it.bottom = globalPosition.bottom - paddingBottom
         }
 
-        oddPage = page
+        leftPage = page
     }
 
     override val pages: List<Page>
         get() {
-            val evenPageSnapshot = evenPage ?: return emptyList<Page>()
-            val oddPageSnapshot = oddPage ?: return emptyList<Page>()
+            val evenPageSnapshot = rightPage ?: return emptyList<Page>()
+            val oddPageSnapshot = leftPage ?: return emptyList<Page>()
 
             return if (!isFlip) {
                 listOf(oddPageSnapshot, evenPageSnapshot)
@@ -133,8 +151,8 @@ class DoublePageLayout(
     private var isFlip = false
 
     override fun flip(): PageLayout {
-        val evenPageSnapshot = evenPage ?: return this
-        val oddPageSnapshot = oddPage ?: return this
+        val evenPageSnapshot = rightPage ?: return this
+        val oddPageSnapshot = leftPage ?: return this
 
         val tmp = Rectangle()
 
