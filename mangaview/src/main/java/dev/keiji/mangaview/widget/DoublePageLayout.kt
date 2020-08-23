@@ -24,6 +24,8 @@ class DoublePageLayout(
 
     override val primaryPage: Page?
         get() {
+            Log.d(TAG, "$rightPage")
+            Log.d(TAG, "$leftPage")
             return if (isFlip) {
                 rightPage
             } else {

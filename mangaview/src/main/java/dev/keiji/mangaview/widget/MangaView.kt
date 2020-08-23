@@ -64,6 +64,11 @@ class MangaView(
         private const val SCROLLING_DURATION = 280
         private const val REVERSE_SCROLLING_DURATION = 350
         private const val SCALING_DURATION = 350L
+
+        private const val TAP_PAGE_TRANSITION_THRESHOLD_LEFT = 0.2F
+        private const val TAP_PAGE_TRANSITION_THRESHOLD_RIGHT = 0.8F
+        private const val TAP_PAGE_TRANSITION_THRESHOLD_TOP = 0.2F
+        private const val TAP_PAGE_TRANSITION_THRESHOLD_BOTTOM = 0.8F
     }
 
     constructor(context: Context) : this(context, null, 0x0)
@@ -391,7 +396,11 @@ class MangaView(
         abortAnimation()
     }
 
-    override fun onSingleTapUp(e: MotionEvent?) = false
+    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+        e ?: return false
+
+        return tryPageTransition(e)
+    }
 
     override fun onDown(e: MotionEvent?) = true
 
@@ -660,6 +669,73 @@ class MangaView(
             }
 
         return true
+    }
+
+    private fun tryPageTransition(e: MotionEvent): Boolean {
+        val currentScrollAreaSnapshot = currentPageLayout?.scrollArea ?: return false
+        if (!viewContext.viewport.contains(currentScrollAreaSnapshot)) {
+            return false
+        }
+
+        val layoutManagerSnapshot = layoutManager ?: return false
+
+        if (e.x < viewContext.viewWidth * TAP_PAGE_TRANSITION_THRESHOLD_LEFT) {
+            toLeftPage(layoutManagerSnapshot)
+            return true
+        }
+
+        if (e.x > viewContext.viewWidth * TAP_PAGE_TRANSITION_THRESHOLD_RIGHT) {
+            toRightPage(layoutManagerSnapshot)
+            return true
+        }
+
+        if (e.y < viewContext.viewHeight * TAP_PAGE_TRANSITION_THRESHOLD_TOP) {
+            toTopPage(layoutManagerSnapshot)
+            return true
+        }
+
+        if (e.x > viewContext.viewHeight * TAP_PAGE_TRANSITION_THRESHOLD_BOTTOM) {
+            toBottomPage(layoutManagerSnapshot)
+            return true
+        }
+
+        return false
+    }
+
+    private fun toLeftPage(
+        layoutManagerSnapshot: LayoutManager
+    ): Boolean {
+        val index =
+            layoutManagerSnapshot.leftPageLayout(viewContext)?.primaryPage?.index ?: return false
+        showPage(index, smoothScroll = true)
+        return true
+    }
+
+    private fun toRightPage(
+        layoutManagerSnapshot: LayoutManager
+    ): Boolean {
+        val index =
+            layoutManagerSnapshot.rightPageLayout(viewContext)?.primaryPage?.index ?: return false
+        showPage(index, smoothScroll = true)
+        return true
+    }
+
+    private fun toTopPage(
+        layoutManagerSnapshot: LayoutManager
+    ): Boolean {
+        val index =
+            layoutManagerSnapshot.topPageLayout(viewContext)?.primaryPage?.index ?: return false
+        showPage(index, smoothScroll = true)
+        return false
+    }
+
+    private fun toBottomPage(
+        layoutManagerSnapshot: LayoutManager
+    ): Boolean {
+        val index =
+            layoutManagerSnapshot.topPageLayout(viewContext)?.primaryPage?.index ?: return false
+        showPage(index, smoothScroll = true)
+        return false
     }
 
     override fun onDoubleTapEvent(e: MotionEvent?): Boolean {

@@ -1,6 +1,7 @@
 package dev.keiji.mangaview.widget
 
 import androidx.collection.SparseArrayCompat
+import dev.keiji.mangaview.Log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -61,6 +62,10 @@ abstract class LayoutManager {
         val firstVisiblePageLayoutIndex = calcFirstVisiblePageLayoutIndex(viewContext)
         val endVisiblePageLayoutIndex = calcLastVisiblePageLayoutIndex(viewContext)
 
+        Log.Companion.d(
+            TAG,
+            "firstVisiblePageLayoutIndex:$firstVisiblePageLayoutIndex, endVisiblePageLayoutIndex:$endVisiblePageLayoutIndex"
+        )
         var startIndex = min(endVisiblePageLayoutIndex, firstVisiblePageLayoutIndex)
         var endIndex = max(endVisiblePageLayoutIndex, firstVisiblePageLayoutIndex)
 

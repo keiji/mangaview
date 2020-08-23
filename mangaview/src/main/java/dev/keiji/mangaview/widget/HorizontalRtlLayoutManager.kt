@@ -53,11 +53,11 @@ class HorizontalRtlLayoutManager : LayoutManager() {
     }
 
     override fun calcLastVisiblePageLayoutIndex(viewContext: ViewContext): Int {
-        return abs(floor(viewContext.viewport.right / viewContext.viewWidth)).toInt() - 1
+        return abs(floor(viewContext.viewport.right / viewContext.viewWidth)).toInt()
     }
 
     override fun calcFirstVisiblePageLayoutIndex(viewContext: ViewContext): Int {
-        return abs(ceil(viewContext.viewport.right / viewContext.viewWidth)).toInt() - 1
+        return abs(ceil(viewContext.viewport.right / viewContext.viewWidth)).toInt()
     }
 }
 
