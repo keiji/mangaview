@@ -257,6 +257,7 @@ class MangaView(
     private fun abortAnimation() {
         scroller.abortAnimation()
         settleScroller.abortAnimation()
+        scaleOperation = null
     }
 
     private var scaleInterpolator = DecelerateInterpolator()
