@@ -7,7 +7,7 @@ An ImageView for reading manga(comics) for Android.
 License
 =======
 
-    Copyright 2020 Keiji ARIYAMA
+    Copyright 2020 Keiji ARIYAMA (C-LIS CO., LTD.)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
