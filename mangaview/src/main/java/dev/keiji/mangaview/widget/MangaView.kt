@@ -106,17 +106,17 @@ class MangaView(
         }
 
 
-    private val viewState = ViewContext()
+    private val viewContext = ViewContext()
 
     private var isInitialized = false
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        viewState.setViewSize(w, h)
+        viewContext.setViewSize(w, h)
         layoutManager?.also {
             it.setViewSize(w, h)
-            viewState.offsetTo(it.initialScrollX, it.initialScrollY)
+            viewContext.offsetTo(it.initialScrollX, it.initialScrollY)
         }
 
         isInitialized = false
@@ -160,16 +160,16 @@ class MangaView(
 
         recycleBin.addAll(visiblePageLayoutList.flatMap { it.pages })
 
-        layoutManager?.obtainVisiblePageLayout(viewState, visiblePageLayoutList)
+        layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
 
         val result = visiblePageLayoutList
             .flatMap { it.pages }
             .map { page ->
                 recycleBin.remove(page)
-                if (!page.globalRect.intersect(viewState.viewport)) {
+                if (!page.globalRect.intersect(viewContext.viewport)) {
                     return@map true
                 }
-                page.draw(canvas, viewState, paint, coroutineScope)
+                page.draw(canvas, viewContext, paint, coroutineScope)
             }.none { !it }
 
         coroutineScope.launch(Dispatchers.Unconfined) {
@@ -187,7 +187,7 @@ class MangaView(
     @Suppress("MemberVisibilityCanBePrivate")
     fun showPage(pageIndex: Int, smoothScroll: Boolean = false) {
         val pageLayoutIndex = pageLayoutManager.calcPageLayoutIndex(pageIndex)
-        val pageLayout = layoutManager?.getPageLayout(pageLayoutIndex, viewState)
+        val pageLayout = layoutManager?.getPageLayout(pageLayoutIndex, viewContext)
 
         if (pageLayout == null) {
             Log.d(TAG, "pageIndex: ${pageIndex} -> pageLayoutIndex ${pageLayoutIndex} not found.")
@@ -199,18 +199,18 @@ class MangaView(
         if (!smoothScroll) {
             scale(
                 1.0F,
-                viewState.viewport.centerY,
-                viewState.viewport.centerY,
+                viewContext.viewport.centerY,
+                viewContext.viewport.centerY,
                 smoothScale = false
             ) {}
-            viewState.offsetTo(scrollArea.left, scrollArea.top)
+            viewContext.offsetTo(scrollArea.left, scrollArea.top)
             postInvalidate()
             return
         }
 
-        scale(viewState.minScale, null, null, smoothScale = true) {
-            val currentLeft = viewState.viewport.left.roundToInt()
-            val currentTop = viewState.viewport.top.roundToInt()
+        scale(viewContext.minScale, null, null, smoothScale = true) {
+            val currentLeft = viewContext.viewport.left.roundToInt()
+            val currentTop = viewContext.viewport.top.roundToInt()
 
             settleScroller.startScroll(
                 currentLeft,
@@ -263,11 +263,11 @@ class MangaView(
         val layoutManagerSnapshot = layoutManager ?: return
 
         val currentScrollArea = currentPageLayout
-            ?.calcScrollArea(tmpCurrentScrollArea, viewState) ?: return
+            ?.calcScrollArea(tmpCurrentScrollArea, viewContext) ?: return
 
         layoutManagerSnapshot.populateHelper
             .init(
-                viewState,
+                viewContext,
                 layoutManagerSnapshot,
                 settleScroller,
                 pagingTouchSlop,
@@ -312,13 +312,13 @@ class MangaView(
             val input = elapsed.toFloat() / it.durationMillis
             val scaleFactor = scaleInterpolator.getInterpolation(input)
             val newScale = it.from + it.diff * scaleFactor
-            val focusX = it.focusX ?: viewState.viewWidth / 2
-            val focusY = it.focusY ?: viewState.viewHeight / 2
-            viewState.scaleTo(newScale, focusX, focusY)
+            val focusX = it.focusX ?: viewContext.viewWidth / 2
+            val focusY = it.focusY ?: viewContext.viewHeight / 2
+            viewContext.scaleTo(newScale, focusX, focusY)
             populate()
 
             val needPostInvalidateScale = if (input > 1.0F || elapsed <= 0) {
-                viewState.scaleTo(it.to, focusX, focusY)
+                viewContext.scaleTo(it.to, focusX, focusY)
                 it.onScaleFinish()
 
                 scaleOperation = null
@@ -332,18 +332,18 @@ class MangaView(
 
         val needPostInvalidateScroll =
             if (scroller.isFinished && !settleScroller.isFinished && settleScroller.computeScrollOffset()) {
-                viewState.offsetTo(settleScroller.currX.toFloat(), settleScroller.currY.toFloat())
+                viewContext.offsetTo(settleScroller.currX.toFloat(), settleScroller.currY.toFloat())
                 scrollState = SCROLL_STATE_SETTLING
                 !settleScroller.isFinished
 
             } else if (!scroller.isFinished && scroller.computeScrollOffset()) {
-                viewState.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
+                viewContext.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
                 !scroller.isFinished
             } else {
                 false
             }
 
-        layoutManager?.currentPageLayout(viewState)?.also {
+        layoutManager?.currentPageLayout(viewContext)?.also {
             currentPageLayout = it
         }
 
@@ -392,8 +392,8 @@ class MangaView(
     private fun fling(velocityX: Float, velocityY: Float): Boolean {
         val layoutManagerSnapshot = layoutManager ?: return false
 
-        val scaledVelocityX = velocityX / viewState.currentScale
-        val scaledVelocityY = velocityY / viewState.currentScale
+        val scaledVelocityX = velocityX / viewContext.currentScale
+        val scaledVelocityY = velocityY / viewContext.currentScale
 
         Log.d(TAG, "scaledVelocityX $scaledVelocityX")
         Log.d(TAG, "scaledVelocityY $scaledVelocityY")
@@ -401,13 +401,13 @@ class MangaView(
         val currentPageLayoutSnapshot = currentPageLayout ?: return false
 
         val currentScrollArea =
-            currentPageLayoutSnapshot.calcScrollArea(tmpCurrentScrollArea, viewState)
+            currentPageLayoutSnapshot.calcScrollArea(tmpCurrentScrollArea, viewContext)
 
         Log.d(TAG, "fling ${currentPageLayoutSnapshot.pages[0].index}")
 
         val populateHelper = layoutManagerSnapshot.populateHelper
             .init(
-                viewState,
+                viewContext,
                 layoutManagerSnapshot,
                 settleScroller,
                 pagingTouchSlop,
@@ -421,17 +421,17 @@ class MangaView(
         val horizontal = (abs(scaledVelocityX) > abs(scaledVelocityY))
 
         if (horizontal) {
-            val leftRect = layoutManagerSnapshot.leftPageLayout(viewState)
-            val rightRect = layoutManagerSnapshot.rightPageLayout(viewState)
+            val leftRect = layoutManagerSnapshot.leftPageLayout(viewContext)
+            val rightRect = layoutManagerSnapshot.rightPageLayout(viewContext)
 
             handleHorizontal = if (scaledVelocityX > 0.0F && leftRect != null
-                && !viewState.canScrollLeft(currentScrollArea)
+                && !viewContext.canScrollLeft(currentScrollArea)
             ) {
                 Log.d(TAG, "populateToLeft")
                 populateHelper.populateToLeft(leftRect)
                 true
             } else if (scaledVelocityX < 0.0F && rightRect != null
-                && !viewState.canScrollRight(currentScrollArea)
+                && !viewContext.canScrollRight(currentScrollArea)
             ) {
                 Log.d(TAG, "populateToRight")
                 populateHelper.populateToRight(rightRect)
@@ -440,16 +440,16 @@ class MangaView(
                 false
             }
         } else {
-            val topRect = layoutManagerSnapshot.topPageLayout(viewState)
-            val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewState)
+            val topRect = layoutManagerSnapshot.topPageLayout(viewContext)
+            val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewContext)
 
             handleVertical = if (scaledVelocityY > 0.0F && topRect != null
-                && !viewState.canScrollTop(currentScrollArea)
+                && !viewContext.canScrollTop(currentScrollArea)
             ) {
                 populateHelper.populateToTop(topRect)
                 true
             } else if (scaledVelocityY < 0.0F && bottomRect != null
-                && !viewState.canScrollBottom(currentScrollArea)
+                && !viewContext.canScrollBottom(currentScrollArea)
             ) {
                 populateHelper.populateToBottom(bottomRect)
                 true
@@ -464,23 +464,23 @@ class MangaView(
 
         val minX = currentScrollArea.left.roundToInt() - overScrollDistance
         val maxX =
-            (currentScrollArea.right - viewState.viewport.width).roundToInt() + overScrollDistance
+            (currentScrollArea.right - viewContext.viewport.width).roundToInt() + overScrollDistance
 
         val minY = currentScrollArea.top.roundToInt() - overScrollDistance
         val maxY =
-            (currentScrollArea.bottom - viewState.viewport.height).roundToInt() + overScrollDistance
+            (currentScrollArea.bottom - viewContext.viewport.height).roundToInt() + overScrollDistance
 
         Log.d(
             TAG, "fling " +
-                    "currentX ${viewState.currentX}, currentY ${viewState.currentY}, " +
+                    "currentX ${viewContext.currentX}, currentY ${viewContext.currentY}, " +
                     "scaledVelocityX ${scaledVelocityX}, scaledVelocityY ${scaledVelocityY}, " +
                     "minX ${minX}, maxX ${maxX}, " +
                     "minY ${minY}, maxY ${maxY}"
         )
 
         scroller.fling(
-            viewState.currentX.roundToInt(),
-            viewState.currentY.roundToInt(),
+            viewContext.currentX.roundToInt(),
+            viewContext.currentY.roundToInt(),
             -scaledVelocityX.roundToInt(),
             -scaledVelocityY.roundToInt(),
             minX, maxX,
@@ -496,12 +496,12 @@ class MangaView(
         distanceX: Float,
         distanceY: Float
     ): Boolean {
-        viewState.scroll(
-            distanceX / viewState.currentScale,
-            distanceY / viewState.currentScale
+        viewContext.scroll(
+            distanceX / viewContext.currentScale,
+            distanceY / viewContext.currentScale
         )
 
-        layoutManager?.currentPageLayout(viewState)?.also {
+        layoutManager?.currentPageLayout(viewContext)?.also {
             currentPageLayout = it
         }
 
@@ -542,7 +542,7 @@ class MangaView(
         detector ?: return false
 
         scalingState = ScalingState.Scaling
-        viewState.scale(detector.scaleFactor, detector.focusX, detector.focusY)
+        viewContext.scale(detector.scaleFactor, detector.focusX, detector.focusY)
 
         return true
     }
@@ -561,17 +561,17 @@ class MangaView(
         onScaleFinish: () -> Unit,
     ) {
         if (!smoothScale) {
-            viewState.scaleTo(
+            viewContext.scaleTo(
                 scale,
-                focusX ?: viewState.viewport.centerX,
-                focusY ?: viewState.viewport.centerY
+                focusX ?: viewContext.viewport.centerX,
+                focusY ?: viewContext.viewport.centerY
             )
             postInvalidate()
             return
         }
 
         scaleOperation = ScaleOperation(
-            viewState.currentScale, scale,
+            viewContext.currentScale, scale,
             System.currentTimeMillis(), SCALING_DURATION,
             focusX, focusY, onScaleFinish
         )
@@ -693,11 +693,11 @@ class MangaView(
     }
 
     private fun projectGlobalPosition(x: Float, y: Float): Rectangle {
-        val horizontalRatio = x / viewState.viewWidth
-        val verticalRatio = y / viewState.viewHeight
+        val horizontalRatio = x / viewContext.viewWidth
+        val verticalRatio = y / viewContext.viewHeight
 
-        val globalX = viewState.viewport.left + viewState.viewport.width * horizontalRatio
-        val globalY = viewState.viewport.top + viewState.viewport.height * verticalRatio
+        val globalX = viewContext.viewport.left + viewContext.viewport.width * horizontalRatio
+        val globalY = viewContext.viewport.top + viewContext.viewport.height * verticalRatio
 
         return eventPointTmp
             .set(globalX, globalY, globalX, globalY)
