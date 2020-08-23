@@ -18,9 +18,6 @@ class VerticalLayoutManager : LayoutManager() {
     override val initialScrollY: Float
         get() = 0.0F
 
-    override fun init() {
-    }
-
     override fun currentPageLayoutIndex(
         viewContext: ViewContext
     ): Int = abs(viewContext.viewport.centerY / viewContext.viewHeight).toInt()

@@ -21,11 +21,7 @@ abstract class LayoutManager {
     fun setViewSize(width: Int, height: Int) {
         viewWidth = width
         viewHeight = height
-
-        init()
     }
-
-    abstract fun init()
 
     abstract fun currentPageLayoutIndex(viewContext: ViewContext): Int
 
