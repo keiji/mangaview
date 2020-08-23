@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <dev.keiji.mangaview.widget.MangaView
-        android:id="@+id/book_view"
+        android:id="@+id/manga_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mangaView = findViewById<MangaView>(R.id.book_view).also {
+        mangaView = findViewById<MangaView>(R.id.manga_view).also {
             it.layoutManager = HorizontalRtlLayoutManager()
             it.adapter = AssetBitmapAdapter(assets, FILE_NAMES, 1150, 1700)
         }
