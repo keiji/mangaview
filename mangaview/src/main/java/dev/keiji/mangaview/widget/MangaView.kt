@@ -65,10 +65,8 @@ class MangaView(
         private const val REVERSE_SCROLLING_DURATION = 350
         private const val SCALING_DURATION = 350L
 
-        private const val TAP_PAGE_TRANSITION_THRESHOLD_LEFT = 0.2F
-        private const val TAP_PAGE_TRANSITION_THRESHOLD_RIGHT = 0.8F
-        private const val TAP_PAGE_TRANSITION_THRESHOLD_TOP = 0.2F
-        private const val TAP_PAGE_TRANSITION_THRESHOLD_BOTTOM = 0.8F
+        private const val DEFAULT_TAP_TO_SCROLL_THRESHOLD_HORIZONTAL = 0.2F
+        private const val DEFAULT_TAP_TO_SCROLL_THRESHOLD_VERTICAL = 0.2F
     }
 
     constructor(context: Context) : this(context, null, 0x0)
@@ -126,6 +124,12 @@ class MangaView(
     private val viewContext = ViewContext()
 
     private var isInitialized = false
+
+    private var tapToScrollEnabled = true
+    private val tapToScrollThresholdLeft = DEFAULT_TAP_TO_SCROLL_THRESHOLD_HORIZONTAL
+    private val tapToScrollThresholdRight = 1.0F - DEFAULT_TAP_TO_SCROLL_THRESHOLD_HORIZONTAL
+    private val tapToScrollThresholdTop = DEFAULT_TAP_TO_SCROLL_THRESHOLD_VERTICAL
+    private val tapToScrollThresholdBottom = 1.0F - DEFAULT_TAP_TO_SCROLL_THRESHOLD_VERTICAL
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -399,10 +403,16 @@ class MangaView(
     override fun onSingleTapUp(e: MotionEvent?): Boolean {
         e ?: return false
 
-        return tryPageTransition(e)
+        return true
     }
 
-    override fun onDown(e: MotionEvent?) = true
+    override fun onDown(e: MotionEvent?): Boolean {
+        e ?: return false
+
+        tapToScroll(e)
+
+        return true
+    }
 
     override fun onFling(
         e1: MotionEvent?,
@@ -671,7 +681,11 @@ class MangaView(
         return true
     }
 
-    private fun tryPageTransition(e: MotionEvent): Boolean {
+    private fun tapToScroll(e: MotionEvent): Boolean {
+        if (!tapToScrollEnabled) {
+            return false
+        }
+
         val currentScrollAreaSnapshot = currentPageLayout?.scrollArea ?: return false
         if (!viewContext.viewport.contains(currentScrollAreaSnapshot)) {
             return false
@@ -679,22 +693,22 @@ class MangaView(
 
         val layoutManagerSnapshot = layoutManager ?: return false
 
-        if (e.x < viewContext.viewWidth * TAP_PAGE_TRANSITION_THRESHOLD_LEFT) {
+        if (e.x < viewContext.viewWidth * tapToScrollThresholdLeft) {
             toLeftPage(layoutManagerSnapshot)
             return true
         }
 
-        if (e.x > viewContext.viewWidth * TAP_PAGE_TRANSITION_THRESHOLD_RIGHT) {
+        if (e.x > viewContext.viewWidth * tapToScrollThresholdRight) {
             toRightPage(layoutManagerSnapshot)
             return true
         }
 
-        if (e.y < viewContext.viewHeight * TAP_PAGE_TRANSITION_THRESHOLD_TOP) {
+        if (e.y < viewContext.viewHeight * tapToScrollThresholdTop) {
             toTopPage(layoutManagerSnapshot)
             return true
         }
 
-        if (e.x > viewContext.viewHeight * TAP_PAGE_TRANSITION_THRESHOLD_BOTTOM) {
+        if (e.x > viewContext.viewHeight * tapToScrollThresholdBottom) {
             toBottomPage(layoutManagerSnapshot)
             return true
         }
@@ -705,8 +719,8 @@ class MangaView(
     private fun toLeftPage(
         layoutManagerSnapshot: LayoutManager
     ): Boolean {
-        val index =
-            layoutManagerSnapshot.leftPageLayout(viewContext)?.primaryPage?.index ?: return false
+        val index = layoutManagerSnapshot.leftPageLayout(viewContext)
+            ?.primaryPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return true
     }
@@ -714,8 +728,8 @@ class MangaView(
     private fun toRightPage(
         layoutManagerSnapshot: LayoutManager
     ): Boolean {
-        val index =
-            layoutManagerSnapshot.rightPageLayout(viewContext)?.primaryPage?.index ?: return false
+        val index = layoutManagerSnapshot.rightPageLayout(viewContext)
+            ?.primaryPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return true
     }
@@ -723,8 +737,8 @@ class MangaView(
     private fun toTopPage(
         layoutManagerSnapshot: LayoutManager
     ): Boolean {
-        val index =
-            layoutManagerSnapshot.topPageLayout(viewContext)?.primaryPage?.index ?: return false
+        val index = layoutManagerSnapshot.topPageLayout(viewContext)
+            ?.primaryPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return false
     }
@@ -732,8 +746,8 @@ class MangaView(
     private fun toBottomPage(
         layoutManagerSnapshot: LayoutManager
     ): Boolean {
-        val index =
-            layoutManagerSnapshot.topPageLayout(viewContext)?.primaryPage?.index ?: return false
+        val index = layoutManagerSnapshot.topPageLayout(viewContext)
+            ?.primaryPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return false
     }
