@@ -2,6 +2,7 @@ package dev.keiji.mangaview
 
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.graphics.RectF
 
 internal class Log {
 
@@ -39,6 +40,18 @@ internal class Log {
                 return
             }
             d(tag, "$message, ${bitmap.width}:${bitmap.height}")
+        }
+
+        fun d(tag: String, message: String, rect: RectF?) {
+            if (rect == null) {
+                d(tag, "$message, rect is null")
+                return
+            }
+            d(
+                tag, "$message," +
+                        " RectF(left=${rect.left}, top=${rect.top}, right=${rect.right}, bottom=${rect.bottom})," +
+                        " width=${rect.width()}, height=${rect.height()}"
+            )
         }
     }
 }

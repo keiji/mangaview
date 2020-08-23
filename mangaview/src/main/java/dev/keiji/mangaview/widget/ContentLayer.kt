@@ -24,11 +24,16 @@ abstract class ContentLayer {
 
     internal var baseScale: Float = 1.0F
 
-    var offsetX = 0.0F
-    var offsetY = 0.0F
+    var paddingLeft = 0.0F
+    var paddingTop = 0.0F
+    var paddingRight = 0.0F
+    var paddingBottom = 0.0F
 
     private val globalRect = Rectangle()
     private val contentSrc = Rectangle()
+
+    private val contentViewport = RectF()
+    private val prevContentViewport = RectF()
 
     abstract fun prepareContent(viewContext: ViewContext, page: Page)
 
@@ -54,31 +59,33 @@ abstract class ContentLayer {
         val scaledContentWidth = contentWidth * baseScale
         val scaledContentHeight = contentHeight * baseScale
 
-        val paddingHorizontal = (page.globalRect.width - scaledContentWidth) / baseScale
-        val paddingVertical = (page.globalRect.height - scaledContentHeight) / baseScale
+        val paddingHorizontal = (page.globalRect.width - scaledContentWidth)
+        val paddingVertical = (page.globalRect.height - scaledContentHeight)
 
-        offsetX = when (page.horizontalAlign) {
+        paddingLeft = when (page.horizontalAlign) {
             PageHorizontalAlign.Center -> paddingHorizontal / 2
             PageHorizontalAlign.Left -> 0.0F
             PageHorizontalAlign.Right -> paddingHorizontal
         }
-        offsetY = when (page.verticalAlign) {
+        paddingTop = when (page.verticalAlign) {
             PageVerticalAlign.Middle -> paddingVertical / 2
             PageVerticalAlign.Top -> 0.0F
             PageVerticalAlign.Bottom -> paddingVertical
         }
+        paddingRight = paddingHorizontal - paddingLeft
+        paddingBottom = paddingVertical - paddingTop
 
         globalRect.copyFrom(page.globalRect).also {
-            it.left += offsetX
-            it.top += offsetY
-            it.right -= offsetX
-            it.bottom -= offsetY
+            it.left += paddingLeft
+            it.top += paddingTop
+            it.right -= paddingRight
+            it.bottom -= paddingBottom
         }
 
-        Log.d(TAG, "offsetX, $offsetX")
-        Log.d(TAG, "offsetY, $offsetY")
-        Log.d(TAG, "baseScale $baseScale")
-        Log.d(TAG, "globalRect", globalRect)
+        paddingLeft /= baseScale
+        paddingTop /= baseScale
+        paddingRight /= baseScale
+        paddingBottom /= baseScale
 
         isPreparing = false
     }
@@ -91,7 +98,8 @@ abstract class ContentLayer {
         viewContext: ViewContext,
         page: Page,
         paint: Paint,
-        coroutineScope: CoroutineScope
+        coroutineScope: CoroutineScope,
+        onContentViewportChangeListener: (ContentLayer, RectF) -> Unit
     ): Boolean {
         if (needPrepare) {
             coroutineScope.launch(Dispatchers.IO) {
@@ -113,8 +121,20 @@ abstract class ContentLayer {
                 it.right = it.right / baseScale
                 it.bottom = it.bottom / baseScale
 
-                it.offset(-offsetX, -offsetY)
+                it.offset(-paddingLeft, -paddingTop)
             }
+
+        contentViewport.also {
+            it.left = contentSrc.left + paddingLeft
+            it.top = contentSrc.top + paddingTop
+            it.right = contentSrc.right - paddingRight
+            it.bottom = contentSrc.bottom - paddingBottom
+        }
+
+        if (contentViewport != prevContentViewport) {
+            onContentViewportChangeListener(this, contentViewport)
+            prevContentViewport.set(contentViewport)
+        }
 
         contentSrc.copyTo(srcRect)
         page.displayProjection

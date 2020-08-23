@@ -45,7 +45,8 @@ class Page(
         canvas: Canvas?,
         viewContext: ViewContext,
         paint: Paint,
-        coroutineScope: CoroutineScope
+        coroutineScope: CoroutineScope,
+        onContentViewportChangeListener: (ContentLayer, RectF) -> Unit
     ): Boolean {
         contentSrc
             .copyFrom(viewContext.viewport)
@@ -60,7 +61,14 @@ class Page(
 
         val result = layers
             .map {
-                it.draw(canvas, viewContext, this, paint, coroutineScope)
+                it.draw(
+                    canvas,
+                    viewContext,
+                    this,
+                    paint,
+                    coroutineScope,
+                    onContentViewportChangeListener
+                )
             }
             .none { !it }
 

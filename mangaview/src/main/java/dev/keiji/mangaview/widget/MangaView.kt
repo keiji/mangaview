@@ -3,6 +3,7 @@ package dev.keiji.mangaview.widget
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -31,6 +32,10 @@ interface OnDoubleTapListener {
 interface OnPageChangeListener {
     fun onScrollStateChanged(mangaView: MangaView, scrollState: Int) {}
     fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {}
+}
+
+interface OnContentViewportChangeListener {
+    fun onViewportChanged(mangaView: MangaView, layer: ContentLayer, viewport: RectF) = false
 }
 
 class MangaView(
@@ -146,6 +151,17 @@ class MangaView(
             field = value
         }
 
+    var onViewportChangeListener = object : OnContentViewportChangeListener {
+        override fun onViewportChanged(
+            mangaView: MangaView,
+            layer: ContentLayer,
+            viewport: RectF
+        ): Boolean {
+            Log.d(TAG, "onViewportChanged: ${layer.page?.index}", viewport)
+            return false
+        }
+    }
+
     private val visiblePageLayoutList = ArrayList<PageLayout>()
     private val recycleBin = ArrayList<Page>()
 
@@ -169,7 +185,14 @@ class MangaView(
                 if (!page.globalRect.intersect(viewContext.viewport)) {
                     return@map true
                 }
-                page.draw(canvas, viewContext, paint, coroutineScope)
+                page.draw(
+                    canvas,
+                    viewContext,
+                    paint,
+                    coroutineScope,
+                ) { layer: ContentLayer, viewport: RectF ->
+                    onViewportChangeListener.onViewportChanged(this, layer, viewport)
+                }
             }.none { !it }
 
         coroutineScope.launch(Dispatchers.Unconfined) {

@@ -33,7 +33,7 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this)
+                    it.draw(null, viewState, paint, this, onViewportChangeListener)
                 }.filter { !it }.count() == 0
 
                 if (initialized) {
@@ -46,9 +46,9 @@ class PageTest {
             page.layers[0].also { layer ->
                 assertTrue(layer.isPrepared)
                 assertEquals(0.9375F, layer.baseScale, FLOAT_DELTA)
-                assertEquals(0, layer.offsetX)
+                assertEquals(0, layer.paddingLeft)
                 assertEquals(0, layer.paddingRight)
-                assertEquals(207, layer.offsetY)
+                assertEquals(207, layer.paddingTop)
                 assertEquals(207, layer.paddingBottom)
             }
         }
@@ -56,9 +56,9 @@ class PageTest {
             page.layers[0].also { layer ->
                 assertTrue(layer.isPrepared)
                 assertEquals(0.94158673F, layer.baseScale, FLOAT_DELTA)
-                assertEquals(0, layer.offsetX)
+                assertEquals(0, layer.paddingLeft)
                 assertEquals(0, layer.paddingRight)
-                assertEquals(236, layer.offsetY)
+                assertEquals(236, layer.paddingTop)
                 assertEquals(236, layer.paddingBottom)
             }
         }
@@ -78,7 +78,7 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this)
+                    it.draw(null, viewState, paint, this, onViewportChangeListener)
                 }.filter { !it }.count() == 0
 
                 if (initialized) {
@@ -95,8 +95,14 @@ class PageTest {
 
         val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-        val drawResult = pages[0].draw(null, viewState, paint, coroutineScope)
-                && pages[1].draw(null, viewState, paint, coroutineScope)
+        val drawResult = pages[0].draw(
+            null,
+            viewState,
+            paint,
+            coroutineScope,
+            onViewportChangeListener
+        )
+                && pages[1].draw(null, viewState, paint, coroutineScope, onViewportChangeListener)
         assertTrue(drawResult)
 
         assertEquals(
@@ -143,7 +149,7 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this)
+                    it.draw(null, viewState, paint, this, onViewportChangeListener)
                 }.filter { !it }.count() == 0
 
                 if (initialized) {
@@ -160,8 +166,14 @@ class PageTest {
 
         val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-        val drawResult = pages[0].draw(null, viewState, paint, coroutineScope)
-                && pages[1].draw(null, viewState, paint, coroutineScope)
+        val drawResult = pages[0].draw(
+            null,
+            viewState,
+            paint,
+            coroutineScope,
+            onViewportChangeListener
+        )
+                && pages[1].draw(null, viewState, paint, coroutineScope, onViewportChangeListener)
         assertTrue(drawResult)
 
         assertEquals(
@@ -208,7 +220,7 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this)
+                    it.draw(null, viewState, paint, this, onViewportChangeListener)
                 }.filter { !it }.count() == 0
 
                 if (initialized) {
@@ -254,7 +266,7 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this)
+                    it.draw(null, viewState, paint, this, onViewportChangeListener)
                 }.filter { !it }.count() == 0
 
                 if (initialized) {
@@ -279,8 +291,14 @@ class PageTest {
 
         val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-        val drawResult = pages[0].draw(null, viewState, paint, coroutineScope)
-                && pages[1].draw(null, viewState, paint, coroutineScope)
+        val drawResult = pages[0].draw(
+            null,
+            viewState,
+            paint,
+            coroutineScope,
+            onViewportChangeListener
+        )
+                && pages[1].draw(null, viewState, paint, coroutineScope, onViewportChangeListener)
         assertTrue(drawResult)
 
         viewState.setScale(
@@ -326,7 +344,7 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this)
+                    it.draw(null, viewState, paint, this, onViewportChangeListener)
                 }.filter { !it }.count() == 0
 
                 if (initialized) {
@@ -349,8 +367,14 @@ class PageTest {
 
         val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-        val drawResult = pages[0].draw(null, viewState, paint, coroutineScope)
-                && pages[1].draw(null, viewState, paint, coroutineScope)
+        val drawResult = pages[0].draw(
+            null,
+            viewState,
+            paint,
+            coroutineScope,
+            onViewportChangeListener
+        )
+                && pages[1].draw(null, viewState, paint, coroutineScope, onViewportChangeListener)
         assertTrue(drawResult)
 
         viewState.setScale(
@@ -441,7 +465,7 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this)
+                    it.draw(null, viewState, paint, this, onViewportChangeListener)
                 }.filter { !it }.count() == 0
 
                 if (initialized) {
@@ -492,7 +516,7 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this)
+                    it.draw(null, viewState, paint, this, onViewportChangeListener)
                 }.filter { !it }.count() == 0
 
                 if (initialized) {
