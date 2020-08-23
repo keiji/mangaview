@@ -2,7 +2,9 @@ package dev.keiji.mangaview.widget
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import jp.co.c_lis.mangaview.android.Rectangle
+import android.graphics.Rect
+import android.graphics.RectF
+import dev.keiji.mangaview.Rectangle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -24,7 +26,7 @@ class PageTest {
         val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
-        val layoutManager = HorizontalLayoutManager(reversed = true)
+        val layoutManager = HorizontalRtlLayoutManager()
         val pages = createDummyPages()
 
         layoutManager.pageList = pages
@@ -33,7 +35,8 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this, onViewportChangeListener)
+                    it.draw(null, viewState, paint, this)
+                    { _: ContentLayer, _: RectF -> }
                 }.filter { !it }.count() == 0
 
                 if (initialized) {
@@ -69,7 +72,7 @@ class PageTest {
         val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
-        val layoutManager = HorizontalLayoutManager(reversed = true)
+        val layoutManager = HorizontalRtlLayoutManager(reversed = true)
         val pages = createDummyPages()
 
         layoutManager.pageList = pages
@@ -78,8 +81,9 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this, onViewportChangeListener)
-                }.filter { !it }.count() == 0
+                    it.draw(null, viewState, paint, this)
+                    { _: ContentLayer, _: RectF -> }
+                }.none { !it }
 
                 if (initialized) {
                     break
@@ -95,14 +99,21 @@ class PageTest {
 
         val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-        val drawResult = pages[0].draw(
-            null,
-            viewState,
-            paint,
-            coroutineScope,
-            onViewportChangeListener
-        )
-                && pages[1].draw(null, viewState, paint, coroutineScope, onViewportChangeListener)
+        val drawResult =
+            pages[0].draw(
+                null,
+                viewState,
+                paint,
+                coroutineScope
+            ) { _: ContentLayer, _: RectF -> }
+                    &&
+                    pages[1].draw(
+                        null,
+                        viewState,
+                        paint,
+                        coroutineScope
+                    ) { _: ContentLayer, _: RectF -> }
+
         assertTrue(drawResult)
 
         assertEquals(
@@ -140,7 +151,7 @@ class PageTest {
         val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
-        val layoutManager = HorizontalLayoutManager(reversed = true)
+        val layoutManager = HorizontalRtlLayoutManager()
         val pages = createDummyPages()
 
         layoutManager.pageList = pages
@@ -149,8 +160,9 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this, onViewportChangeListener)
-                }.filter { !it }.count() == 0
+                    it.draw(null, viewState, paint, this)
+                    { _: ContentLayer, _: RectF -> }
+                }.none { !it }
 
                 if (initialized) {
                     break
@@ -170,10 +182,16 @@ class PageTest {
             null,
             viewState,
             paint,
-            coroutineScope,
-            onViewportChangeListener
-        )
-                && pages[1].draw(null, viewState, paint, coroutineScope, onViewportChangeListener)
+            coroutineScope
+        ) { _: ContentLayer, _: RectF -> }
+                &&
+                pages[1].draw(
+                    null,
+                    viewState,
+                    paint,
+                    coroutineScope
+                ) { _: ContentLayer, _: RectF -> }
+
         assertTrue(drawResult)
 
         assertEquals(
@@ -211,7 +229,7 @@ class PageTest {
         val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
-        val layoutManager = HorizontalLayoutManager(reversed = true)
+        val layoutManager = HorizontalRtlLayoutManager()
         val pages = createDummyPages()
 
         layoutManager.pageList = pages
@@ -220,8 +238,9 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this, onViewportChangeListener)
-                }.filter { !it }.count() == 0
+                    it.draw(null, viewState, paint, this)
+                    { _: ContentLayer, _: RectF -> }
+                }.none { !it }
 
                 if (initialized) {
                     break
@@ -257,7 +276,7 @@ class PageTest {
         val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
-        val layoutManager = HorizontalLayoutManager(reversed = true)
+        val layoutManager = HorizontalRtlLayoutManager()
         val pages = createDummyPages()
 
         layoutManager.pageList = pages
@@ -266,8 +285,9 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this, onViewportChangeListener)
-                }.filter { !it }.count() == 0
+                    it.draw(null, viewState, paint, this)
+                    { _: ContentLayer, _: RectF -> }
+                }.none { !it }
 
                 if (initialized) {
                     break
@@ -296,9 +316,14 @@ class PageTest {
             viewState,
             paint,
             coroutineScope,
-            onViewportChangeListener
-        )
-                && pages[1].draw(null, viewState, paint, coroutineScope, onViewportChangeListener)
+        ) { _: ContentLayer, _: RectF -> }
+                &&
+                pages[1].draw(
+                    null,
+                    viewState,
+                    paint,
+                    coroutineScope
+                ) { _: ContentLayer, _: RectF -> }
         assertTrue(drawResult)
 
         viewState.setScale(
@@ -335,7 +360,7 @@ class PageTest {
         val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
-        val layoutManager = HorizontalLayoutManager(reversed = true)
+        val layoutManager = HorizontalRtlLayoutManager()
         val pages = createDummyPages()
 
         layoutManager.pageList = pages
@@ -344,8 +369,8 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this, onViewportChangeListener)
-                }.filter { !it }.count() == 0
+                    it.draw(null, viewState, paint, this) { _: ContentLayer, _: RectF -> }
+                }.none { !it }
 
                 if (initialized) {
                     break
@@ -372,9 +397,14 @@ class PageTest {
             viewState,
             paint,
             coroutineScope,
-            onViewportChangeListener
-        )
-                && pages[1].draw(null, viewState, paint, coroutineScope, onViewportChangeListener)
+        ) { _: ContentLayer, _: RectF -> }
+                &&
+                pages[1].draw(
+                    null,
+                    viewState,
+                    paint,
+                    coroutineScope
+                ) { _: ContentLayer, _: RectF -> }
         assertTrue(drawResult)
 
         viewState.setScale(
@@ -395,7 +425,7 @@ class PageTest {
         val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
-        val layoutManager = HorizontalLayoutManager(reversed = true)
+        val layoutManager = HorizontalRtlLayoutManager()
         val pages = createDummyPages()
 
         layoutManager.pageList = pages
@@ -465,8 +495,9 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this, onViewportChangeListener)
-                }.filter { !it }.count() == 0
+                    it.draw(null, viewState, paint, this)
+                    { _: ContentLayer, _: RectF -> }
+                }.none { !it }
 
                 if (initialized) {
                     break
@@ -486,7 +517,7 @@ class PageTest {
         val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
         val paint = Paint()
 
-        val layoutManager = HorizontalLayoutManager(reversed = true)
+        val layoutManager = HorizontalRtlLayoutManager()
         val pages = createDummyPages()
 
         layoutManager.pageList = pages
@@ -516,8 +547,9 @@ class PageTest {
         runBlocking {
             while (true) {
                 val initialized = pages.map {
-                    it.draw(null, viewState, paint, this, onViewportChangeListener)
-                }.filter { !it }.count() == 0
+                    it.draw(null, viewState, paint, this)
+                    { _: ContentLayer, _: RectF -> }
+                }.none { !it }
 
                 if (initialized) {
                     break
@@ -527,7 +559,7 @@ class PageTest {
 
         assertEquals(
             Rectangle(left = 540.0F, top = 0.0F, right = 1080.0F, bottom = 2048.0F),
-            pages[0].destOnView
+            pages[0].displayProjection
         )
         assertEquals(
             Rectangle(left = 0.0F, top = 512.0F, right = 270.0F, bottom = 1536.0F),
@@ -536,7 +568,7 @@ class PageTest {
 
         assertEquals(
             Rectangle(left = 0.0F, top = 0.0F, right = 540.0F, bottom = 2048.0F),
-            pages[1].destOnView
+            pages[1].displayProjection
         )
         assertEquals(
             Rectangle(left = 810.0F, top = 512.0F, right = 1080.0F, bottom = 1536.0F),
@@ -560,7 +592,7 @@ private fun createDummyPages(): List<Page> {
     return pages
 }
 
-private fun assertEquals(expected: Rectangle, actual: Rectangle, delta: Float) {
+fun assertEquals(expected: Rectangle, actual: Rectangle, delta: Float) {
     assertEquals(expected.left, actual.left, delta)
     assertEquals(expected.top, actual.top, delta)
     assertEquals(expected.right, actual.right, delta)
@@ -582,17 +614,16 @@ class DummyLayer(
     override val isPrepared: Boolean
         get() = isContentLoaded
 
-    override suspend fun prepareContent(viewContext: ViewContext, page: Page) {
-        isContentLoaded = true
-    }
-
     override fun onDraw(
         canvas: Canvas?,
+        srcRect: Rect,
+        dstRect: RectF,
         viewContext: ViewContext,
-        paint: Paint,
-        coroutineScope: CoroutineScope
-    ): Boolean {
-        return true
+        paint: Paint
+    ): Boolean = true
+
+    override fun prepareContent(viewContext: ViewContext, page: Page) {
+        isContentLoaded = true
     }
 
 }

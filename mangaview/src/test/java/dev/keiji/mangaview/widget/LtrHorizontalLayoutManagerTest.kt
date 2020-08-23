@@ -1,6 +1,6 @@
 package dev.keiji.mangaview.widget
 
-import jp.co.c_lis.mangaview.android.Rectangle
+import dev.keiji.mangaview.Rectangle
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -15,7 +15,7 @@ class HorizontalLayoutManagerTest {
     @Test
     fun layout_isCorrect() {
         val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
-        val layoutManager = HorizontalLayoutManager(reversed = false)
+        val layoutManager = HorizontalLtrLayoutManager()
 
         layoutManager.pageList = (0 until 5).map { Page(it) }
         layoutManager.layout(viewState)
@@ -45,7 +45,7 @@ class HorizontalLayoutManagerTest {
     @Test
     fun layout_reverse_isCorrect() {
         val viewState = ViewContext(VIEW_WIDTH, VIEW_HEIGHT)
-        val layoutManager = HorizontalLayoutManager(reversed = true)
+        val layoutManager = HorizontalLtrLayoutManager()
 
         layoutManager.pageList = (0 until 5).map { Page(it) }
         layoutManager.layout(viewState)
