@@ -490,16 +490,12 @@ class MangaView(
     override fun onSingleTapUp(e: MotionEvent?): Boolean {
         e ?: return false
 
-        return true
-    }
-
-    override fun onDown(e: MotionEvent?): Boolean {
-        e ?: return false
-
         tapToScroll(e)
 
         return true
     }
+
+    override fun onDown(e: MotionEvent?): Boolean = true
 
     override fun onFling(
         e1: MotionEvent?,
