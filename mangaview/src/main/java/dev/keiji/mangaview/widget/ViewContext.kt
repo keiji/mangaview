@@ -18,7 +18,7 @@ data class ViewContext(
         private val TAG = ViewContext::class.java.simpleName
 
         const val SCROLL_POLICY_UNLIMITED = 0
-        const val SCROLL_POLICY_LIMIT = 1
+        const val SCROLL_POLICY_STRICT_SCROLL_AREA = 1
     }
 
     var minScale = 1.0F
@@ -52,14 +52,14 @@ data class ViewContext(
         )
 
         scrollableArea?.also {
-            if (scrollPolicyHorizontal == SCROLL_POLICY_LIMIT) {
+            if (scrollPolicyHorizontal == SCROLL_POLICY_STRICT_SCROLL_AREA) {
                 if (viewport.left < it.left) {
                     offset(it.left - viewport.left, 0.0F)
                 } else if (viewport.right > it.right) {
                     offset(it.right - viewport.right, 0.0F)
                 }
             }
-            if (scrollPolicyVertical == SCROLL_POLICY_LIMIT) {
+            if (scrollPolicyVertical == SCROLL_POLICY_STRICT_SCROLL_AREA) {
                 if (viewport.top < it.top) {
                     offset(0.0F, it.top - viewport.top)
                 } else if (viewport.bottom > it.bottom) {

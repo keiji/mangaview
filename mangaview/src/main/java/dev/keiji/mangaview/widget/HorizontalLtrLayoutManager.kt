@@ -1,6 +1,5 @@
 package dev.keiji.mangaview.widget
 
-import dev.keiji.mangaview.Rectangle
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -64,7 +63,7 @@ class HorizontalLtrLayoutManager : LayoutManager() {
     override fun setScrollableAxis(viewContext: ViewContext) {
         viewContext.setScrollableAxis(
             horizontal = ViewContext.SCROLL_POLICY_UNLIMITED,
-            vertical = ViewContext.SCROLL_POLICY_LIMIT
+            vertical = ViewContext.SCROLL_POLICY_STRICT_SCROLL_AREA
         )
     }
 }

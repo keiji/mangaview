@@ -62,7 +62,7 @@ class VerticalLayoutManager : LayoutManager() {
 
     override fun setScrollableAxis(viewContext: ViewContext) {
         viewContext.setScrollableAxis(
-            horizontal = ViewContext.SCROLL_POLICY_LIMIT,
+            horizontal = ViewContext.SCROLL_POLICY_STRICT_SCROLL_AREA,
             vertical = ViewContext.SCROLL_POLICY_UNLIMITED
         )
     }
