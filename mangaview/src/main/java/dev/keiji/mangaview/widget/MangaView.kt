@@ -19,7 +19,6 @@ import androidx.core.view.ViewCompat
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.roundToInt
 
 interface OnTapListener {
@@ -59,12 +58,14 @@ class MangaView(
         const val SCROLL_STATE_DRAGGING = 1
         const val SCROLL_STATE_SETTLING = 2
 
+        private const val DOUBLE_TAP_ZOOM_SCALE = 4.0F
+
         private const val SCROLLING_DURATION = 280
         private const val REVERSE_SCROLLING_DURATION = 350
         private const val SCALING_DURATION = 250L
 
-        private const val DEFAULT_TAP_TO_SCROLL_THRESHOLD_HORIZONTAL = 0.2F
-        private const val DEFAULT_TAP_TO_SCROLL_THRESHOLD_VERTICAL = 0.2F
+        private const val DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_HORIZONTAL = 0.2F
+        private const val DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL = 0.2F
     }
 
     constructor(context: Context) : this(context, null, 0x0)
@@ -121,13 +122,15 @@ class MangaView(
 
     private var isInitialized = false
 
-    private var doubleTapToZoomEnabled = true
+    var doubleTapZoomEnabled = true
 
-    private var tapToScrollEnabled = true
-    private val tapToScrollThresholdLeft = DEFAULT_TAP_TO_SCROLL_THRESHOLD_HORIZONTAL
-    private val tapToScrollThresholdRight = 1.0F - DEFAULT_TAP_TO_SCROLL_THRESHOLD_HORIZONTAL
-    private val tapToScrollThresholdTop = DEFAULT_TAP_TO_SCROLL_THRESHOLD_VERTICAL
-    private val tapToScrollThresholdBottom = 1.0F - DEFAULT_TAP_TO_SCROLL_THRESHOLD_VERTICAL
+    @Suppress("MemberVisibilityCanBePrivate")
+    var tapEdgeScrollEnabled = true
+
+    private val tapEdgeScrollThresholdLeft = DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_HORIZONTAL
+    private val tapEdgeScrollThresholdRight = 1.0F - DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_HORIZONTAL
+    private val tapEdgeScrollThresholdTop = DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL
+    private val tapEdgeScrollThresholdBottom = 1.0F - DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL
 
     private val gestureDetector = GestureDetectorCompat(context, this).also {
         it.setOnDoubleTapListener(this)
@@ -168,6 +171,9 @@ class MangaView(
     private var scaleInterpolator = DecelerateInterpolator()
 
     private var scaleOperation: ScaleOperation? = null
+
+    private val scaleOperationInProgress: Boolean
+        get() = scaleOperation != null
 
     var currentPageIndex: Int = 0
 
@@ -314,7 +320,7 @@ class MangaView(
                 viewContext.viewport.centerY,
                 viewContext.viewport.centerY,
                 smoothScale = false
-            ) {}
+            )
             viewContext.offsetTo(scrollArea.left, scrollArea.top)
             layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
 
@@ -371,6 +377,11 @@ class MangaView(
     }
 
     private fun populate() {
+        if (scaleOperationInProgress) {
+            return
+        }
+
+        Log.d(TAG, "populate")
         val layoutManagerSnapshot = layoutManager ?: return
         val currentScrollAreaSnapshot = currentScrollArea ?: return
 
@@ -418,6 +429,8 @@ class MangaView(
             if (it.focusX != null && it.focusY != null) {
                 focusX = it.focusX
                 focusY = it.focusY
+                Log.d(TAG, "1 focusX: $focusX, focusY: $focusY")
+
             } else {
                 viewContext.projectToScreenPosition(
                     viewContext.viewport.centerX,
@@ -426,22 +439,21 @@ class MangaView(
                 )
                 focusX = tmpEventPoint.centerX
                 focusY = tmpEventPoint.centerY
+                Log.d(TAG, "2 focusX: $focusX, focusY: $focusY")
             }
 
             viewContext.scaleTo(newScale, focusX, focusY)
-            populate()
 
             val needPostInvalidateScale = if (input > 1.0F || elapsed <= 0) {
                 viewContext.scaleTo(it.to, focusX, focusY)
-                it.onScaleFinish()
-
                 scaleOperation = null
+                it.onScaleFinished()
                 false
             } else {
                 true
             }
 
-            needPostInvalidateScale
+            return@let needPostInvalidateScale
         } ?: false
 
         val needPostInvalidateScroll =
@@ -661,6 +673,7 @@ class MangaView(
     override fun onScale(detector: ScaleGestureDetector?): Boolean {
         detector ?: return false
 
+        Log.d(TAG, "onScale focusX:${detector.focusX} ,focusY:${detector.focusY}")
         scalingState = ScalingState.Scaling
         viewContext.scale(detector.scaleFactor, detector.focusX, detector.focusY)
 
@@ -673,18 +686,27 @@ class MangaView(
         scalingState = ScalingState.End
     }
 
+    private val populateOnScaleFinished = fun() {
+        populate()
+    }
+
     private fun scale(
         scale: Float,
         focusX: Float?,
         focusY: Float?,
         smoothScale: Boolean = false,
-        onScaleFinish: () -> Unit,
+        onScaleFinished: () -> Unit = populateOnScaleFinished,
     ) {
         if (!smoothScale) {
+            viewContext.projectToScreenPosition(
+                viewContext.viewport.centerX,
+                viewContext.viewport.centerY,
+                tmpEventPoint
+            )
             viewContext.scaleTo(
                 scale,
-                focusX ?: viewContext.viewport.centerX,
-                focusY ?: viewContext.viewport.centerY
+                focusX ?: tmpEventPoint.centerX,
+                focusY ?: tmpEventPoint.centerY
             )
             postInvalidate()
             return
@@ -693,7 +715,7 @@ class MangaView(
         scaleOperation = ScaleOperation(
             viewContext.currentScale, scale,
             System.currentTimeMillis(), SCALING_DURATION,
-            focusX, focusY, onScaleFinish
+            focusX, focusY, onScaleFinished
         )
 
         startAnimation()
@@ -702,7 +724,7 @@ class MangaView(
     override fun onDoubleTap(e: MotionEvent?): Boolean {
         e ?: return false
 
-        doubleTapToZoom(e)
+        doubleTapZoom(e)
 
         var handled = onDoubleTapListener.onDoubleTap(this, e.x, e.y)
         if (handled) {
@@ -739,29 +761,24 @@ class MangaView(
         return true
     }
 
-    private fun doubleTapToZoom(e: MotionEvent): Boolean {
-        if (!doubleTapToZoomEnabled) {
+    private fun doubleTapZoom(e: MotionEvent): Boolean {
+        if (!doubleTapZoomEnabled) {
             return false
         }
 
-        val currentScrollArea = currentPageLayout?.scrollArea ?: return false
+        val scale = DOUBLE_TAP_ZOOM_SCALE
 
-        val scale = max(
-            viewContext.viewWidth / currentScrollArea.width,
-            viewContext.viewHeight / currentScrollArea.height
-        )
-
-        if (viewContext.currentScale == scale) {
-            scale(viewContext.minScale, e.x, e.y, smoothScale = true) {}
+        if (viewContext.currentScale >= scale) {
+            scale(viewContext.minScale, e.x, e.y, smoothScale = true)
         } else {
-            scale(scale, e.x, e.y, smoothScale = true) {}
+            scale(scale, e.x, e.y, smoothScale = true)
         }
 
         return true
     }
 
     private fun tapToScroll(e: MotionEvent): Boolean {
-        if (!tapToScrollEnabled) {
+        if (!tapEdgeScrollEnabled) {
             return false
         }
 
@@ -772,22 +789,22 @@ class MangaView(
 
         val layoutManagerSnapshot = layoutManager ?: return false
 
-        if (e.x < viewContext.viewWidth * tapToScrollThresholdLeft) {
+        if (e.x < viewContext.viewWidth * tapEdgeScrollThresholdLeft) {
             toLeftPage(layoutManagerSnapshot)
             return true
         }
 
-        if (e.x > viewContext.viewWidth * tapToScrollThresholdRight) {
+        if (e.x > viewContext.viewWidth * tapEdgeScrollThresholdRight) {
             toRightPage(layoutManagerSnapshot)
             return true
         }
 
-        if (e.y < viewContext.viewHeight * tapToScrollThresholdTop) {
+        if (e.y < viewContext.viewHeight * tapEdgeScrollThresholdTop) {
             toTopPage(layoutManagerSnapshot)
             return true
         }
 
-        if (e.x > viewContext.viewHeight * tapToScrollThresholdBottom) {
+        if (e.x > viewContext.viewHeight * tapEdgeScrollThresholdBottom) {
             toBottomPage(layoutManagerSnapshot)
             return true
         }
@@ -881,7 +898,7 @@ class MangaView(
         val durationMillis: Long,
         val focusX: Float?,
         val focusY: Float?,
-        val onScaleFinish: () -> Unit
+        val onScaleFinished: () -> Unit
     ) {
         val diff: Float = to - from
     }
