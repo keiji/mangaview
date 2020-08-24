@@ -43,9 +43,9 @@ class DoublePageLayout(
         }
 
         if (value % 2 == 0) {
-            addRightPage(page, layoutWidth)
+            setRightPage(page, layoutWidth)
         } else {
-            addLeftPage(page, layoutWidth)
+            setLeftPage(page, layoutWidth)
         }
 
         initScrollArea()
@@ -72,7 +72,7 @@ class DoublePageLayout(
     }
 
 
-    private fun addRightPage(page: Page, pageWidth: Float) {
+    private fun setRightPage(page: Page, pageWidth: Float) {
         page.baseScale = min(
             pageWidth / page.width,
             globalPosition.height / page.height
@@ -104,7 +104,7 @@ class DoublePageLayout(
         rightPage = page
     }
 
-    private fun addLeftPage(page: Page, pageWidth: Float) {
+    private fun setLeftPage(page: Page, pageWidth: Float) {
         page.baseScale = min(
             pageWidth / page.width,
             globalPosition.height / page.height
@@ -173,8 +173,8 @@ class DoublePageLayout(
     }
 
     override fun calcScrollArea(
-        rectangle: Rectangle,
-        viewContext: ViewContext
+        viewContext: ViewContext,
+        result: Rectangle
     ): Rectangle {
         val scale = viewContext.currentScale
 
@@ -184,13 +184,13 @@ class DoublePageLayout(
         val marginHorizontal = max(globalPosition.width - scaledScrollWidth, 0.0F)
         val marginVertical = max(globalPosition.height - scaledScrollHeight, 0.0F)
 
-        rectangle.copyFrom(scrollArea).also {
+        result.copyFrom(scrollArea).also {
             it.left -= marginHorizontal / 2
             it.right += marginHorizontal - marginHorizontal / 2
             it.top -= marginVertical / 2
             it.bottom += marginVertical - marginVertical / 2
         }
 
-        return rectangle
+        return result
     }
 }

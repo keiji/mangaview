@@ -35,7 +35,7 @@ class AssetBitmapLayer(
     override val isContentPrepared: Boolean
         get() = bitmap != null
 
-    override fun onPrepareContent(viewContext: ViewContext, page: Page): Boolean {
+    override fun onContentPrepared(viewContext: ViewContext, page: Page): Boolean {
         coroutineScope.launch(Dispatchers.IO) {
             bitmap = assetManager.open(fileName).use {
                 BitmapFactory.decodeStream(it)
@@ -64,8 +64,8 @@ class AssetBitmapLayer(
         return true
     }
 
-    override fun onRecycle() {
-        super.onRecycle()
+    override fun onRecycled() {
+        super.onRecycled()
 
         bitmap?.recycle()
         bitmap = null

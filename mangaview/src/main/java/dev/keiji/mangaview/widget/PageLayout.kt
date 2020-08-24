@@ -38,10 +38,10 @@ abstract class PageLayout {
             return cachedScaledScrollArea
         }
 
-        return calcScrollArea(cachedScaledScrollArea, viewContext).also {
+        return calcScrollArea(viewContext, cachedScaledScrollArea).also {
             cachedScaledScrollAreaScale = scale
         }
     }
 
-    abstract fun calcScrollArea(rectangle: Rectangle, viewContext: ViewContext): Rectangle
+    abstract fun calcScrollArea(viewContext: ViewContext, result: Rectangle): Rectangle
 }

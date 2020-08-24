@@ -44,8 +44,8 @@ class HorizontalPopulateHelper : PopulateHelper() {
             val leftRect = layoutManagerSnapshot.leftPageLayout(viewContext)
             val leftArea =
                 leftRect?.calcScrollArea(
-                    tmpLeftScrollArea,
-                    viewContext
+                    viewContext,
+                    tmpLeftScrollArea
                 )
             populateTo(
                 scrollArea,
@@ -58,8 +58,8 @@ class HorizontalPopulateHelper : PopulateHelper() {
             val rightRect = layoutManagerSnapshot.rightPageLayout(viewContext)
             val rightArea =
                 rightRect?.calcScrollArea(
-                    tmpRightScrollArea,
-                    viewContext
+                    viewContext,
+                    tmpRightScrollArea
                 )
             populateTo(
                 scrollArea,
@@ -87,7 +87,7 @@ class HorizontalPopulateHelper : PopulateHelper() {
 
         populateTo(
             scrollArea,
-            leftRect.calcScrollArea(tmpLeftScrollArea, viewContext),
+            leftRect.calcScrollArea(viewContext, tmpLeftScrollArea),
             shouldPopulateHorizontal,
             calcDiffXToLeft, calcDiffVertical,
             populateDuration
@@ -104,7 +104,7 @@ class HorizontalPopulateHelper : PopulateHelper() {
         populateTo(
             scrollArea,
             rightRect.calcScrollArea(
-                tmpRightScrollArea, viewContext
+                viewContext, tmpRightScrollArea
             ),
             shouldPopulateHorizontal,
             calcDiffXToRight, calcDiffVertical,

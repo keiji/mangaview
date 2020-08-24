@@ -39,7 +39,7 @@ abstract class ContentLayer {
     private val contentViewport = RectF()
     private val prevContentViewport = RectF()
 
-    abstract fun onPrepareContent(viewContext: ViewContext, page: Page): Boolean
+    abstract fun onContentPrepared(viewContext: ViewContext, page: Page): Boolean
 
     open val isContentPrepared
         get() = false
@@ -102,7 +102,7 @@ abstract class ContentLayer {
         if (state == ContentState.NotReady || state == ContentState.Preparing) {
             state = ContentState.Preparing
 
-            if (!isContentPrepared && !onPrepareContent(viewContext, page)) {
+            if (!isContentPrepared && !onContentPrepared(viewContext, page)) {
                 return false
             }
 
@@ -205,11 +205,11 @@ abstract class ContentLayer {
     }
 
     fun recycle() {
-        onRecycle()
+        onRecycled()
 
         state = ContentState.NotReady
     }
 
-    open fun onRecycle() {
+    open fun onRecycled() {
     }
 }
