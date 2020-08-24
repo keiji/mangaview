@@ -22,14 +22,12 @@ class DoublePageLayout(
     var rightPage: Page? = null
         private set
 
-    override val primaryPage: Page?
+    override val keyPage: Page?
         get() {
-            Log.d(TAG, "$rightPage")
-            Log.d(TAG, "$leftPage")
             return if (isFlip) {
-                rightPage
-            } else {
                 leftPage
+            } else {
+                rightPage
             }
         }
 

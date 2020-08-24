@@ -16,7 +16,7 @@ class SinglePageLayout : PageLayout() {
 
     var page: Page? = null
 
-    override val primaryPage: Page?
+    override val keyPage: Page?
         get() = page
 
     override fun add(page: Page) {
@@ -65,13 +65,14 @@ class SinglePageLayout : PageLayout() {
         Log.d(TAG, "page:${pageSnapshot.index}", scrollArea)
     }
 
-    override fun calcScrollArea(viewContext: ViewContext, result: Rectangle,): Rectangle {
+    override fun calcScrollArea(viewContext: ViewContext, result: Rectangle): Rectangle {
         val scale = viewContext.currentScale
+
         val scaledScrollWidth = scrollArea.width * scale
         val scaledScrollHeight = scrollArea.height * scale
 
-        val marginHorizontal = max(scaledScrollWidth - scrollArea.width, 0.0F)
-        val marginVertical = max(scaledScrollHeight - scrollArea.height, 0.0F)
+        val marginHorizontal = max(globalPosition.width - scaledScrollWidth, 0.0F)
+        val marginVertical = max(globalPosition.height - scaledScrollHeight, 0.0F)
 
         result.copyFrom(scrollArea).also {
             it.left -= marginHorizontal / 2

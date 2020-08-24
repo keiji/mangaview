@@ -10,7 +10,7 @@ abstract class PageLayout {
 
     abstract val isFilled: Boolean
 
-    abstract val primaryPage: Page?
+    abstract val keyPage: Page?
 
     abstract fun add(page: Page)
 

@@ -1,15 +1,18 @@
 package jp.co.c_lis.mangaview.android
 
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import dev.keiji.mangaview.widget.DoublePageLayoutManager
 import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
 import dev.keiji.mangaview.widget.OnDoubleTapListener
 import dev.keiji.mangaview.widget.OnPageChangeListener
 import dev.keiji.mangaview.widget.PageLayout
+import dev.keiji.mangaview.widget.SinglePageLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -27,6 +30,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private val TAG = MainActivity::class.java.simpleName
+
+        private const val KEY_CURRENT_PAGE_INDEX = "state_key_page_index"
     }
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -35,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     private val onPageChangeListener = object : OnPageChangeListener {
         override fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {
-            val page = pageLayout.primaryPage ?: return
+            val page = pageLayout.keyPage ?: return
             Toast.makeText(
                 this@MainActivity,
                 "Page Index: ${page.index}",
@@ -58,8 +63,16 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
+        val pageLayoutManager =
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                SinglePageLayoutManager()
+            } else {
+                DoublePageLayoutManager(isSpread = true)
+            }
+
         mangaView = findViewById<MangaView>(R.id.manga_view).also {
             it.layoutManager = HorizontalRtlLayoutManager()
+            it.pageLayoutManager = pageLayoutManager
             it.adapter = AssetBitmapAdapter(
                 assets, FILE_NAMES, coroutineScope,
                 1150, 1700
@@ -67,6 +80,21 @@ class MainActivity : AppCompatActivity() {
             it.onPageChangeListener = onPageChangeListener
             it.onDoubleTapListener = onDoubleTapListener
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        mangaView?.also {
+            outState.putInt(KEY_CURRENT_PAGE_INDEX, it.currentPageIndex)
+        }
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        val currentPageIndex = savedInstanceState.getInt(KEY_CURRENT_PAGE_INDEX)
+        mangaView?.currentPageIndex = currentPageIndex
     }
 
     override fun onDestroy() {

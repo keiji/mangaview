@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -150,6 +151,8 @@ class MangaView(
         layoutManagerSnapshot.pageLayoutManager = pageLayoutManager
         pageLayoutManager.pageAdapter = adapterSnapshot
 
+        showPage(currentPageIndex)
+
         isInitialized = true
     }
 
@@ -212,6 +215,16 @@ class MangaView(
         }
     }
 
+    override fun onSaveInstanceState(): Parcelable? {
+        return super.onSaveInstanceState()
+        // TODO
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        super.onRestoreInstanceState(state)
+        // TODO
+    }
+
     @Suppress("MemberVisibilityCanBePrivate")
     fun showPage(pageIndex: Int, smoothScroll: Boolean = false) {
         val pageLayoutIndex = pageLayoutManager.calcPageLayoutIndex(pageIndex)
@@ -232,6 +245,8 @@ class MangaView(
                 smoothScale = false
             ) {}
             viewContext.offsetTo(scrollArea.left, scrollArea.top)
+            layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
+
             postInvalidate()
             return
         }
@@ -433,13 +448,17 @@ class MangaView(
         return handled
     }
 
-    var currentPageLayout: PageLayout? = null
+    var currentPageIndex: Int = 0
+
+    private var currentPageLayout: PageLayout? = null
         private set(value) {
             if (value == null || field == value || scrollState != SCROLL_STATE_IDLE) {
                 return
             }
 
             field = value
+            currentPageIndex = value.keyPage?.index ?: 0
+
             onPageChangeListener.onPageLayoutSelected(this, value)
         }
 
@@ -746,7 +765,7 @@ class MangaView(
         layoutManagerSnapshot: LayoutManager
     ): Boolean {
         val index = layoutManagerSnapshot.leftPageLayout(viewContext)
-            ?.primaryPage?.index ?: return false
+            ?.keyPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return true
     }
@@ -755,7 +774,7 @@ class MangaView(
         layoutManagerSnapshot: LayoutManager
     ): Boolean {
         val index = layoutManagerSnapshot.rightPageLayout(viewContext)
-            ?.primaryPage?.index ?: return false
+            ?.keyPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return true
     }
@@ -764,7 +783,7 @@ class MangaView(
         layoutManagerSnapshot: LayoutManager
     ): Boolean {
         val index = layoutManagerSnapshot.topPageLayout(viewContext)
-            ?.primaryPage?.index ?: return false
+            ?.keyPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return false
     }
@@ -773,7 +792,7 @@ class MangaView(
         layoutManagerSnapshot: LayoutManager
     ): Boolean {
         val index = layoutManagerSnapshot.topPageLayout(viewContext)
-            ?.primaryPage?.index ?: return false
+            ?.keyPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return false
     }
