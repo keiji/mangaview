@@ -62,7 +62,7 @@ abstract class LayoutManager {
         val firstVisiblePageLayoutIndex = calcFirstVisiblePageLayoutIndex(viewContext)
         val endVisiblePageLayoutIndex = calcLastVisiblePageLayoutIndex(viewContext)
 
-        Log.Companion.d(
+        Log.d(
             TAG,
             "firstVisiblePageLayoutIndex:$firstVisiblePageLayoutIndex, endVisiblePageLayoutIndex:$endVisiblePageLayoutIndex"
         )
