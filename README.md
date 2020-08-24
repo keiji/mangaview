@@ -8,8 +8,8 @@ Download
 ========
 Download the latest JAR or grab from Maven central at the coordinates `dev.keiji.mangaview:mangaview:0.8.0-alpha1`.
 
-Sample App
-[deploygate](https://dply.me/dttnvk)
+## Sample App
+You can download the sample app via [deploygate](https://dply.me/dttnvk).
 
 
 License
