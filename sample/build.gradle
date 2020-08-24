@@ -6,6 +6,28 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    signingConfigs {
+        def propFile = project.rootProject.file('release.properties')
+        if (!propFile.exists()) {
+            propFile.createNewFile()
+        }
+
+        def properties = new Properties()
+        properties.load(propFile.newDataInputStream())
+
+        def signStoreFilePath = properties.getProperty("signing.storeFilePath") ?: ""
+        def signStorePassword = properties.getProperty("signing.storePassword") ?: ""
+        def signKeyAlias = properties.getProperty("signing.keyAlias") ?: ""
+        def signKeyPassword = properties.getProperty("signing.keyPassword") ?: ""
+
+        release {
+            storeFile file(signStoreFilePath)
+            storePassword signStorePassword
+            keyAlias signKeyAlias
+            keyPassword signKeyPassword
+        }
+    }
+
     defaultConfig {
         applicationId "jp.co.c_lis.mangaview.android"
         minSdkVersion 15
@@ -20,6 +42,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
