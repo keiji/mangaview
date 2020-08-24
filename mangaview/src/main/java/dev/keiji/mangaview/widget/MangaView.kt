@@ -83,8 +83,6 @@ class MangaView(
     private val viewConfiguration: ViewConfiguration = ViewConfiguration.get(context)
     private val density = context.resources.displayMetrics.scaledDensity
 
-    private val overScrollDistance =
-        (viewConfiguration.scaledOverscrollDistance * density).roundToInt()
     private val pagingTouchSlop = viewConfiguration.scaledPagingTouchSlop * density
 
     var onPageChangeListener = object : OnPageChangeListener {
@@ -131,6 +129,86 @@ class MangaView(
     private val tapToScrollThresholdTop = DEFAULT_TAP_TO_SCROLL_THRESHOLD_VERTICAL
     private val tapToScrollThresholdBottom = 1.0F - DEFAULT_TAP_TO_SCROLL_THRESHOLD_VERTICAL
 
+    private val gestureDetector = GestureDetectorCompat(context, this).also {
+        it.setOnDoubleTapListener(this)
+    }
+    private val scaleGestureDetector = ScaleGestureDetector(context, this).also {
+        ScaleGestureDetectorCompat.setQuickScaleEnabled(it, false)
+    }
+
+    private val visiblePageLayoutList = ArrayList<PageLayout>()
+    private val recycleBin = ArrayList<Page>()
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    var paint = Paint().also {
+        it.isAntiAlias = true
+        it.isDither = true
+    }
+
+    private var scroller = OverScroller(context, DecelerateInterpolator())
+
+    private var settleScroller = OverScroller(context, DecelerateInterpolator())
+
+    enum class ScalingState {
+        Begin,
+        Scaling,
+        End,
+        Finish
+    }
+
+    private var scalingState = ScalingState.Finish
+        set(value) {
+            if (field == value) {
+                return
+            }
+            Log.d(TAG, "ScalingState changed: $field -> $value")
+            field = value
+        }
+
+    private var scaleInterpolator = DecelerateInterpolator()
+
+    private var scaleOperation: ScaleOperation? = null
+
+    var currentPageIndex: Int = 0
+
+    private val tmpCurrentScrollArea = Rectangle()
+    private val tmpEventPoint = Rectangle()
+
+    private val currentScrollArea: Rectangle?
+        get() {
+            return currentPageLayout?.calcScrollArea(viewContext, tmpCurrentScrollArea)
+        }
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    var onTapListener = object : OnTapListener {
+        override fun onTap(page: Page, x: Float, y: Float): Boolean {
+            Log.d(TAG, "onTap page:${page.index}, x:$x, y:$y")
+
+            return false
+        }
+
+        override fun onTap(layer: ContentLayer, x: Float, y: Float): Boolean {
+            Log.d(TAG, "onTap ${layer.page?.index}, layer, x:$x, y:$y")
+
+            return false
+        }
+    }
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    var onDoubleTapListener = object : OnDoubleTapListener {
+        override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
+            return false
+        }
+
+        override fun onDoubleTap(page: Page, x: Float, y: Float): Boolean {
+            return false
+        }
+
+        override fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean {
+            return false
+        }
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
@@ -158,12 +236,6 @@ class MangaView(
         isInitialized = true
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    var paint = Paint().also {
-        it.isAntiAlias = true
-        it.isDither = true
-    }
-
     var onViewportChangeListener = object : OnContentViewportChangeListener {
         override fun onViewportChanged(
             mangaView: MangaView,
@@ -174,9 +246,6 @@ class MangaView(
             return false
         }
     }
-
-    private val visiblePageLayoutList = ArrayList<PageLayout>()
-    private val recycleBin = ArrayList<Page>()
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
@@ -274,13 +343,6 @@ class MangaView(
         startAnimation()
     }
 
-    private val gestureDetector = GestureDetectorCompat(context, this).also {
-        it.setOnDoubleTapListener(this)
-    }
-    private val scaleGestureDetector = ScaleGestureDetector(context, this).also {
-        ScaleGestureDetectorCompat.setQuickScaleEnabled(it, false)
-    }
-
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event ?: return super.onTouchEvent(event)
 
@@ -327,10 +389,6 @@ class MangaView(
         scalingState = ScalingState.Finish
     }
 
-    private var settleScroller = OverScroller(context, DecelerateInterpolator())
-
-    private var scroller = OverScroller(context, DecelerateInterpolator())
-
     private fun startAnimation() {
         ViewCompat.postInvalidateOnAnimation(this)
     }
@@ -340,10 +398,6 @@ class MangaView(
         settleScroller.abortAnimation()
         scaleOperation = null
     }
-
-    private var scaleInterpolator = DecelerateInterpolator()
-
-    private var scaleOperation: ScaleOperation? = null
 
     override fun computeScroll() {
         super.computeScroll()
@@ -368,10 +422,10 @@ class MangaView(
                 viewContext.projectToScreenPosition(
                     viewContext.viewport.centerX,
                     viewContext.viewport.centerY,
-                    eventPointTmp
+                    tmpEventPoint
                 )
-                focusX = eventPointTmp.centerX
-                focusY = eventPointTmp.centerY
+                focusX = tmpEventPoint.centerX
+                focusY = tmpEventPoint.centerY
             }
 
             viewContext.scaleTo(newScale, focusX, focusY)
@@ -448,8 +502,6 @@ class MangaView(
         return handled
     }
 
-    var currentPageIndex: Int = 0
-
     private var currentPageLayout: PageLayout? = null
         private set(value) {
             if (value == null || field == value || scrollState != SCROLL_STATE_IDLE) {
@@ -464,13 +516,6 @@ class MangaView(
             }
 
             onPageChangeListener.onPageLayoutSelected(this, value)
-        }
-
-    private val tmpCurrentScrollArea = Rectangle()
-
-    private val currentScrollArea: Rectangle?
-        get() {
-            return currentPageLayout?.calcScrollArea(viewContext, tmpCurrentScrollArea)
         }
 
     private fun fling(velocityX: Float, velocityY: Float): Boolean {
@@ -546,13 +591,11 @@ class MangaView(
 
         val viewport = viewContext.viewport
 
-        val minX = currentScrollAreaSnapshot.left.roundToInt() - overScrollDistance
-        val maxX =
-            (currentScrollAreaSnapshot.right - viewport.width).roundToInt() + overScrollDistance
+        val minX = currentScrollAreaSnapshot.left.roundToInt()
+        val maxX = (currentScrollAreaSnapshot.right - viewport.width).roundToInt()
 
-        val minY = currentScrollAreaSnapshot.top.roundToInt() - overScrollDistance
-        val maxY =
-            (currentScrollAreaSnapshot.bottom - viewport.height).roundToInt() + overScrollDistance
+        val minY = currentScrollAreaSnapshot.top.roundToInt()
+        val maxY = (currentScrollAreaSnapshot.bottom - viewport.height).roundToInt()
 
         Log.d(
             TAG, "fling " +
@@ -562,12 +605,15 @@ class MangaView(
                     "minY ${minY}, maxY ${maxY}"
         )
 
-        // overscroll
+        // Do not fling if over-scrolled
         if (horizontal
-            && (viewport.left < currentScrollAreaSnapshot.left || viewport.right > currentScrollAreaSnapshot.right)
+            && (viewport.left < currentScrollAreaSnapshot.left
+                    || viewport.right > currentScrollAreaSnapshot.right)
         ) {
             return false
-        } else if (viewport.top < currentScrollAreaSnapshot.top || viewport.bottom > currentScrollAreaSnapshot.bottom) {
+        } else if (viewport.top < currentScrollAreaSnapshot.top
+            || viewport.bottom > currentScrollAreaSnapshot.bottom
+        ) {
             return false
         }
 
@@ -603,22 +649,6 @@ class MangaView(
     override fun onLongPress(e: MotionEvent?) {
         Log.d(TAG, "onLongPress")
     }
-
-    enum class ScalingState {
-        Begin,
-        Scaling,
-        End,
-        Finish
-    }
-
-    private var scalingState = ScalingState.Finish
-        set(value) {
-            if (field == value) {
-                return
-            }
-            Log.d(TAG, "ScalingState changed: $field -> $value")
-            field = value
-        }
 
     override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
         detector ?: return false
@@ -669,21 +699,6 @@ class MangaView(
         startAnimation()
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    var onDoubleTapListener = object : OnDoubleTapListener {
-        override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
-            return false
-        }
-
-        override fun onDoubleTap(page: Page, x: Float, y: Float): Boolean {
-            return false
-        }
-
-        override fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean {
-            return false
-        }
-    }
-
     override fun onDoubleTap(e: MotionEvent?): Boolean {
         e ?: return false
 
@@ -695,7 +710,7 @@ class MangaView(
         }
 
         // mapping global point
-        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, eventPointTmp)
+        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
 
         visiblePageLayoutList
             .flatMap { it.pages }
@@ -781,36 +796,36 @@ class MangaView(
     }
 
     private fun toLeftPage(
-        layoutManagerSnapshot: LayoutManager
+        layoutManager: LayoutManager
     ): Boolean {
-        val index = layoutManagerSnapshot.leftPageLayout(viewContext)
+        val index = layoutManager.leftPageLayout(viewContext)
             ?.keyPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return true
     }
 
     private fun toRightPage(
-        layoutManagerSnapshot: LayoutManager
+        layoutManager: LayoutManager
     ): Boolean {
-        val index = layoutManagerSnapshot.rightPageLayout(viewContext)
+        val index = layoutManager.rightPageLayout(viewContext)
             ?.keyPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return true
     }
 
     private fun toTopPage(
-        layoutManagerSnapshot: LayoutManager
+        layoutManager: LayoutManager
     ): Boolean {
-        val index = layoutManagerSnapshot.topPageLayout(viewContext)
+        val index = layoutManager.topPageLayout(viewContext)
             ?.keyPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return false
     }
 
     private fun toBottomPage(
-        layoutManagerSnapshot: LayoutManager
+        layoutManager: LayoutManager
     ): Boolean {
-        val index = layoutManagerSnapshot.topPageLayout(viewContext)
+        val index = layoutManager.topPageLayout(viewContext)
             ?.keyPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return false
@@ -820,23 +835,6 @@ class MangaView(
         e ?: return false
         return true
     }
-
-    @Suppress("MemberVisibilityCanBePrivate")
-    var onTapListener = object : OnTapListener {
-        override fun onTap(page: Page, x: Float, y: Float): Boolean {
-            Log.d(TAG, "onTap page:${page.index}, x:$x, y:$y")
-
-            return false
-        }
-
-        override fun onTap(layer: ContentLayer, x: Float, y: Float): Boolean {
-            Log.d(TAG, "onTap ${layer.page?.index}, layer, x:$x, y:$y")
-
-            return false
-        }
-    }
-
-    private val eventPointTmp = Rectangle()
 
     override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
         e ?: return false
@@ -848,7 +846,7 @@ class MangaView(
         }
 
         // mapping global point
-        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, eventPointTmp)
+        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
 
         visiblePageLayoutList
             .flatMap { it.pages }
