@@ -44,4 +44,6 @@ abstract class PageLayout {
     }
 
     abstract fun calcScrollArea(viewContext: ViewContext, result: Rectangle): Rectangle
+
+    fun containsPage(pageIndex: Int) = pages.any { it.index == pageIndex }
 }

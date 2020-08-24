@@ -459,7 +459,11 @@ class MangaView(
             }
 
             field = value
-            currentPageIndex = value.keyPage?.index ?: 0
+
+            if (!value.containsPage(currentPageIndex)) {
+                currentPageIndex = value.keyPage?.index ?: 0
+                Log.d(TAG, "Update currentPageIndex $currentPageIndex")
+            }
 
             onPageChangeListener.onPageLayoutSelected(this, value)
         }
