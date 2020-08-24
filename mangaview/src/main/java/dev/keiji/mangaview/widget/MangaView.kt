@@ -149,6 +149,8 @@ class MangaView(
 
         layoutManagerSnapshot.adapter = adapterSnapshot
         layoutManagerSnapshot.pageLayoutManager = pageLayoutManager
+        layoutManagerSnapshot.setScrollableAxis(viewContext)
+
         pageLayoutManager.pageAdapter = adapterSnapshot
 
         showPage(currentPageIndex)
@@ -309,8 +311,8 @@ class MangaView(
     private fun populate() {
         val layoutManagerSnapshot = layoutManager ?: return
 
-        val currentScrollArea = currentPageLayout
-            ?.calcScrollArea(viewContext, tmpCurrentScrollArea) ?: return
+        val currentScrollArea =
+            currentPageLayout?.calcScrollArea(viewContext, tmpCurrentScrollArea) ?: return
 
         layoutManagerSnapshot.populateHelper
             .init(
@@ -537,13 +539,15 @@ class MangaView(
             return true
         }
 
+        val viewport = viewContext.viewport
+
         val minX = currentScrollArea.left.roundToInt() - overScrollDistance
         val maxX =
-            (currentScrollArea.right - viewContext.viewport.width).roundToInt() + overScrollDistance
+            (currentScrollArea.right - viewport.width).roundToInt() + overScrollDistance
 
         val minY = currentScrollArea.top.roundToInt() - overScrollDistance
         val maxY =
-            (currentScrollArea.bottom - viewContext.viewport.height).roundToInt() + overScrollDistance
+            (currentScrollArea.bottom - viewport.height).roundToInt() + overScrollDistance
 
         Log.d(
             TAG, "fling " +
@@ -552,6 +556,15 @@ class MangaView(
                     "minX ${minX}, maxX ${maxX}, " +
                     "minY ${minY}, maxY ${maxY}"
         )
+
+        // overscroll
+        if (horizontal
+            && (viewport.left < currentScrollArea.left || viewport.right > currentScrollArea.right)
+        ) {
+            return false
+        } else if (viewport.top < currentScrollArea.top || viewport.bottom > currentScrollArea.bottom) {
+            return false
+        }
 
         scroller.fling(
             viewContext.currentX.roundToInt(),
@@ -571,9 +584,14 @@ class MangaView(
         distanceX: Float,
         distanceY: Float
     ): Boolean {
+        val currentPageLayoutSnapshot = currentPageLayout ?: return false
+        val currentScrollArea =
+            currentPageLayoutSnapshot.calcScrollArea(viewContext, tmpCurrentScrollArea)
+
         viewContext.scroll(
             distanceX / viewContext.currentScale,
-            distanceY / viewContext.currentScale
+            distanceY / viewContext.currentScale,
+            currentScrollArea
         )
 
         scrollState = SCROLL_STATE_DRAGGING

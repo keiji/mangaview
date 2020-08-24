@@ -16,6 +16,9 @@ data class ViewContext(
 
     companion object {
         private val TAG = ViewContext::class.java.simpleName
+
+        const val SCROLL_POLICY_UNLIMITED = 0
+        const val SCROLL_POLICY_LIMIT = 1
     }
 
     var minScale = 1.0F
@@ -37,30 +40,56 @@ data class ViewContext(
         viewport.bottom = viewHeight
     }
 
-    private fun applyViewport() {
+    private var scrollPolicyHorizontal = SCROLL_POLICY_UNLIMITED
+    private var scrollPolicyVertical = SCROLL_POLICY_UNLIMITED
+
+    private fun applyViewport(scrollableArea: Rectangle? = null) {
         viewport.set(
             currentX,
             currentY,
             currentX + viewportWidth,
             currentY + viewportHeight
         )
+
+        scrollableArea?.also {
+            if (scrollPolicyHorizontal == SCROLL_POLICY_LIMIT) {
+                if (viewport.left < it.left) {
+                    offset(it.left - viewport.left, 0.0F)
+                } else if (viewport.right > it.right) {
+                    offset(it.right - viewport.right, 0.0F)
+                }
+            }
+            if (scrollPolicyVertical == SCROLL_POLICY_LIMIT) {
+                if (viewport.top < it.top) {
+                    offset(0.0F, it.top - viewport.top)
+                } else if (viewport.bottom > it.bottom) {
+                    offset(0.0F, it.bottom - viewport.bottom)
+                }
+            }
+        }
     }
 
     fun scroll(
         distanceX: Float,
-        distanceY: Float
-    ) = offset(distanceX, distanceY)
+        distanceY: Float,
+        scrollArea: Rectangle? = null
+    ) = offset(distanceX, distanceY, scrollArea)
 
     fun offset(
         offsetX: Float,
-        offsetY: Float
-    ) = offsetTo(currentX + offsetX, currentY + offsetY)
+        offsetY: Float,
+        scrollArea: Rectangle? = null
+    ) = offsetTo(currentX + offsetX, currentY + offsetY, scrollArea)
 
-    fun offsetTo(x: Float, y: Float) {
+    fun offsetTo(
+        x: Float,
+        y: Float,
+        scrollArea: Rectangle? = null
+    ) {
         currentX = x
         currentY = y
 
-        applyViewport()
+        applyViewport(scrollArea)
     }
 
     fun scale(factor: Float, focusX: Float, focusY: Float) {
@@ -135,5 +164,10 @@ data class ViewContext(
 
         return result
             .set(screenX, screenY, screenX, screenY)
+    }
+
+    fun setScrollableAxis(horizontal: Int, vertical: Int) {
+        scrollPolicyHorizontal = horizontal
+        scrollPolicyVertical = vertical
     }
 }

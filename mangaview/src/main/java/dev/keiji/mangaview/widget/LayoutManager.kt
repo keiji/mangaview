@@ -99,4 +99,6 @@ abstract class LayoutManager {
     abstract fun calcFirstVisiblePageLayoutIndex(viewContext: ViewContext): Int
 
     abstract fun calcLastVisiblePageLayoutIndex(viewContext: ViewContext): Int
+
+    abstract fun setScrollableAxis(viewContext: ViewContext)
 }

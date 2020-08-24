@@ -59,5 +59,12 @@ class HorizontalRtlLayoutManager : LayoutManager() {
     override fun calcFirstVisiblePageLayoutIndex(viewContext: ViewContext): Int {
         return abs(ceil(viewContext.viewport.right / viewContext.viewWidth)).toInt()
     }
+
+    override fun setScrollableAxis(viewContext: ViewContext) {
+        viewContext.setScrollableAxis(
+            horizontal = ViewContext.SCROLL_POLICY_UNLIMITED,
+            vertical = ViewContext.SCROLL_POLICY_LIMIT
+        )
+    }
 }
 

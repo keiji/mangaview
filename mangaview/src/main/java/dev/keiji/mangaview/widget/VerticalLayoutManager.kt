@@ -59,5 +59,12 @@ class VerticalLayoutManager : LayoutManager() {
     override fun calcLastVisiblePageLayoutIndex(viewContext: ViewContext): Int {
         return abs(ceil(viewContext.viewport.top / viewContext.viewHeight)).toInt()
     }
+
+    override fun setScrollableAxis(viewContext: ViewContext) {
+        viewContext.setScrollableAxis(
+            horizontal = ViewContext.SCROLL_POLICY_LIMIT,
+            vertical = ViewContext.SCROLL_POLICY_UNLIMITED
+        )
+    }
 }
 

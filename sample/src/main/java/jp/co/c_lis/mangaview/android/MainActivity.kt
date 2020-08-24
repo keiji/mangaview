@@ -18,18 +18,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 
 private val FILE_NAMES = arrayOf(
-    "sample1.png",
-    "sample2.png",
-    "sample3.png",
-    "sample4.png",
-    "sample5.png",
-    "sample6.png",
+    "comic2.jpg",
+    "comic3.jpg",
+    "comic4.jpg",
+    "comic5.jpg",
+    "comic6.jpg",
+    "comic7.jpg",
+    "comic8.jpg",
+    "comic9.jpg",
+    "comic10.jpg",
+    "comic11.jpg",
+    "comic12.jpg",
+    "comic13.jpg",
 )
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         private val TAG = MainActivity::class.java.simpleName
+
+        private const val PAGE_WIDTH = 859
+        private const val PAGE_HEIGHT = 1214
 
         private const val KEY_CURRENT_PAGE_INDEX = "state_key_page_index"
     }
@@ -75,7 +84,7 @@ class MainActivity : AppCompatActivity() {
             it.pageLayoutManager = pageLayoutManager
             it.adapter = AssetBitmapAdapter(
                 assets, FILE_NAMES, coroutineScope,
-                1150, 1700
+                PAGE_WIDTH, PAGE_HEIGHT
             )
             it.onPageChangeListener = onPageChangeListener
             it.onDoubleTapListener = onDoubleTapListener

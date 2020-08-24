@@ -2,7 +2,6 @@ package dev.keiji.mangaview.widget
 
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
-import kotlin.math.roundToInt
 
 
 class VerticalPopulateHelper : PopulateHelper() {
