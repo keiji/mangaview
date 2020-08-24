@@ -32,8 +32,8 @@ android {
         applicationId "jp.co.c_lis.mangaview.android"
         minSdkVersion 15
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        versionCode 800
+        versionName "0.8.1-alpha1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
