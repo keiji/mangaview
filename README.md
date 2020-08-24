@@ -4,6 +4,14 @@ MangaView
 An ImageView for reading manga(comics) for Android.
 
 
+Download
+========
+Download the latest JAR or grab from Maven central at the coordinates `dev.keiji.mangaview:mangaview:0.8.0-alpha1`.
+
+Sample App
+[deploygate](https://dply.me/dttnvk)
+
+
 License
 =======
 
