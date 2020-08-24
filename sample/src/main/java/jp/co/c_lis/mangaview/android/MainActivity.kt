@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
 
     private val onDoubleTapListener = object : OnDoubleTapListener {
         override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
-            mangaView.showPage(3, smoothScroll = true)
             return true
         }
     }

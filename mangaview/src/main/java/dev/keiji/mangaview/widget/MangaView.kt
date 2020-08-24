@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 interface OnTapListener {
@@ -63,7 +64,7 @@ class MangaView(
 
         private const val SCROLLING_DURATION = 280
         private const val REVERSE_SCROLLING_DURATION = 350
-        private const val SCALING_DURATION = 350L
+        private const val SCALING_DURATION = 250L
 
         private const val DEFAULT_TAP_TO_SCROLL_THRESHOLD_HORIZONTAL = 0.2F
         private const val DEFAULT_TAP_TO_SCROLL_THRESHOLD_VERTICAL = 0.2F
@@ -124,6 +125,8 @@ class MangaView(
     private val viewContext = ViewContext()
 
     private var isInitialized = false
+
+    private var doubleTapToZoomEnabled = true
 
     private var tapToScrollEnabled = true
     private val tapToScrollThresholdLeft = DEFAULT_TAP_TO_SCROLL_THRESHOLD_HORIZONTAL
@@ -660,6 +663,8 @@ class MangaView(
     override fun onDoubleTap(e: MotionEvent?): Boolean {
         e ?: return false
 
+        doubleTapToZoom(e)
+
         var handled = onDoubleTapListener.onDoubleTap(this, e.x, e.y)
         if (handled) {
             return true
@@ -691,6 +696,27 @@ class MangaView(
                     }
                 }
             }
+
+        return true
+    }
+
+    private fun doubleTapToZoom(e: MotionEvent): Boolean {
+        if (!doubleTapToZoomEnabled) {
+            return false
+        }
+
+        val currentScrollArea = currentPageLayout?.scrollArea ?: return false
+
+        val scale = max(
+            viewContext.viewWidth / currentScrollArea.width,
+            viewContext.viewHeight / currentScrollArea.height
+        )
+
+        if (viewContext.currentScale == scale) {
+            scale(viewContext.minScale, e.x, e.y, smoothScale = true) {}
+        } else {
+            scale(scale, e.x, e.y, smoothScale = true) {}
+        }
 
         return true
     }
