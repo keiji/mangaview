@@ -681,6 +681,7 @@ class MangaView(
         detector ?: return
 
         scalingState = ScalingState.End
+        populate()
     }
 
     private val populateOnScaleFinished = fun() {
