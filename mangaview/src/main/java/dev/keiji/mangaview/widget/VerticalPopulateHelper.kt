@@ -17,12 +17,12 @@ class VerticalPopulateHelper : PopulateHelper() {
         return diff > (pagingTouchSlop / viewContext.currentScale)
     }
 
-    private val calcDiffYToTop = fun(rect: Rectangle): Int {
-        return (rect.bottom - viewContext.viewport.bottom).roundToInt()
+    private val calcDiffYToTop = fun(rect: Rectangle): Float {
+        return (rect.bottom - viewContext.viewport.bottom)
     }
 
-    private val calcDiffYToBottom = fun(rect: Rectangle): Int {
-        return (rect.top - viewContext.viewport.top).roundToInt()
+    private val calcDiffYToBottom = fun(rect: Rectangle): Float {
+        return (rect.top - viewContext.viewport.top)
     }
 
     override fun populate() {

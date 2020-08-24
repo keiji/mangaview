@@ -26,13 +26,13 @@ abstract class PopulateHelper {
     val tmpTopScrollArea = Rectangle()
     val tmpBottomScrollArea = Rectangle()
 
-    val calcDiffHorizontal = fun(rect: Rectangle): Int {
+    val calcDiffHorizontal = fun(rect: Rectangle): Float {
         val diffLeft = rect.left - viewContext.viewport.left
         val diffRight = rect.right - viewContext.viewport.right
 
         if (diffLeft.sign != diffRight.sign) {
             // no overflow
-            return 0
+            return 0.0F
         }
 
         val overflowLeft = diffLeft > 0
@@ -41,16 +41,16 @@ abstract class PopulateHelper {
         } else {
             rect.right - viewContext.viewport.right
         }
-        return dx.roundToInt()
+        return dx
     }
 
-    val calcDiffVertical = fun(rect: Rectangle): Int {
+    val calcDiffVertical = fun(rect: Rectangle): Float {
         val diffTop = rect.top - viewContext.viewport.top
         val diffBottom = rect.bottom - viewContext.viewport.bottom
 
         if (diffTop.sign != diffBottom.sign) {
             // no overflow
-            return 0
+            return 0.0F
         }
 
         val overflowTop = diffTop > 0
@@ -59,7 +59,7 @@ abstract class PopulateHelper {
         } else {
             rect.bottom - viewContext.viewport.bottom
         }
-        return dy.roundToInt()
+        return dy
     }
 
     val tmp = Rectangle()
@@ -87,8 +87,8 @@ abstract class PopulateHelper {
         fromArea: Rectangle?,
         toArea: Rectangle?,
         shouldPopulate: (Rectangle?) -> Boolean,
-        dx: (Rectangle) -> Int,
-        dy: (Rectangle) -> Int,
+        dx: (Rectangle) -> Float,
+        dy: (Rectangle) -> Float,
         duration: Int
     ): Boolean {
         fromArea ?: return false
@@ -102,40 +102,47 @@ abstract class PopulateHelper {
             val dx = dx(toArea)
             val dy = dy(toArea)
 
-            if (dx == 0 && dy == 0) {
+            if (dx == 0.0F && dy == 0.0F) {
                 return false
             }
 
-            settleScroller.startScroll(
-                startX.roundToInt(),
-                startY.roundToInt(),
-                dx,
-                dy,
-                duration
-            )
+            settleScroller.also {
+                it.abortAnimation()
+                it.startScroll(
+                    startX.roundToInt(),
+                    startY.roundToInt(),
+                    dx.roundToInt(),
+                    dy.roundToInt(),
+                    duration
+                )
+            }
+
             return true
         }
 
         return false
     }
 
-    fun populateToCurrent(area: Rectangle, scrollDuration: Int) {
-        val startX = viewContext.viewport.left.roundToInt()
-        val startY = viewContext.viewport.top.roundToInt()
+    fun populateToCurrent(area: Rectangle, duration: Int) {
+        val startX = viewContext.viewport.left
+        val startY = viewContext.viewport.top
         val dx = calcDiffHorizontal(area)
         val dy = calcDiffVertical(area)
 
-        if (dx == 0 && dy == 0) {
+        if (dx == 0.0F && dy == 0.0F) {
             return
         }
 
-        settleScroller.startScroll(
-            startX,
-            startY,
-            dx,
-            dy,
-            scrollDuration
-        )
+        settleScroller.also {
+            it.abortAnimation()
+            it.startScroll(
+                startX.roundToInt(),
+                startY.roundToInt(),
+                dx.roundToInt(),
+                dy.roundToInt(),
+                duration
+            )
+        }
     }
 
     open fun populateToLeft(leftRect: PageLayout) {

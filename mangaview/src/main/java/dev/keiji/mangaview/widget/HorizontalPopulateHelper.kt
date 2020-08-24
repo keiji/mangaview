@@ -15,11 +15,12 @@ class HorizontalPopulateHelper : PopulateHelper() {
         return diff > (pagingTouchSlop / viewContext.currentScale)
     }
 
-    private val calcDiffXToLeft = fun(rect: Rectangle): Int {
-        return (rect.right - viewContext.viewport.right).roundToInt()
+    private val calcDiffXToLeft = fun(rect: Rectangle): Float {
+        return (rect.right - viewContext.viewport.right)
     }
-    private val calcDiffXToRight = fun(rect: Rectangle): Int {
-        return (rect.left - viewContext.viewport.left).roundToInt()
+
+    private val calcDiffXToRight = fun(rect: Rectangle): Float {
+        return (rect.left - viewContext.viewport.left)
     }
 
     override fun populate() {

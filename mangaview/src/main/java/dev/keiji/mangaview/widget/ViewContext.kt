@@ -114,4 +114,26 @@ data class ViewContext(
     fun canScrollBottom(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
         return (rectangle.bottom + delta) > viewport.bottom
     }
+
+    fun projectToGlobalPosition(screenX: Float, screenY: Float, result: Rectangle): Rectangle {
+        val horizontalRatio = screenX / viewWidth
+        val verticalRatio = screenY / viewHeight
+
+        val globalX = viewport.left + viewport.width * horizontalRatio
+        val globalY = viewport.top + viewport.height * verticalRatio
+
+        return result
+            .set(globalX, globalY, globalX, globalY)
+    }
+
+    fun projectToScreenPosition(globalX: Float, globalY: Float, result: Rectangle): Rectangle {
+        val horizontalRatio = (globalX - viewport.left) / viewport.width
+        val verticalRatio = (globalY - viewport.top) / viewport.height
+
+        val screenX = viewWidth * horizontalRatio
+        val screenY = viewHeight * verticalRatio
+
+        return result
+            .set(screenX, screenY, screenX, screenY)
+    }
 }

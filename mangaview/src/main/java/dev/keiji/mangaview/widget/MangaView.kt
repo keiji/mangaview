@@ -247,7 +247,11 @@ class MangaView(
             return
         }
 
-        scale(viewContext.minScale, null, null, smoothScale = true) {
+        scale(
+            viewContext.minScale,
+            null, null,
+            smoothScale = true
+        ) {
             val currentLeft = viewContext.viewport.left.roundToInt()
             val currentTop = viewContext.viewport.top.roundToInt()
 
@@ -313,9 +317,7 @@ class MangaView(
                 SCROLLING_DURATION,
                 REVERSE_SCROLLING_DURATION
             )
-            .populateToCurrent(
-                currentScrollArea, SCROLLING_DURATION
-            )
+            .populateToCurrent(currentScrollArea, SCROLLING_DURATION)
         startAnimation()
 
         scalingState = ScalingState.Finish
@@ -351,8 +353,23 @@ class MangaView(
             val input = elapsed.toFloat() / it.durationMillis
             val scaleFactor = scaleInterpolator.getInterpolation(input)
             val newScale = it.from + it.diff * scaleFactor
-            val focusX = it.focusX ?: viewContext.viewWidth / 2
-            val focusY = it.focusY ?: viewContext.viewHeight / 2
+
+            val focusX: Float
+            val focusY: Float
+
+            if (it.focusX != null && it.focusY != null) {
+                focusX = it.focusX
+                focusY = it.focusY
+            } else {
+                viewContext.projectToScreenPosition(
+                    viewContext.viewport.centerX,
+                    viewContext.viewport.centerY,
+                    eventPointTmp
+                )
+                focusX = eventPointTmp.centerX
+                focusY = eventPointTmp.centerY
+            }
+
             viewContext.scaleTo(newScale, focusX, focusY)
             populate()
 
@@ -382,12 +399,12 @@ class MangaView(
                 false
             }
 
-        layoutManager?.currentPageLayout(viewContext)?.also {
-            currentPageLayout = it
-        }
-
         if (!needPostInvalidateScroll && scrollState == SCROLL_STATE_SETTLING) {
             scrollState = SCROLL_STATE_IDLE
+        }
+
+        layoutManager?.currentPageLayout(viewContext)?.also {
+            currentPageLayout = it
         }
 
         if (needPostInvalidateScale || needPostInvalidateScroll) {
@@ -429,9 +446,10 @@ class MangaView(
 
     var currentPageLayout: PageLayout? = null
         private set(value) {
-            if (value == null || field == value) {
+            if (value == null || field == value || scrollState != SCROLL_STATE_IDLE) {
                 return
             }
+
             field = value
             onPageChangeListener.onPageLayoutSelected(this, value)
         }
@@ -550,10 +568,6 @@ class MangaView(
             distanceY / viewContext.currentScale
         )
 
-        layoutManager?.currentPageLayout(viewContext)?.also {
-            currentPageLayout = it
-        }
-
         scrollState = SCROLL_STATE_DRAGGING
 
         return true
@@ -652,7 +666,7 @@ class MangaView(
         }
 
         // mapping global point
-        val globalPosition = projectGlobalPosition(e.x, e.y)
+        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, eventPointTmp)
 
         visiblePageLayoutList
             .flatMap { it.pages }
@@ -784,7 +798,7 @@ class MangaView(
         }
 
         // mapping global point
-        val globalPosition = projectGlobalPosition(e.x, e.y)
+        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, eventPointTmp)
 
         visiblePageLayoutList
             .flatMap { it.pages }
@@ -810,17 +824,6 @@ class MangaView(
                 }
             }
         return false
-    }
-
-    private fun projectGlobalPosition(x: Float, y: Float): Rectangle {
-        val horizontalRatio = x / viewContext.viewWidth
-        val verticalRatio = y / viewContext.viewHeight
-
-        val globalX = viewContext.viewport.left + viewContext.viewport.width * horizontalRatio
-        val globalY = viewContext.viewport.top + viewContext.viewport.height * verticalRatio
-
-        return eventPointTmp
-            .set(globalX, globalY, globalX, globalY)
     }
 
     private data class ScaleOperation(
