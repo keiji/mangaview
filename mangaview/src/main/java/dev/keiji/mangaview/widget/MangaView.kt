@@ -310,9 +310,7 @@ class MangaView(
 
     private fun populate() {
         val layoutManagerSnapshot = layoutManager ?: return
-
-        val currentScrollArea =
-            currentPageLayout?.calcScrollArea(viewContext, tmpCurrentScrollArea) ?: return
+        val currentScrollAreaSnapshot = currentScrollArea ?: return
 
         layoutManagerSnapshot.populateHelper
             .init(
@@ -323,7 +321,7 @@ class MangaView(
                 SCROLLING_DURATION,
                 REVERSE_SCROLLING_DURATION
             )
-            .populateToCurrent(currentScrollArea, SCROLLING_DURATION)
+            .populateToCurrent(currentScrollAreaSnapshot, SCROLLING_DURATION)
         startAnimation()
 
         scalingState = ScalingState.Finish
@@ -470,6 +468,11 @@ class MangaView(
 
     private val tmpCurrentScrollArea = Rectangle()
 
+    private val currentScrollArea: Rectangle?
+        get() {
+            return currentPageLayout?.calcScrollArea(viewContext, tmpCurrentScrollArea)
+        }
+
     private fun fling(velocityX: Float, velocityY: Float): Boolean {
         val layoutManagerSnapshot = layoutManager ?: return false
 
@@ -480,9 +483,7 @@ class MangaView(
         Log.d(TAG, "scaledVelocityY $scaledVelocityY")
 
         val currentPageLayoutSnapshot = currentPageLayout ?: return false
-
-        val currentScrollArea =
-            currentPageLayoutSnapshot.calcScrollArea(viewContext, tmpCurrentScrollArea)
+        val currentScrollAreaSnapshot = currentScrollArea ?: return false
 
         Log.d(TAG, "fling ${currentPageLayoutSnapshot.pages[0].index}")
 
@@ -506,13 +507,13 @@ class MangaView(
             val rightRect = layoutManagerSnapshot.rightPageLayout(viewContext)
 
             handleHorizontal = if (scaledVelocityX > 0.0F && leftRect != null
-                && !viewContext.canScrollLeft(currentScrollArea)
+                && !viewContext.canScrollLeft(currentScrollAreaSnapshot)
             ) {
                 Log.d(TAG, "populateToLeft")
                 populateHelper.populateToLeft(leftRect)
                 true
             } else if (scaledVelocityX < 0.0F && rightRect != null
-                && !viewContext.canScrollRight(currentScrollArea)
+                && !viewContext.canScrollRight(currentScrollAreaSnapshot)
             ) {
                 Log.d(TAG, "populateToRight")
                 populateHelper.populateToRight(rightRect)
@@ -525,12 +526,12 @@ class MangaView(
             val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewContext)
 
             handleVertical = if (scaledVelocityY > 0.0F && topRect != null
-                && !viewContext.canScrollTop(currentScrollArea)
+                && !viewContext.canScrollTop(currentScrollAreaSnapshot)
             ) {
                 populateHelper.populateToTop(topRect)
                 true
             } else if (scaledVelocityY < 0.0F && bottomRect != null
-                && !viewContext.canScrollBottom(currentScrollArea)
+                && !viewContext.canScrollBottom(currentScrollAreaSnapshot)
             ) {
                 populateHelper.populateToBottom(bottomRect)
                 true
@@ -545,13 +546,13 @@ class MangaView(
 
         val viewport = viewContext.viewport
 
-        val minX = currentScrollArea.left.roundToInt() - overScrollDistance
+        val minX = currentScrollAreaSnapshot.left.roundToInt() - overScrollDistance
         val maxX =
-            (currentScrollArea.right - viewport.width).roundToInt() + overScrollDistance
+            (currentScrollAreaSnapshot.right - viewport.width).roundToInt() + overScrollDistance
 
-        val minY = currentScrollArea.top.roundToInt() - overScrollDistance
+        val minY = currentScrollAreaSnapshot.top.roundToInt() - overScrollDistance
         val maxY =
-            (currentScrollArea.bottom - viewport.height).roundToInt() + overScrollDistance
+            (currentScrollAreaSnapshot.bottom - viewport.height).roundToInt() + overScrollDistance
 
         Log.d(
             TAG, "fling " +
@@ -563,10 +564,10 @@ class MangaView(
 
         // overscroll
         if (horizontal
-            && (viewport.left < currentScrollArea.left || viewport.right > currentScrollArea.right)
+            && (viewport.left < currentScrollAreaSnapshot.left || viewport.right > currentScrollAreaSnapshot.right)
         ) {
             return false
-        } else if (viewport.top < currentScrollArea.top || viewport.bottom > currentScrollArea.bottom) {
+        } else if (viewport.top < currentScrollAreaSnapshot.top || viewport.bottom > currentScrollAreaSnapshot.bottom) {
             return false
         }
 
@@ -588,10 +589,6 @@ class MangaView(
         distanceX: Float,
         distanceY: Float
     ): Boolean {
-        val currentPageLayoutSnapshot = currentPageLayout ?: return false
-        val currentScrollArea =
-            currentPageLayoutSnapshot.calcScrollArea(viewContext, tmpCurrentScrollArea)
-
         viewContext.scroll(
             distanceX / viewContext.currentScale,
             distanceY / viewContext.currentScale,
