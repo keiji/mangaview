@@ -7,7 +7,6 @@ import android.graphics.RectF
 import dev.keiji.mangaview.BuildConfig
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
-import kotlinx.coroutines.CoroutineScope
 
 class Page(
     val index: Int,
@@ -45,7 +44,6 @@ class Page(
         canvas: Canvas?,
         viewContext: ViewContext,
         paint: Paint,
-        coroutineScope: CoroutineScope,
         onContentViewportChangeListener: (ContentLayer, RectF) -> Unit
     ): Boolean {
         contentSrc
@@ -66,7 +64,6 @@ class Page(
                     viewContext,
                     this,
                     paint,
-                    coroutineScope,
                     onContentViewportChangeListener
                 )
             }

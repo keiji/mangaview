@@ -4,12 +4,16 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
-import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlin.math.min
+
+enum class ContentState {
+    NotReady,
+    Preparing,
+    Ready,
+    Initializing,
+    Initialized,
+}
 
 abstract class ContentLayer {
 
@@ -35,21 +39,16 @@ abstract class ContentLayer {
     private val contentViewport = RectF()
     private val prevContentViewport = RectF()
 
-    abstract fun prepareContent(viewContext: ViewContext, page: Page)
+    abstract fun onPrepareContent(viewContext: ViewContext, page: Page): Boolean
 
-    open val isPrepared
+    open val isContentPrepared
         get() = false
 
     @Volatile
-    private var isPreparing = false
+    private var state = ContentState.NotReady
 
-    private val needPrepare: Boolean
-        get() = !isPrepared && !isPreparing
-
-    private fun prepare(viewContext: ViewContext, page: Page) {
-        isPreparing = true
-
-        prepareContent(viewContext, page)
+    private fun init(page: Page) {
+        state = ContentState.Initializing
 
         baseScale = min(
             page.globalRect.width / contentWidth,
@@ -87,7 +86,7 @@ abstract class ContentLayer {
         paddingRight /= baseScale
         paddingBottom /= baseScale
 
-        isPreparing = false
+        state = ContentState.Initialized
     }
 
     private val srcRect = Rect()
@@ -98,15 +97,19 @@ abstract class ContentLayer {
         viewContext: ViewContext,
         page: Page,
         paint: Paint,
-        coroutineScope: CoroutineScope,
         onContentViewportChangeListener: (ContentLayer, RectF) -> Unit
     ): Boolean {
-        if (needPrepare) {
-            coroutineScope.launch(Dispatchers.IO) {
-                prepare(viewContext, page)
+        if (state == ContentState.NotReady || state == ContentState.Preparing) {
+            state = ContentState.Preparing
+
+            if (!isContentPrepared && !onPrepareContent(viewContext, page)) {
+                return false
             }
-            return false
+
+            state = ContentState.Ready
         }
+
+        init(page)
 
         if (page.displayProjection.area == 0.0F) {
             // do not draw
@@ -201,6 +204,12 @@ abstract class ContentLayer {
             }
     }
 
-    open fun recycle() {
+    fun recycle() {
+        onRecycle()
+
+        state = ContentState.NotReady
+    }
+
+    open fun onRecycle() {
     }
 }

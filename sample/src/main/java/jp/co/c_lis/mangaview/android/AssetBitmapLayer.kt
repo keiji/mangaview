@@ -10,10 +10,14 @@ import android.graphics.RectF
 import dev.keiji.mangaview.widget.ContentLayer
 import dev.keiji.mangaview.widget.Page
 import dev.keiji.mangaview.widget.ViewContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AssetBitmapLayer(
     private val assetManager: AssetManager,
     private val fileName: String,
+    private val coroutineScope: CoroutineScope,
 ) : ContentLayer() {
 
     companion object {
@@ -28,13 +32,17 @@ class AssetBitmapLayer(
     override val contentHeight: Float
         get() = bitmap?.height?.toFloat() ?: 0.0F
 
-    override val isPrepared: Boolean
+    override val isContentPrepared: Boolean
         get() = bitmap != null
 
-    override fun prepareContent(viewContext: ViewContext, page: Page) {
-        bitmap = assetManager.open(fileName).use {
-            BitmapFactory.decodeStream(it)
+    override fun onPrepareContent(viewContext: ViewContext, page: Page): Boolean {
+        coroutineScope.launch(Dispatchers.IO) {
+            bitmap = assetManager.open(fileName).use {
+                BitmapFactory.decodeStream(it)
+            }
         }
+
+        return false
     }
 
     override fun onDraw(
@@ -56,8 +64,8 @@ class AssetBitmapLayer(
         return true
     }
 
-    override fun recycle() {
-        super.recycle()
+    override fun onRecycle() {
+        super.onRecycle()
 
         bitmap?.recycle()
         bitmap = null

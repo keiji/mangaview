@@ -17,10 +17,6 @@ import androidx.core.view.ScaleGestureDetectorCompat
 import androidx.core.view.ViewCompat
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -163,13 +159,6 @@ class MangaView(
         it.isDither = true
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    var coroutineScope = CoroutineScope(Dispatchers.Main)
-        set(value) {
-            field.cancel()
-            field = value
-        }
-
     var onViewportChangeListener = object : OnContentViewportChangeListener {
         override fun onViewportChanged(
             mangaView: MangaView,
@@ -207,19 +196,16 @@ class MangaView(
                 page.draw(
                     canvas,
                     viewContext,
-                    paint,
-                    coroutineScope,
+                    paint
                 ) { layer: ContentLayer, viewport: RectF ->
                     onViewportChangeListener.onViewportChanged(this, layer, viewport)
                 }
             }.none { !it }
 
-        coroutineScope.launch(Dispatchers.Unconfined) {
-            recycleBin.forEach { page ->
-                page.recycle()
-            }
-            recycleBin.clear()
+        recycleBin.forEach { page ->
+            page.recycle()
         }
+        recycleBin.clear()
 
         if (!result) {
             postInvalidate()

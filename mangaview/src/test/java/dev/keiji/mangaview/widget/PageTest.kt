@@ -47,7 +47,7 @@ class PageTest {
 
         pages[0].also { page ->
             page.layers[0].also { layer ->
-                assertTrue(layer.isPrepared)
+                assertTrue(layer.isContentPrepared)
                 assertEquals(0.9375F, layer.baseScale, FLOAT_DELTA)
                 assertEquals(0, layer.paddingLeft)
                 assertEquals(0, layer.paddingRight)
@@ -57,7 +57,7 @@ class PageTest {
         }
         pages[1].also { page ->
             page.layers[0].also { layer ->
-                assertTrue(layer.isPrepared)
+                assertTrue(layer.isContentPrepared)
                 assertEquals(0.94158673F, layer.baseScale, FLOAT_DELTA)
                 assertEquals(0, layer.paddingLeft)
                 assertEquals(0, layer.paddingRight)
@@ -611,7 +611,7 @@ class DummyLayer(
 
     private var isContentLoaded = false
 
-    override val isPrepared: Boolean
+    override val isContentPrepared: Boolean
         get() = isContentLoaded
 
     override fun onDraw(

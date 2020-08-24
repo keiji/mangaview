@@ -10,6 +10,9 @@ import dev.keiji.mangaview.widget.MangaView
 import dev.keiji.mangaview.widget.OnDoubleTapListener
 import dev.keiji.mangaview.widget.OnPageChangeListener
 import dev.keiji.mangaview.widget.PageLayout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 
 private val FILE_NAMES = arrayOf(
     "sample1.png",
@@ -25,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private val TAG = MainActivity::class.java.simpleName
     }
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     private var mangaView: MangaView? = null
 
@@ -55,9 +60,18 @@ class MainActivity : AppCompatActivity() {
 
         mangaView = findViewById<MangaView>(R.id.manga_view).also {
             it.layoutManager = HorizontalRtlLayoutManager()
-            it.adapter = AssetBitmapAdapter(assets, FILE_NAMES, 1150, 1700)
+            it.adapter = AssetBitmapAdapter(
+                assets, FILE_NAMES, coroutineScope,
+                1150, 1700
+            )
             it.onPageChangeListener = onPageChangeListener
             it.onDoubleTapListener = onDoubleTapListener
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        coroutineScope.cancel()
     }
 }
