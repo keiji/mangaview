@@ -19,6 +19,7 @@ import androidx.core.view.ViewCompat
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 interface OnTapListener {
@@ -58,7 +59,7 @@ class MangaView(
         const val SCROLL_STATE_DRAGGING = 1
         const val SCROLL_STATE_SETTLING = 2
 
-        private const val DOUBLE_TAP_ZOOM_SCALE = 4.0F
+        private const val DOUBLE_TAP_ZOOM_MAX_SCALE = 4.0F
 
         private const val SCROLLING_DURATION = 280
         private const val REVERSE_SCROLLING_DURATION = 350
@@ -762,12 +763,19 @@ class MangaView(
             return false
         }
 
-        val scale = DOUBLE_TAP_ZOOM_SCALE
+        val currentScrollArea = currentPageLayout?.scrollArea ?: return false
 
-        if (viewContext.currentScale >= scale) {
+        val scale2 = max(
+            viewContext.viewWidth / currentScrollArea.width,
+            viewContext.viewHeight / currentScrollArea.height
+        )
+
+        if (viewContext.currentScale < scale2) {
+            scale(scale2, e.x, e.y, smoothScale = true)
+        } else if (viewContext.currentScale >= DOUBLE_TAP_ZOOM_MAX_SCALE) {
             scale(viewContext.minScale, e.x, e.y, smoothScale = true)
         } else {
-            scale(scale, e.x, e.y, smoothScale = true)
+            scale(DOUBLE_TAP_ZOOM_MAX_SCALE, e.x, e.y, smoothScale = true)
         }
 
         return true
