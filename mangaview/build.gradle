@@ -75,7 +75,7 @@ bintray {
         name = libraryName
         userOrg = 'c-lis'
         licenses = ['Apache-2.0']
-        version versionName
+        version version_name
         vcsUrl = 'https://github.com/keiji/mangaview'
     }
 }
@@ -87,7 +87,7 @@ publishing {
 
             groupId groupIdValue
             artifactId libraryName
-            version versionName
+            version version_name
             pom {
                 name = libraryName
                 description = "An ImageView for reading manga(comics) for Android."
