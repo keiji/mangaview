@@ -80,6 +80,10 @@ class MangaView(
             }
             field = value
             onPageChangeListener.onScrollStateChanged(this, value)
+
+            if (value == SCROLL_STATE_IDLE) {
+                currentPageLayout = layoutManager?.currentPageLayout(viewContext)
+            }
         }
 
     private val viewConfiguration: ViewConfiguration = ViewConfiguration.get(context)
@@ -239,6 +243,7 @@ class MangaView(
         pageLayoutManager.pageAdapter = adapterSnapshot
 
         showPage(currentPageIndex)
+        currentPageLayout = layoutManager?.currentPageLayout(viewContext)
 
         isInitialized = true
     }
@@ -472,10 +477,6 @@ class MangaView(
 
         if (!needPostInvalidateScroll && scrollState == SCROLL_STATE_SETTLING) {
             scrollState = SCROLL_STATE_IDLE
-        }
-
-        layoutManager?.currentPageLayout(viewContext)?.also {
-            currentPageLayout = it
         }
 
         if (needPostInvalidateScale || needPostInvalidateScroll) {
