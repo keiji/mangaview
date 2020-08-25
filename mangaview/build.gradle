@@ -2,6 +2,9 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
@@ -32,3 +35,78 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
+
+def libraryName = 'mangaview'
+def groupIdValue = 'dev.keiji.mangaview'
+def versionName = '0.8.1-alpha1'
+
+def outputPath = "$buildDir/outputs/aar/${libraryName}-${versionName}.aar"
+
+afterEvaluate {
+    android.libraryVariants.forEach { variant ->
+        variant.outputs.all { output ->
+            def filePath = "$buildDir/outputs/aar/${libraryName}-release.aar"
+            def originalFile = file(filePath)
+            def renamedFile = file(outputPath)
+            tasks.named("assemble").configure {
+                doLast {
+                    originalFile.renameTo(renamedFile)
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    def propFile = project.rootProject.file('release.properties')
+    if (!propFile.exists()) {
+        propFile.createNewFile()
+    }
+
+    def properties = new Properties()
+    properties.load(propFile.newDataInputStream())
+
+    user = properties.getProperty("bintray.user") ?: ""
+    key = properties.getProperty("bintray.api_key") ?: ""
+    publications = ["bintray"]
+
+    pkg {
+        repo = 'maven'
+        name = libraryName
+        userOrg = 'c-lis'
+        licenses = ['Apache-2.0']
+        version versionName
+        vcsUrl = 'https://github.com/keiji/mangaview'
+    }
+}
+
+publishing {
+    publications {
+        bintray(MavenPublication) {
+            artifact(outputPath)
+
+            groupId groupIdValue
+            artifactId libraryName
+            version versionName
+            pom {
+                name = libraryName
+                description = "An ImageView for reading manga(comics) for Android."
+                url = "https://github.com/keiji/mangaview"
+                developers {
+                    developer {
+                        name = "Keiji ARIYAMA"
+                        email = "keiji.ariyama@gmail.com"
+                    }
+                }
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+            }
+        }
+    }
+}
+
+bintrayUpload.dependsOn assemble
