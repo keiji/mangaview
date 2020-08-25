@@ -38,13 +38,18 @@ dependencies {
 
 def libraryName = 'mangaview'
 def groupIdValue = 'dev.keiji.mangaview'
-def versionName = '0.8.1-alpha1'
 
-def outputPath = "$buildDir/outputs/aar/${libraryName}-${versionName}.aar"
+def outputPath = "$buildDir/outputs/aar/${libraryName}-${version_name}.aar"
 
 afterEvaluate {
     android.libraryVariants.forEach { variant ->
+        if (variant.name == 'debug') {
+            return
+        }
         variant.outputs.all { output ->
+            if (variant.name == 'debug') {
+                return
+            }
             def filePath = "$buildDir/outputs/aar/${libraryName}-release.aar"
             def originalFile = file(filePath)
             def renamedFile = file(outputPath)
