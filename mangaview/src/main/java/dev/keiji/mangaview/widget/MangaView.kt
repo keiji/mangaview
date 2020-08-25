@@ -224,10 +224,7 @@ class MangaView(
         super.onSizeChanged(w, h, oldw, oldh)
 
         viewContext.setViewSize(w, h)
-        layoutManager?.also {
-            it.setViewSize(w, h)
-            viewContext.offsetTo(it.initialScrollX, it.initialScrollY)
-        }
+        layoutManager?.setViewSize(w, h)
 
         isInitialized = false
     }
@@ -238,7 +235,7 @@ class MangaView(
 
         layoutManagerSnapshot.adapter = adapterSnapshot
         layoutManagerSnapshot.pageLayoutManager = pageLayoutManager
-        layoutManagerSnapshot.setScrollableAxis(viewContext)
+        layoutManagerSnapshot.initViewContext(viewContext)
 
         pageLayoutManager.pageAdapter = adapterSnapshot
 

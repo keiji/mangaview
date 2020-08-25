@@ -100,5 +100,10 @@ abstract class LayoutManager {
 
     abstract fun calcLastVisiblePageLayoutIndex(viewContext: ViewContext): Int
 
-    abstract fun setScrollableAxis(viewContext: ViewContext)
+    open fun initViewContext(viewContext: ViewContext) {
+        viewContext.offsetTo(
+            initialScrollX,
+            initialScrollY
+        )
+    }
 }
