@@ -66,19 +66,20 @@ class SinglePageLayout : PageLayout() {
     }
 
     override fun calcScrollArea(viewContext: ViewContext, result: Rectangle): Rectangle {
-        val scale = viewContext.currentScale
-
-        val scaledScrollWidth = scrollArea.width * scale
-        val scaledScrollHeight = scrollArea.height * scale
-
-        val marginHorizontal = max(globalPosition.width - scaledScrollWidth, 0.0F)
-        val marginVertical = max(globalPosition.height - scaledScrollHeight, 0.0F)
+        val marginHorizontalHalf = max(
+            (viewContext.viewport.width - scrollArea.width),
+            0.0F
+        ) / 2
+        val marginVerticalHalf = max(
+            (viewContext.viewport.height - scrollArea.height),
+            0.0F
+        ) / 2
 
         result.copyFrom(scrollArea).also {
-            it.left -= marginHorizontal / 2
-            it.right += marginHorizontal / 2
-            it.top -= marginVertical / 2
-            it.bottom += marginVertical / 2
+            it.left -= marginHorizontalHalf
+            it.right += marginHorizontalHalf
+            it.top -= marginVerticalHalf
+            it.bottom += marginVerticalHalf
         }
 
         return result
