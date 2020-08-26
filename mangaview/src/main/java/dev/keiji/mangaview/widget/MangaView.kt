@@ -136,6 +136,15 @@ class MangaView(
     private val tapEdgeScrollThresholdTop = DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL
     private val tapEdgeScrollThresholdBottom = 1.0F - DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL
 
+    private val tapEdgeLeft: Float
+        get() = viewContext.viewWidth * tapEdgeScrollThresholdLeft
+    private val tapEdgeRight: Float
+        get() = viewContext.viewWidth * tapEdgeScrollThresholdRight
+    private val tapEdgeTop: Float
+        get() = viewContext.viewHeight * tapEdgeScrollThresholdTop
+    private val tapEdgeBottom: Float
+        get() = viewContext.viewHeight * tapEdgeScrollThresholdBottom
+
     private val gestureDetector = GestureDetectorCompat(context, this).also {
         it.setOnDoubleTapListener(this)
     }
@@ -788,23 +797,19 @@ class MangaView(
 
         val layoutManagerSnapshot = layoutManager ?: return false
 
-        if (e.x < viewContext.viewWidth * tapEdgeScrollThresholdLeft) {
-            toLeftPage(layoutManagerSnapshot)
+        if (e.x < tapEdgeLeft && toLeftPage(layoutManagerSnapshot)) {
             return true
         }
 
-        if (e.x > viewContext.viewWidth * tapEdgeScrollThresholdRight) {
-            toRightPage(layoutManagerSnapshot)
+        if (e.x > tapEdgeRight && toRightPage(layoutManagerSnapshot)) {
             return true
         }
 
-        if (e.y < viewContext.viewHeight * tapEdgeScrollThresholdTop) {
-            toTopPage(layoutManagerSnapshot)
+        if (e.y < tapEdgeTop && toTopPage(layoutManagerSnapshot)) {
             return true
         }
 
-        if (e.x > viewContext.viewHeight * tapEdgeScrollThresholdBottom) {
-            toBottomPage(layoutManagerSnapshot)
+        if (e.y > tapEdgeBottom && toBottomPage(layoutManagerSnapshot)) {
             return true
         }
 
@@ -841,7 +846,7 @@ class MangaView(
     private fun toBottomPage(
         layoutManager: LayoutManager
     ): Boolean {
-        val index = layoutManager.topPageLayout(viewContext)
+        val index = layoutManager.bottomPageLayout(viewContext)
             ?.keyPage?.index ?: return false
         showPage(index, smoothScroll = true)
         return false
