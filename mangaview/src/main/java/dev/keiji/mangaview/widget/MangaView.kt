@@ -75,11 +75,10 @@ class MangaView(
 
     private var scrollState: Int = SCROLL_STATE_IDLE
         set(value) {
-            if (field == value) {
-                return
+            if (field != value) {
+                field = value
+                onPageChangeListener.onScrollStateChanged(this, value)
             }
-            field = value
-            onPageChangeListener.onScrollStateChanged(this, value)
 
             if (value == SCROLL_STATE_IDLE) {
                 currentPageLayout = layoutManager?.currentPageLayout(viewContext)
@@ -239,9 +238,6 @@ class MangaView(
 
         pageLayoutManager.pageAdapter = adapterSnapshot
 
-        showPage(currentPageIndex)
-        currentPageLayout = layoutManager?.currentPageLayout(viewContext)
-
         isInitialized = true
     }
 
@@ -261,7 +257,7 @@ class MangaView(
 
         if (!isInitialized) {
             init()
-            postInvalidate()
+            showPage(currentPageIndex)
             return
         }
 
@@ -472,7 +468,7 @@ class MangaView(
                 false
             }
 
-        if (!needPostInvalidateScroll && scrollState == SCROLL_STATE_SETTLING) {
+        if (!needPostInvalidateScroll) {
             scrollState = SCROLL_STATE_IDLE
         }
 
