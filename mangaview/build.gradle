@@ -6,12 +6,12 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion compile_sdk_version
     buildToolsVersion "29.0.3"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 29
+        targetSdkVersion target_sdk_version
         versionCode 1
         versionName "1.0"
 
