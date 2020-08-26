@@ -18,18 +18,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 
 private val FILE_NAMES = arrayOf(
-    "comic2.jpg",
-    "comic3.jpg",
-    "comic4.jpg",
-    "comic5.jpg",
-    "comic6.jpg",
-    "comic7.jpg",
-    "comic8.jpg",
-    "comic9.jpg",
-    "comic10.jpg",
-    "comic11.jpg",
-    "comic12.jpg",
-    "comic13.jpg",
+    "comic_001bj_1.jpg",
+    "comic_001bj_2.jpg",
+    "comic_001bj_3.jpg",
+    "comic_001bj_4.jpg",
+    "comic_001bj_5.jpg",
+    "comic_001bj_6.jpg",
+    "comic_001bj_7.jpg",
+    "comic_001bj_8.jpg",
+    "comic_001bj_9.jpg",
+    "comic_001bj_10.jpg",
+    "comic_001bj_11.jpg",
+    "comic_001bj_12.jpg",
 )
 
 class MainActivity : AppCompatActivity() {
