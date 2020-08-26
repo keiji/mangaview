@@ -1,6 +1,7 @@
 package dev.keiji.mangaview.widget
 
 import dev.keiji.mangaview.Rectangle
+import kotlin.math.max
 
 abstract class PageLayout {
 
@@ -43,7 +44,25 @@ abstract class PageLayout {
         }
     }
 
-    abstract fun calcScrollArea(viewContext: ViewContext, result: Rectangle): Rectangle
+    fun calcScrollArea(viewContext: ViewContext, result: Rectangle): Rectangle {
+        val marginHorizontalHalf = max(
+            (viewContext.viewport.width - scrollArea.width),
+            0.0F
+        ) / 2
+        val marginVerticalHalf = max(
+            (viewContext.viewport.height - scrollArea.height),
+            0.0F
+        ) / 2
+
+        result.copyFrom(scrollArea).also {
+            it.left -= marginHorizontalHalf
+            it.right += marginHorizontalHalf
+            it.top -= marginVerticalHalf
+            it.bottom += marginVerticalHalf
+        }
+
+        return result
+    }
 
     fun containsPage(pageIndex: Int) = pages.any { it.index == pageIndex }
 }

@@ -170,25 +170,4 @@ class DoublePageLayout(
         return this
     }
 
-    override fun calcScrollArea(
-        viewContext: ViewContext,
-        result: Rectangle
-    ): Rectangle {
-        val scale = viewContext.currentScale
-
-        val scaledScrollWidth = scrollArea.width * scale
-        val scaledScrollHeight = scrollArea.height * scale
-
-        val marginHorizontal = max(globalPosition.width - scaledScrollWidth, 0.0F)
-        val marginVertical = max(globalPosition.height - scaledScrollHeight, 0.0F)
-
-        result.copyFrom(scrollArea).also {
-            it.left -= marginHorizontal / 2
-            it.right += marginHorizontal - marginHorizontal / 2
-            it.top -= marginVertical / 2
-            it.bottom += marginVertical - marginVertical / 2
-        }
-
-        return result
-    }
 }

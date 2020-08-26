@@ -65,26 +65,6 @@ class SinglePageLayout : PageLayout() {
         Log.d(TAG, "page:${pageSnapshot.index}", scrollArea)
     }
 
-    override fun calcScrollArea(viewContext: ViewContext, result: Rectangle): Rectangle {
-        val marginHorizontalHalf = max(
-            (viewContext.viewport.width - scrollArea.width),
-            0.0F
-        ) / 2
-        val marginVerticalHalf = max(
-            (viewContext.viewport.height - scrollArea.height),
-            0.0F
-        ) / 2
-
-        result.copyFrom(scrollArea).also {
-            it.left -= marginHorizontalHalf
-            it.right += marginHorizontalHalf
-            it.top -= marginVerticalHalf
-            it.bottom += marginVerticalHalf
-        }
-
-        return result
-    }
-
     override val pages: List<Page>
         get() {
             val pageSnapshot = page ?: return emptyList()
