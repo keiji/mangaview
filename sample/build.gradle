@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'deploygate'
+
 repositories {
     maven {
         url "https://c-lis.bintray.com/maven"
@@ -67,5 +69,25 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
     implementation project(path: ':mangaview')
-    // implementation 'dev.keiji.mangaview:mangaview:0.8.1-alpha1'
+    // implementation "dev.keiji.mangaview:mangaview:$version_code"
+}
+
+deploygate {
+    def propFile = project.rootProject.file('release.properties')
+    if (!propFile.exists()) {
+        propFile.createNewFile()
+    }
+
+    def properties = new Properties()
+    properties.load(propFile.newDataInputStream())
+
+    appOwnerName = properties.getProperty("deploygate.app_owner_name") ?: ""
+    apiToken = properties.getProperty("deploygate.api_token") ?: ""
+
+    deployments {
+        release {
+            def hash = "git rev-parse --short HEAD".execute([], project.rootDir).in.text.trim()
+            message = "Sample build ${hash}"
+        }
+    }
 }
