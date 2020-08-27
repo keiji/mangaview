@@ -9,16 +9,19 @@ class AssetBitmapAdapter(
     private val assetManager: AssetManager,
     private val fileNames: Array<String>,
     private val coroutineScope: CoroutineScope,
-    pageWidth: Int,
-    pageHeight: Int
-) : PageAdapter(pageWidth, pageHeight) {
+    private val pageWidth: Int,
+    private val pageHeight: Int
+) : PageAdapter() {
 
     override val pageCount = fileNames.size
 
-    override fun getPage(index: Int): Page {
+    override fun getPageWidth(index: Int) = pageWidth
+
+    override fun getPageHeight(index: Int) = pageHeight
+
+    override fun onConstructPage(index: Int, page: Page) {
         val fileName = fileNames[index]
-        return Page(index, pageWidth, pageHeight).also {
-            it.addLayer(AssetBitmapLayer(assetManager, fileName, coroutineScope))
-        }
+        page.addLayer(AssetBitmapLayer(assetManager, fileName, coroutineScope))
+
     }
 }

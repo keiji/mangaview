@@ -5,16 +5,17 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 
-class DummyAdapter(pageWidth: Int, pageHeight: Int) : PageAdapter(pageWidth, pageHeight) {
+class DummyAdapter(private val pageWidth: Int, private val pageHeight: Int) : PageAdapter() {
     override val pageCount: Int
         get() = 4
 
-    override fun getPage(index: Int): Page {
-        return Page(index, pageWidth, pageHeight).also {
-            it.addLayer(DummyLayer(pageWidth.toFloat(), pageHeight.toFloat()))
-        }
-    }
+    override fun getPageWidth(index: Int) = pageWidth
 
+    override fun getPageHeight(index: Int) = pageHeight
+
+    override fun onConstructPage(index: Int, page: Page) {
+        page.addLayer(DummyLayer(pageWidth.toFloat(), pageHeight.toFloat()))
+    }
 }
 
 class DummyLayer(
