@@ -51,9 +51,6 @@ afterEvaluate {
             return
         }
         variant.outputs.all { output ->
-            if (variant.name == 'debug') {
-                return
-            }
             def filePath = "$buildDir/outputs/aar/${libraryName}-release.aar"
             def originalFile = file(filePath)
             def renamedFile = file(outputPath)
