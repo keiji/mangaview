@@ -7,8 +7,8 @@ buildscript {
     ext.kotlin_version = "1.4.0"
     ext.coroutines_version = "1.3.8"
 
-    ext.version_name = '0.8.1-alpha3'
-    ext.version_code = 813
+    ext.version_name = '0.8.1-alpha4'
+    ext.version_code = 814
 
     repositories {
         google()
