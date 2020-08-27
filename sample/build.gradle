@@ -28,11 +28,11 @@ android {
         def signKeyAlias = properties.getProperty("signing.keyAlias") ?: ""
         def signKeyPassword = properties.getProperty("signing.keyPassword") ?: ""
 
-        if (signStoreFilePath == null) {
-            return
-        }
-
         release {
+            if (signStoreFilePath == null) {
+                return
+            }
+
             storeFile file(signStoreFilePath)
             storePassword signStorePassword
             keyAlias signKeyAlias
