@@ -232,7 +232,6 @@ class MangaView(
         super.onSizeChanged(w, h, oldw, oldh)
 
         viewContext.setViewSize(w, h)
-        layoutManager?.setViewSize(w, h)
 
         isInitialized = false
     }
@@ -243,7 +242,7 @@ class MangaView(
 
         layoutManagerSnapshot.adapter = adapterSnapshot
         layoutManagerSnapshot.pageLayoutManager = pageLayoutManager
-        layoutManagerSnapshot.initViewContext(viewContext)
+        layoutManagerSnapshot.initWith(viewContext)
 
         pageLayoutManager.pageAdapter = adapterSnapshot
 

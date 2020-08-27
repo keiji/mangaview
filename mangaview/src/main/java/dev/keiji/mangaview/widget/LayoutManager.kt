@@ -4,6 +4,7 @@ import androidx.collection.SparseArrayCompat
 import dev.keiji.mangaview.Log
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 abstract class LayoutManager {
 
@@ -18,11 +19,6 @@ abstract class LayoutManager {
 
     var viewWidth: Int = 0
     var viewHeight: Int = 0
-
-    fun setViewSize(width: Int, height: Int) {
-        viewWidth = width
-        viewHeight = height
-    }
 
     abstract fun currentPageLayoutIndex(viewContext: ViewContext): Int
 
@@ -100,7 +96,10 @@ abstract class LayoutManager {
 
     abstract fun calcLastVisiblePageLayoutIndex(viewContext: ViewContext): Int
 
-    open fun initViewContext(viewContext: ViewContext) {
+    open fun initWith(viewContext: ViewContext) {
+        viewWidth = viewContext.viewWidth.roundToInt()
+        viewHeight = viewContext.viewHeight.roundToInt()
+
         viewContext.offsetTo(
             initialScrollX,
             initialScrollY

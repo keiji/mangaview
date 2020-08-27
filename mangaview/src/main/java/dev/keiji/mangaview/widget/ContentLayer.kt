@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import androidx.annotation.VisibleForTesting
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.min
 
@@ -33,10 +34,14 @@ abstract class ContentLayer {
     var paddingRight = 0.0F
     var paddingBottom = 0.0F
 
-    private val globalRect = Rectangle()
-    private val contentSrc = Rectangle()
+    @VisibleForTesting
+    val globalRect = Rectangle()
+
+    @VisibleForTesting
+    val contentSrc = Rectangle()
 
     private val contentViewport = RectF()
+
     private val prevContentViewport = RectF()
 
     abstract fun onContentPrepared(viewContext: ViewContext, page: Page): Boolean
@@ -89,8 +94,11 @@ abstract class ContentLayer {
         state = ContentState.Initialized
     }
 
-    private val srcRect = Rect()
-    private val dstRect = RectF()
+    @VisibleForTesting
+    val srcRect = Rect()
+
+    @VisibleForTesting
+    val dstRect = RectF()
 
     fun draw(
         canvas: Canvas?,
@@ -110,11 +118,6 @@ abstract class ContentLayer {
         }
 
         init(page)
-
-        if (page.displayProjection.area == 0.0F) {
-            // do not draw
-            return true
-        }
 
         contentSrc
             .copyFrom(page.contentSrc)
@@ -142,6 +145,11 @@ abstract class ContentLayer {
         contentSrc.copyTo(srcRect)
         page.displayProjection
             .copyTo(dstRect)
+
+        if (page.displayProjection.area == 0.0F) {
+            // do not draw
+            return true
+        }
 
         return onDraw(canvas, srcRect, dstRect, viewContext, paint)
     }

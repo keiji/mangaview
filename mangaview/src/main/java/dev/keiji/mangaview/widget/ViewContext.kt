@@ -1,5 +1,6 @@
 package dev.keiji.mangaview.widget
 
+import androidx.annotation.VisibleForTesting
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.max
 import kotlin.math.min
@@ -24,10 +25,12 @@ data class ViewContext(
     var minScale = 1.0F
     var maxScale = 5.0F
 
-    private val viewportWidth: Float
+    @VisibleForTesting
+    val viewportWidth: Float
         get() = viewWidth / currentScale
 
-    private val viewportHeight: Float
+    @VisibleForTesting
+    val viewportHeight: Float
         get() = viewHeight / currentScale
 
     fun setViewSize(w: Int, h: Int) {

@@ -60,8 +60,8 @@ class VerticalLayoutManager : LayoutManager() {
         return abs(ceil(viewContext.viewport.top / viewContext.viewHeight)).toInt()
     }
 
-    override fun initViewContext(viewContext: ViewContext) {
-        super.initViewContext(viewContext)
+    override fun initWith(viewContext: ViewContext) {
+        super.initWith(viewContext)
 
         viewContext.setScrollableAxis(
             horizontal = ViewContext.SCROLL_POLICY_STRICT_SCROLL_AREA,

@@ -60,8 +60,8 @@ class HorizontalLtrLayoutManager : LayoutManager() {
         return abs(ceil(viewContext.viewport.left / viewContext.viewWidth)).toInt()
     }
 
-    override fun initViewContext(viewContext: ViewContext) {
-        super.initViewContext(viewContext)
+    override fun initWith(viewContext: ViewContext) {
+        super.initWith(viewContext)
 
         viewContext.setScrollableAxis(
             horizontal = ViewContext.SCROLL_POLICY_UNLIMITED,

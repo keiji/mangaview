@@ -82,6 +82,36 @@ class RectangleTest {
     @Test
     fun and2() {
         val rect1 = Rectangle(2.81F, 0.0F, 5.0F, 1.0F)
+        val rect2 = Rectangle(3.0F, 0.55F, 4.8F, 0.75F)
+
+        val result = Rectangle()
+        val resultAnd = Rectangle.and(rect1, rect2, result)
+        assertNotNull(resultAnd)
+
+        assertEquals(3.0F, result.left, 0.0001F)
+        assertEquals(4.8F, result.right, 0.0001F)
+        assertEquals(0.55F, result.top, 0.0001F)
+        assertEquals(0.75F, result.bottom, 0.0001F)
+    }
+
+    @Test
+    fun and3() {
+        val rect1 = Rectangle(2.8F, 1.0F, 4.0F, 2.0F)
+        val rect2 = Rectangle(3.0F, 0.55F, 4.8F, 2.75F)
+
+        val result = Rectangle()
+        val resultAnd = Rectangle.and(rect1, rect2, result)
+        assertNotNull(resultAnd)
+
+        assertEquals(3.0F, result.left, 0.0001F)
+        assertEquals(4.0F, result.right, 0.0001F)
+        assertEquals(1.0F, result.top, 0.0001F)
+        assertEquals(2.0F, result.bottom, 0.0001F)
+    }
+
+    @Test
+    fun and4() {
+        val rect1 = Rectangle(2.81F, 0.0F, 5.0F, 1.0F)
         val rect2 = Rectangle(2.5F, 0.25F, 2.8F, 0.75F)
 
         val resultAnd = Rectangle.and(rect1, rect2)

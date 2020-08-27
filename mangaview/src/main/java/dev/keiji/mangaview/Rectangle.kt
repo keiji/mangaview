@@ -133,7 +133,7 @@ data class Rectangle(
             rectB: Rectangle,
             result: Rectangle = Rectangle()
         ): Rectangle? {
-            if (!rectA.intersect(rectB) && rectA.contains(rectB) && rectB.contains(rectA)) {
+            if (!rectA.intersect(rectB) && !rectA.contains(rectB) && !rectB.contains(rectA)) {
                 return null
             }
             return result.also {
