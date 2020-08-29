@@ -19,7 +19,6 @@ import androidx.core.view.ViewCompat
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.roundToInt
 
 interface OnTapListener {
@@ -405,7 +404,6 @@ class MangaView(
             if (it.focusX != null && it.focusY != null) {
                 focusX = it.focusX
                 focusY = it.focusY
-                Log.d(TAG, "1 focusX: $focusX, focusY: $focusY")
 
             } else {
                 viewContext.projectToScreenPosition(
@@ -415,7 +413,6 @@ class MangaView(
                 )
                 focusX = tmpEventPoint.centerX
                 focusY = tmpEventPoint.centerY
-                Log.d(TAG, "2 focusX: $focusX, focusY: $focusY")
             }
 
             viewContext.scaleTo(newScale, focusX, focusY)
@@ -547,13 +544,7 @@ class MangaView(
         val scaledVelocityX = velocityX / viewContext.currentScale
         val scaledVelocityY = velocityY / viewContext.currentScale
 
-        Log.d(TAG, "scaledVelocityX $scaledVelocityX")
-        Log.d(TAG, "scaledVelocityY $scaledVelocityY")
-
-        val currentPageLayoutSnapshot = currentPageLayout ?: return false
         val currentScrollAreaSnapshot = currentScrollArea ?: return false
-
-        Log.d(TAG, "fling ${currentPageLayoutSnapshot.pages[0].index}")
 
         val populateHelper = layoutManagerSnapshot.populateHelper
             .init(
