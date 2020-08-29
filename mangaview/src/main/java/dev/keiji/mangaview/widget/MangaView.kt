@@ -122,6 +122,26 @@ class MangaView(
         onReadCompleteListenerList.remove(onReadCompleteListener)
     }
 
+    private val onDoubleTapListenerList = ArrayList<OnDoubleTapListener>()
+
+    fun addOnDoubleTapListener(onDoubleTapListener: OnDoubleTapListener) {
+        onDoubleTapListenerList.add(onDoubleTapListener)
+    }
+
+    fun removeOnDoubleTapListener(onDoubleTapListener: OnDoubleTapListener) {
+        onDoubleTapListenerList.remove(onDoubleTapListener)
+    }
+
+    private var onContentViewportChangeListenerList = ArrayList<OnContentViewportChangeListener>()
+
+    fun addOnContentViewportChangeListener(onContentViewportChangeListener: OnContentViewportChangeListener) {
+        onContentViewportChangeListenerList.add(onContentViewportChangeListener)
+    }
+
+    fun removeOnContentViewportChangeListener(onContentViewportChangeListener: OnContentViewportChangeListener) {
+        onContentViewportChangeListenerList.remove(onContentViewportChangeListener)
+    }
+
     var layoutManager: LayoutManager? = null
         set(value) {
             field = value
@@ -233,16 +253,6 @@ class MangaView(
         isInitialized = true
     }
 
-    var onViewportChangeListener = object : OnContentViewportChangeListener {
-        override fun onViewportChanged(
-            mangaView: MangaView,
-            layer: ContentLayer,
-            viewport: RectF
-        ): Boolean {
-            return false
-        }
-    }
-
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
@@ -268,7 +278,9 @@ class MangaView(
                     viewContext,
                     paint
                 ) { layer: ContentLayer, viewport: RectF ->
-                    onViewportChangeListener.onViewportChanged(this, layer, viewport)
+                    onContentViewportChangeListenerList.forEach {
+                        it.onViewportChanged(this, layer, viewport)
+                    }
                 }
             }.none { !it }
 
