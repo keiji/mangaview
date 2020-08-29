@@ -38,6 +38,10 @@ interface OnPageChangeListener {
     fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {}
 }
 
+interface OnReadCompleteListener {
+    fun onReadCompleted(mangaView: MangaView)
+}
+
 interface OnContentViewportChangeListener {
     fun onViewportChanged(mangaView: MangaView, layer: ContentLayer, viewport: RectF) = false
 }
@@ -90,7 +94,7 @@ class MangaView(
 
     private val onTapListenerList = ArrayList<OnTapListener>()
 
-    fun addOnTapListener(onTapListener: OnTapListener) {
+    fun addOnReadCompleteListener(onTapListener: OnTapListener) {
         onTapListenerList.add(onTapListener)
     }
 
@@ -106,6 +110,16 @@ class MangaView(
 
     fun removeOnPageChangeListener(onPageChangeListener: OnPageChangeListener) {
         onPageChangeListenerList.add(onPageChangeListener)
+    }
+
+    private val onReadCompleteListenerList = ArrayList<OnReadCompleteListener>()
+
+    fun addOnReadCompleteListener(onReadCompleteListener: OnReadCompleteListener) {
+        onReadCompleteListenerList.add(onReadCompleteListener)
+    }
+
+    fun removeOnReadCompleteListener(onReadCompleteListener: OnReadCompleteListener) {
+        onReadCompleteListenerList.remove(onReadCompleteListener)
     }
 
     var layoutManager: LayoutManager? = null
@@ -358,6 +372,11 @@ class MangaView(
         val layoutManagerSnapshot = layoutManager ?: return
         val currentScrollableAreaSnapshot = currentScrollableArea ?: return
 
+        val lastPageLayout = layoutManagerSnapshot.lastPageLayout(viewContext) ?: return
+        if (currentPageLayout == lastPageLayout) {
+            handleReadCompleteEvent()
+        }
+
         layoutManagerSnapshot.populateHelper
             .init(
                 viewContext,
@@ -371,6 +390,47 @@ class MangaView(
         startAnimation()
 
         scalingState = ScalingState.Finish
+    }
+
+    private fun handleReadCompleteEvent(): Boolean {
+        val layoutManagerSnapshot = layoutManager ?: return false
+        val currentScrollableAreaSnapshot = currentScrollableArea ?: return false
+        val viewport = viewContext.viewport
+
+        if (layoutManagerSnapshot.leftPageLayout(viewContext) == null
+            && viewport.left < currentScrollableAreaSnapshot.left
+        ) {
+            fireEventReadComplete()
+            return true
+        }
+
+        if (layoutManagerSnapshot.rightPageLayout(viewContext) == null
+            && viewport.right > currentScrollableAreaSnapshot.right
+        ) {
+            fireEventReadComplete()
+            return true
+        }
+
+        if (layoutManagerSnapshot.topPageLayout(viewContext) == null
+            && viewport.top < currentScrollableAreaSnapshot.top
+        ) {
+            fireEventReadComplete()
+            return true
+        }
+
+        if (layoutManagerSnapshot.bottomPageLayout(viewContext) == null
+            && viewport.bottom > currentScrollableAreaSnapshot.bottom
+        ) {
+            fireEventReadComplete()
+            return true
+        }
+        return false
+    }
+
+    private fun fireEventReadComplete() {
+        onReadCompleteListenerList.forEach {
+            it.onReadCompleted(this)
+        }
     }
 
     private fun startAnimation() {

@@ -120,4 +120,10 @@ abstract class LayoutManager {
             initialScrollY
         )
     }
+
+    fun firstPageLayout(viewContext: ViewContext) =
+        getPageLayout(0, viewContext)
+
+    fun lastPageLayout(viewContext: ViewContext) =
+        getPageLayout(pageLayoutManager.getCount() - 1, viewContext)
 }

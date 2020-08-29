@@ -6,15 +6,14 @@ import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
-import dev.keiji.mangaview.widget.DoublePageLayoutManager
 import dev.keiji.mangaview.widget.DoublePageStartOneSideLayoutManager
 import dev.keiji.mangaview.widget.DoubleTapZoomHelper
 import dev.keiji.mangaview.widget.EdgeNavigationHelper
-import dev.keiji.mangaview.widget.HorizontalLtrLayoutManager
 import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
 import dev.keiji.mangaview.widget.OnDoubleTapListener
 import dev.keiji.mangaview.widget.OnPageChangeListener
+import dev.keiji.mangaview.widget.OnReadCompleteListener
 import dev.keiji.mangaview.widget.PageLayout
 import dev.keiji.mangaview.widget.SinglePageLayoutManager
 import kotlinx.coroutines.CoroutineScope
@@ -57,18 +56,12 @@ class MainActivity : AppCompatActivity() {
         override fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {
             val page = pageLayout.keyPage ?: return
 
-            val message = if (page.index < FILE_NAMES.size) {
-                "Page Index: ${page.index}"
-            } else {
-                "Read complete."
-            }
-
             currentToast?.cancel()
 
             currentToast = Toast.makeText(
                 this@MainActivity,
-                message,
-                Toast.LENGTH_LONG
+                "Page Index: ${page.index}",
+                Toast.LENGTH_SHORT
             ).also {
                 it.show()
             }
@@ -80,6 +73,21 @@ class MainActivity : AppCompatActivity() {
         override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
             return true
         }
+    }
+
+    private val onReadCompleteListener = object : OnReadCompleteListener {
+        override fun onReadCompleted(mangaView: MangaView) {
+            currentToast?.cancel()
+
+            currentToast = Toast.makeText(
+                this@MainActivity,
+                "Read complete.",
+                Toast.LENGTH_LONG
+            ).also {
+                it.show()
+            }
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,6 +114,7 @@ class MainActivity : AppCompatActivity() {
             )
             it.addOnPageChangeListener(onPageChangeListener)
             it.addOnDoubleTapListener(onDoubleTapListener)
+            it.addOnReadCompleteListener(onReadCompleteListener)
 
             DoubleTapZoomHelper().setup(it)
             EdgeNavigationHelper().setup(it)
