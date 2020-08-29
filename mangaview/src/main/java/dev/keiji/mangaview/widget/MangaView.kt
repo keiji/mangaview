@@ -432,7 +432,7 @@ class MangaView(
         return false
     }
 
-    private fun fireEventReadComplete(overScroll: Float): Boolean {
+    internal fun fireEventReadComplete(overScroll: Float = pagingTouchSlop): Boolean {
         if (overScroll < pagingTouchSlop) {
             return false
         }

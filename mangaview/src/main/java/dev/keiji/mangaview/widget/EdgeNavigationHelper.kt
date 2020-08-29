@@ -29,23 +29,47 @@ class EdgeNavigationHelper : OnTapListener {
             return false
         }
 
-        if (x < tapEdgeLeft && toLeftPage(mangaView)) {
+        if (x < tapEdgeLeft
+            && (toLeftPage(mangaView) || handleReadCompleteEvent(mangaView))
+        ) {
             return true
         }
 
-        if (x > tapEdgeRight && toRightPage(mangaView)) {
+        if (x > tapEdgeRight
+            && (toRightPage(mangaView) || handleReadCompleteEvent(mangaView))
+        ) {
             return true
         }
 
-        if (y < tapEdgeTop && toTopPage(mangaView)) {
+        if (y < tapEdgeTop
+            && (toTopPage(mangaView)) || handleReadCompleteEvent(mangaView)
+        ) {
             return true
         }
 
-        if (y > tapEdgeBottom && toBottomPage(mangaView)) {
+        if (y > tapEdgeBottom
+            && (toBottomPage(mangaView) || handleReadCompleteEvent(mangaView))
+        ) {
             return true
         }
 
         return false
+    }
+
+    private fun handleReadCompleteEvent(
+        mangaView: MangaView
+    ): Boolean {
+        val viewContext = mangaView.viewContext
+        val layoutManager = mangaView.layoutManager ?: return false
+
+        val currentPageLayout = layoutManager.currentPageLayout(viewContext)
+        val lastPageLayout = layoutManager.lastPageLayout(viewContext)
+
+        return if (currentPageLayout == lastPageLayout) {
+            mangaView.fireEventReadComplete()
+        } else {
+            false
+        }
     }
 
     private fun toLeftPage(
