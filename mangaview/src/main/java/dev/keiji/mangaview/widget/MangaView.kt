@@ -38,10 +38,6 @@ interface OnPageChangeListener {
     fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {}
 }
 
-interface OnReadFinishedListener {
-    fun onReadFinished(mangaView: MangaView) {}
-}
-
 interface OnContentViewportChangeListener {
     fun onViewportChanged(mangaView: MangaView, layer: ContentLayer, viewport: RectF) = false
 }
@@ -110,16 +106,6 @@ class MangaView(
 
     fun removeOnPageChangeListener(onPageChangeListener: OnPageChangeListener) {
         onPageChangeListenerList.add(onPageChangeListener)
-    }
-
-    private val onReadFinishedListenerList = ArrayList<OnReadFinishedListener>()
-
-    fun addOnReadFinishedListenerList(onReadFinishedListener: OnReadFinishedListener) {
-        onReadFinishedListenerList.add(onReadFinishedListener)
-    }
-
-    fun removeOnReadFinishedListenerList(onReadFinishedListener: OnReadFinishedListener) {
-        onReadFinishedListenerList.add(onReadFinishedListener)
     }
 
     var layoutManager: LayoutManager? = null

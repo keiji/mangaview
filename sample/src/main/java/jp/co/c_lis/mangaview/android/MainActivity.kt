@@ -50,14 +50,28 @@ class MainActivity : AppCompatActivity() {
 
     private var mangaView: MangaView? = null
 
+    var currentToast: Toast? = null
+
     private val onPageChangeListener = object : OnPageChangeListener {
         override fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {
             val page = pageLayout.keyPage ?: return
-            Toast.makeText(
+
+            val message = if (page.index < FILE_NAMES.size) {
+                "Page Index: ${page.index}"
+            } else {
+                "Read complete."
+            }
+
+            currentToast?.cancel()
+
+            currentToast = Toast.makeText(
                 this@MainActivity,
-                "Page Index: ${page.index}",
-                Toast.LENGTH_SHORT
-            ).show()
+                message,
+                Toast.LENGTH_LONG
+            ).also {
+                it.show()
+            }
+
         }
     }
 
