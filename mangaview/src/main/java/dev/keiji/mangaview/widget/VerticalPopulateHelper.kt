@@ -82,8 +82,7 @@ class VerticalPopulateHelper : PopulateHelper() {
         val layoutManagerSnapshot = layoutManager ?: return
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
-        val scrollArea = currentRect
-            ?.getScaledScrollArea(viewContext) ?: return
+        val scrollArea = currentRect?.getScaledScrollArea(viewContext) ?: return
 
         populateTo(
             scrollArea,
@@ -98,8 +97,7 @@ class VerticalPopulateHelper : PopulateHelper() {
         val layoutManagerSnapshot = layoutManager ?: return
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
-        val scrollArea = currentRect
-            ?.getScaledScrollArea(viewContext) ?: return
+        val scrollArea = currentRect?.getScaledScrollArea(viewContext) ?: return
 
         populateTo(
             scrollArea,

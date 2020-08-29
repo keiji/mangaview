@@ -348,7 +348,7 @@ class MangaView(
                 abortAnimation()
             }
             MotionEvent.ACTION_UP -> {
-                populate()
+                populateToCurrent()
             }
         }
 
@@ -364,13 +364,13 @@ class MangaView(
         return super.onTouchEvent(event)
     }
 
-    private fun populate() {
+    private fun populateToCurrent() {
         if (scaleOperationInProgress) {
             return
         }
 
         val layoutManagerSnapshot = layoutManager ?: return
-        val currentScrollAreaSnapshot = currentScrollableArea ?: return
+        val currentScrollableAreaSnapshot = currentScrollableArea ?: return
 
         layoutManagerSnapshot.populateHelper
             .init(
@@ -381,7 +381,7 @@ class MangaView(
                 SCROLLING_DURATION,
                 REVERSE_SCROLLING_DURATION
             )
-            .populateToCurrent(currentScrollAreaSnapshot, SCROLLING_DURATION)
+            .populateToCurrent(currentScrollableAreaSnapshot, SCROLLING_DURATION)
         startAnimation()
 
         scalingState = ScalingState.Finish
@@ -455,7 +455,6 @@ class MangaView(
             }
 
         if (!needPostInvalidateScroll && scrollState == SCROLL_STATE_SETTLING) {
-            Log.d(TAG, "test")
             scrollState = SCROLL_STATE_IDLE
         }
 
@@ -581,13 +580,11 @@ class MangaView(
             handleHorizontal = if (scaledVelocityX > 0.0F && leftRect != null
                 && !viewContext.canScrollLeft(currentScrollAreaSnapshot)
             ) {
-                Log.d(TAG, "populateToLeft")
                 populateHelper.populateToLeft(leftRect)
                 true
             } else if (scaledVelocityX < 0.0F && rightRect != null
                 && !viewContext.canScrollRight(currentScrollAreaSnapshot)
             ) {
-                Log.d(TAG, "populateToRight")
                 populateHelper.populateToRight(rightRect)
                 true
             } else {
@@ -691,11 +688,11 @@ class MangaView(
         detector ?: return
 
         scalingState = ScalingState.End
-        populate()
+        populateToCurrent()
     }
 
     private val populateOnScaleFinished = fun() {
-        populate()
+        populateToCurrent()
     }
 
     internal fun scale(
