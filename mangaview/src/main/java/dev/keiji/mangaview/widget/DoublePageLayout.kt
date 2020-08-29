@@ -6,8 +6,9 @@ import kotlin.math.max
 import kotlin.math.min
 
 class DoublePageLayout(
+    index: Int,
     private val isSpread: Boolean
-) : PageLayout() {
+) : PageLayout(index) {
 
     companion object {
         private val TAG = DoublePageLayout::class.java.simpleName

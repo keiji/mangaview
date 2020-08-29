@@ -3,7 +3,7 @@ package dev.keiji.mangaview.widget
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.max
 
-abstract class PageLayout {
+abstract class PageLayout(val index: Int) {
 
     val globalPosition = Rectangle()
 

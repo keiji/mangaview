@@ -38,6 +38,10 @@ interface OnPageChangeListener {
     fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {}
 }
 
+interface OnReadFinishedListener {
+    fun onReadFinished(mangaView: MangaView) {}
+}
+
 interface OnContentViewportChangeListener {
     fun onViewportChanged(mangaView: MangaView, layer: ContentLayer, viewport: RectF) = false
 }
@@ -67,9 +71,11 @@ class MangaView(
 
     constructor(context: Context, attrs: AttributeSet) : this(context, attrs, 0x0)
 
-    private var scrollState: Int = SCROLL_STATE_IDLE
+    private var scrollState: Int = -1
         set(value) {
             if (field != value) {
+                Log.d(TAG, "scrollState $field -> $value")
+
                 field = value
                 onPageChangeListenerList.forEach {
                     it.onScrollStateChanged(this, value)
@@ -104,6 +110,16 @@ class MangaView(
 
     fun removeOnPageChangeListener(onPageChangeListener: OnPageChangeListener) {
         onPageChangeListenerList.add(onPageChangeListener)
+    }
+
+    private val onReadFinishedListenerList = ArrayList<OnReadFinishedListener>()
+
+    fun addOnReadFinishedListenerList(onReadFinishedListener: OnReadFinishedListener) {
+        onReadFinishedListenerList.add(onReadFinishedListener)
+    }
+
+    fun removeOnReadFinishedListenerList(onReadFinishedListener: OnReadFinishedListener) {
+        onReadFinishedListenerList.add(onReadFinishedListener)
     }
 
     var layoutManager: LayoutManager? = null
@@ -181,7 +197,7 @@ class MangaView(
     private val tmpCurrentScrollArea = Rectangle()
     private val tmpEventPoint = Rectangle()
 
-    private val currentScrollArea: Rectangle?
+    private val currentScrollableArea: Rectangle?
         get() {
             return currentPageLayout?.calcScrollArea(viewContext, tmpCurrentScrollArea)
         }
@@ -214,6 +230,7 @@ class MangaView(
 
         pageLayoutManager.pageAdapter = adapterSnapshot
 
+        scrollState = SCROLL_STATE_IDLE
         isInitialized = true
     }
 
@@ -223,7 +240,6 @@ class MangaView(
             layer: ContentLayer,
             viewport: RectF
         ): Boolean {
-            Log.d(TAG, "onViewportChanged: ${layer.page?.index}", viewport)
             return false
         }
     }
@@ -332,9 +348,6 @@ class MangaView(
                 abortAnimation()
             }
             MotionEvent.ACTION_UP -> {
-                if (scrollState != SCROLL_STATE_SETTLING) {
-                    scrollState = SCROLL_STATE_IDLE
-                }
                 populate()
             }
         }
@@ -356,9 +369,8 @@ class MangaView(
             return
         }
 
-        Log.d(TAG, "populate")
         val layoutManagerSnapshot = layoutManager ?: return
-        val currentScrollAreaSnapshot = currentScrollArea ?: return
+        val currentScrollAreaSnapshot = currentScrollableArea ?: return
 
         layoutManagerSnapshot.populateHelper
             .init(
@@ -442,7 +454,8 @@ class MangaView(
                 false
             }
 
-        if (!needPostInvalidateScroll) {
+        if (!needPostInvalidateScroll && scrollState == SCROLL_STATE_SETTLING) {
+            Log.d(TAG, "test")
             scrollState = SCROLL_STATE_IDLE
         }
 
@@ -522,7 +535,7 @@ class MangaView(
 
     internal var currentPageLayout: PageLayout? = null
         private set(value) {
-            if (value == null || field == value || scrollState != SCROLL_STATE_IDLE) {
+            if (value == null || field == value) {
                 return
             }
 
@@ -544,7 +557,7 @@ class MangaView(
         val scaledVelocityX = velocityX / viewContext.currentScale
         val scaledVelocityY = velocityY / viewContext.currentScale
 
-        val currentScrollAreaSnapshot = currentScrollArea ?: return false
+        val currentScrollAreaSnapshot = currentScrollableArea ?: return false
 
         val populateHelper = layoutManagerSnapshot.populateHelper
             .init(
@@ -562,8 +575,8 @@ class MangaView(
         val horizontal = (abs(scaledVelocityX) > abs(scaledVelocityY))
 
         if (horizontal) {
-            val leftRect = layoutManagerSnapshot.leftPageLayout(viewContext)
-            val rightRect = layoutManagerSnapshot.rightPageLayout(viewContext)
+            val leftRect = layoutManagerSnapshot.leftPageLayout(viewContext, currentPageLayout)
+            val rightRect = layoutManagerSnapshot.rightPageLayout(viewContext, currentPageLayout)
 
             handleHorizontal = if (scaledVelocityX > 0.0F && leftRect != null
                 && !viewContext.canScrollLeft(currentScrollAreaSnapshot)
@@ -581,8 +594,8 @@ class MangaView(
                 false
             }
         } else {
-            val topRect = layoutManagerSnapshot.topPageLayout(viewContext)
-            val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewContext)
+            val topRect = layoutManagerSnapshot.topPageLayout(viewContext, currentPageLayout)
+            val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewContext, currentPageLayout)
 
             handleVertical = if (scaledVelocityY > 0.0F && topRect != null
                 && !viewContext.canScrollTop(currentScrollAreaSnapshot)
@@ -610,14 +623,6 @@ class MangaView(
 
         val minY = currentScrollAreaSnapshot.top.roundToInt()
         val maxY = (currentScrollAreaSnapshot.bottom - viewport.height).roundToInt()
-
-        Log.d(
-            TAG, "fling " +
-                    "currentX ${viewContext.currentX}, currentY ${viewContext.currentY}, " +
-                    "scaledVelocityX ${scaledVelocityX}, scaledVelocityY ${scaledVelocityY}, " +
-                    "minX ${minX}, maxX ${maxX}, " +
-                    "minY ${minY}, maxY ${maxY}"
-        )
 
         // Do not fling if over-scrolled
         if (horizontal
@@ -652,7 +657,7 @@ class MangaView(
         viewContext.scroll(
             distanceX / viewContext.currentScale,
             distanceY / viewContext.currentScale,
-            currentScrollArea
+            currentScrollableArea
         )
 
         scrollState = SCROLL_STATE_DRAGGING

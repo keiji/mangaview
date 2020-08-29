@@ -23,5 +23,5 @@ class DoublePageLayoutManager(
         return calcFirstPageIndex(pageLayoutIndex) + 1
     }
 
-    override fun createPageLayout(): PageLayout = DoublePageLayout(isSpread)
+    override fun createPageLayout(index: Int): PageLayout = DoublePageLayout(index, isSpread)
 }

@@ -22,8 +22,12 @@ class VerticalLayoutManager : LayoutManager() {
         viewContext: ViewContext
     ): Int = abs(viewContext.viewport.centerY / viewContext.viewHeight).toInt()
 
-    override fun topPageLayout(viewContext: ViewContext): PageLayout? {
-        val topIndex = currentPageLayoutIndex(viewContext) - 1
+    override fun topPageLayout(
+        viewContext: ViewContext,
+        basePageLayout: PageLayout?
+    ): PageLayout? {
+        val currentIndex = (basePageLayout?.index ?: currentPageLayoutIndex(viewContext))
+        val topIndex = currentIndex - 1
         if (topIndex < 0) {
             return null
         }
@@ -31,8 +35,12 @@ class VerticalLayoutManager : LayoutManager() {
 
     }
 
-    override fun bottomPageLayout(viewContext: ViewContext): PageLayout? {
-        val bottomIndex = currentPageLayoutIndex(viewContext) + 1
+    override fun bottomPageLayout(
+        viewContext: ViewContext,
+        basePageLayout: PageLayout?
+    ): PageLayout? {
+        val currentIndex = (basePageLayout?.index ?: currentPageLayoutIndex(viewContext))
+        val bottomIndex = currentIndex + 1
         if (bottomIndex >= pageLayoutManager.getCount()) {
             return null
         }

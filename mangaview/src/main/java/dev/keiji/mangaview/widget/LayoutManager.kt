@@ -32,7 +32,7 @@ abstract class LayoutManager {
 
         val pageLayout = caches[index] ?: layout(
             index,
-            pageLayoutManager.createPageLayout(),
+            pageLayoutManager.createPageLayout(index),
             viewContext
         )
         caches.put(index, pageLayout)
@@ -43,10 +43,25 @@ abstract class LayoutManager {
         return getPageLayout(currentPageLayoutIndex(viewContext), viewContext)
     }
 
-    open fun leftPageLayout(viewContext: ViewContext): PageLayout? = null
-    open fun rightPageLayout(viewContext: ViewContext): PageLayout? = null
-    open fun topPageLayout(viewContext: ViewContext): PageLayout? = null
-    open fun bottomPageLayout(viewContext: ViewContext): PageLayout? = null
+    open fun leftPageLayout(
+        viewContext: ViewContext,
+        basePageLayout: PageLayout? = null
+    ): PageLayout? = null
+
+    open fun rightPageLayout(
+        viewContext: ViewContext,
+        basePageLayout: PageLayout? = null
+    ): PageLayout? = null
+
+    open fun topPageLayout(
+        viewContext: ViewContext,
+        basePageLayout: PageLayout? = null
+    ): PageLayout? = null
+
+    open fun bottomPageLayout(
+        viewContext: ViewContext,
+        basePageLayout: PageLayout? = null
+    ): PageLayout? = null
 
     private val caches = SparseArrayCompat<PageLayout>()
 

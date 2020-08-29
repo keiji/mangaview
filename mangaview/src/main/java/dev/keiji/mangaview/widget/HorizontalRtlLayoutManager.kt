@@ -22,8 +22,9 @@ class HorizontalRtlLayoutManager : LayoutManager() {
         viewContext: ViewContext
     ): Int = abs(viewContext.viewport.centerX / viewContext.viewWidth).toInt()
 
-    override fun leftPageLayout(viewContext: ViewContext): PageLayout? {
-        val leftIndex = currentPageLayoutIndex(viewContext) + 1
+    override fun leftPageLayout(viewContext: ViewContext, basePageLayout: PageLayout?): PageLayout? {
+        val currentIndex = (basePageLayout?.index ?: currentPageLayoutIndex(viewContext))
+        val leftIndex = currentIndex + 1
         if (leftIndex >= pageLayoutManager.getCount()) {
             return null
         }
@@ -31,8 +32,9 @@ class HorizontalRtlLayoutManager : LayoutManager() {
 
     }
 
-    override fun rightPageLayout(viewContext: ViewContext): PageLayout? {
-        val rightIndex = currentPageLayoutIndex(viewContext) - 1
+    override fun rightPageLayout(viewContext: ViewContext, basePageLayout: PageLayout?): PageLayout? {
+        val currentIndex = (basePageLayout?.index ?: currentPageLayoutIndex(viewContext))
+        val rightIndex = currentIndex - 1
         if (rightIndex < 0) {
             return null
         }

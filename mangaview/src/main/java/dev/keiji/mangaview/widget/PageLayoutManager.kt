@@ -23,5 +23,5 @@ abstract class PageLayoutManager {
     abstract fun calcFirstPageIndex(pageLayoutIndex: Int): Int
     abstract fun calcLastPageIndex(pageLayoutIndex: Int): Int
 
-    abstract fun createPageLayout(): PageLayout
+    abstract fun createPageLayout(index: Int): PageLayout
 }

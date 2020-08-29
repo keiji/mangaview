@@ -5,7 +5,7 @@ import dev.keiji.mangaview.Rectangle
 import kotlin.math.max
 import kotlin.math.min
 
-class SinglePageLayout : PageLayout() {
+class SinglePageLayout(index: Int) : PageLayout(index) {
 
     companion object {
         private val TAG = SinglePageLayout::class.java.simpleName
