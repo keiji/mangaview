@@ -64,9 +64,6 @@ class MangaView(
         private const val SCROLLING_DURATION = 280
         private const val REVERSE_SCROLLING_DURATION = 350
         private const val SCALING_DURATION = 250L
-
-        private const val DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_HORIZONTAL = 0.2F
-        private const val DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL = 0.2F
     }
 
     constructor(context: Context) : this(context, null, 0x0)
@@ -89,6 +86,16 @@ class MangaView(
     private val density = context.resources.displayMetrics.scaledDensity
 
     private val pagingTouchSlop = viewConfiguration.scaledPagingTouchSlop * density
+
+    private val onTapListenerList = ArrayList<OnTapListener>()
+
+    fun addOnTapListener(onTapListener: OnTapListener) {
+        onTapListenerList.add(onTapListener)
+    }
+
+    fun removeOnTapListener(onTapListener: OnTapListener) {
+        onTapListenerList.remove(onTapListener)
+    }
 
     var onPageChangeListener = object : OnPageChangeListener {
         override fun onScrollStateChanged(mangaView: MangaView, scrollState: Int) {
@@ -122,28 +129,11 @@ class MangaView(
         }
 
 
-    private val viewContext = ViewContext()
+    internal val viewContext = ViewContext()
 
     private var isInitialized = false
 
     var doubleTapZoomEnabled = true
-
-    @Suppress("MemberVisibilityCanBePrivate")
-    var tapEdgeScrollEnabled = true
-
-    private val tapEdgeScrollThresholdLeft = DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_HORIZONTAL
-    private val tapEdgeScrollThresholdRight = 1.0F - DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_HORIZONTAL
-    private val tapEdgeScrollThresholdTop = DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL
-    private val tapEdgeScrollThresholdBottom = 1.0F - DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL
-
-    private val tapEdgeLeft: Float
-        get() = viewContext.viewWidth * tapEdgeScrollThresholdLeft
-    private val tapEdgeRight: Float
-        get() = viewContext.viewWidth * tapEdgeScrollThresholdRight
-    private val tapEdgeTop: Float
-        get() = viewContext.viewHeight * tapEdgeScrollThresholdTop
-    private val tapEdgeBottom: Float
-        get() = viewContext.viewHeight * tapEdgeScrollThresholdBottom
 
     private val gestureDetector = GestureDetectorCompat(context, this).also {
         it.setOnDoubleTapListener(this)
@@ -197,21 +187,6 @@ class MangaView(
         get() {
             return currentPageLayout?.calcScrollArea(viewContext, tmpCurrentScrollArea)
         }
-
-    @Suppress("MemberVisibilityCanBePrivate")
-    var onTapListener = object : OnTapListener {
-        override fun onTap(page: Page, x: Float, y: Float): Boolean {
-            Log.d(TAG, "onTap page:${page.index}, x:$x, y:$y")
-
-            return false
-        }
-
-        override fun onTap(layer: ContentLayer, x: Float, y: Float): Boolean {
-            Log.d(TAG, "onTap ${layer.page?.index}, layer, x:$x, y:$y")
-
-            return false
-        }
-    }
 
     @Suppress("MemberVisibilityCanBePrivate")
     var onDoubleTapListener = object : OnDoubleTapListener {
@@ -493,9 +468,50 @@ class MangaView(
     override fun onSingleTapUp(e: MotionEvent?): Boolean {
         e ?: return false
 
-        tapToScroll(e)
+        // mapping global point
+        val globalPosition = viewContext.projectToGlobalPosition(x, y, tmpEventPoint)
+
+        onTapListenerList.forEach {
+            handleOnTapListener(it, e.x, e.y, globalPosition)
+        }
 
         return true
+    }
+
+    private fun handleOnTapListener(
+        onTapListener: OnTapListener,
+        x: Float,
+        y: Float,
+        globalPosition: Rectangle
+    ) {
+        var handled = onTapListener.onTap(this, x, y)
+        if (handled) {
+            return
+        }
+
+        visiblePageLayoutList
+            .flatMap { it.pages }
+            .forEach pageLoop@{ page ->
+                handled = page.requestHandleEvent(
+                    globalPosition.centerX,
+                    globalPosition.centerY,
+                    onTapListener
+                )
+                if (handled) {
+                    return@pageLoop
+                }
+
+                page.layers.forEach { layer ->
+                    handled = layer.requestHandleEvent(
+                        globalPosition.centerX,
+                        globalPosition.centerY,
+                        onTapListener
+                    )
+                    if (handled) {
+                        return@pageLoop
+                    }
+                }
+            }
     }
 
     override fun onDown(e: MotionEvent?): Boolean = true
@@ -513,7 +529,7 @@ class MangaView(
         return handled
     }
 
-    private var currentPageLayout: PageLayout? = null
+    internal var currentPageLayout: PageLayout? = null
         private set(value) {
             if (value == null || field == value || scrollState != SCROLL_STATE_IDLE) {
                 return
@@ -784,73 +800,6 @@ class MangaView(
         return true
     }
 
-    private fun tapToScroll(e: MotionEvent): Boolean {
-        if (!tapEdgeScrollEnabled) {
-            return false
-        }
-
-        val currentScrollAreaSnapshot = currentPageLayout?.scrollArea ?: return false
-        if (!viewContext.viewport.contains(currentScrollAreaSnapshot)) {
-            return false
-        }
-
-        val layoutManagerSnapshot = layoutManager ?: return false
-
-        if (e.x < tapEdgeLeft && toLeftPage(layoutManagerSnapshot)) {
-            return true
-        }
-
-        if (e.x > tapEdgeRight && toRightPage(layoutManagerSnapshot)) {
-            return true
-        }
-
-        if (e.y < tapEdgeTop && toTopPage(layoutManagerSnapshot)) {
-            return true
-        }
-
-        if (e.y > tapEdgeBottom && toBottomPage(layoutManagerSnapshot)) {
-            return true
-        }
-
-        return false
-    }
-
-    private fun toLeftPage(
-        layoutManager: LayoutManager
-    ): Boolean {
-        val index = layoutManager.leftPageLayout(viewContext)
-            ?.keyPage?.index ?: return false
-        showPage(index, smoothScroll = true)
-        return true
-    }
-
-    private fun toRightPage(
-        layoutManager: LayoutManager
-    ): Boolean {
-        val index = layoutManager.rightPageLayout(viewContext)
-            ?.keyPage?.index ?: return false
-        showPage(index, smoothScroll = true)
-        return true
-    }
-
-    private fun toTopPage(
-        layoutManager: LayoutManager
-    ): Boolean {
-        val index = layoutManager.topPageLayout(viewContext)
-            ?.keyPage?.index ?: return false
-        showPage(index, smoothScroll = true)
-        return false
-    }
-
-    private fun toBottomPage(
-        layoutManager: LayoutManager
-    ): Boolean {
-        val index = layoutManager.bottomPageLayout(viewContext)
-            ?.keyPage?.index ?: return false
-        showPage(index, smoothScroll = true)
-        return false
-    }
-
     override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
         e ?: return false
         return true
@@ -858,40 +807,8 @@ class MangaView(
 
     override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
         e ?: return false
-        Log.d(TAG, "onSingleTapConfirmed")
 
-        var handled = onTapListener.onTap(this, e.x, e.y)
-        if (handled) {
-            return true
-        }
-
-        // mapping global point
-        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
-
-        visiblePageLayoutList
-            .flatMap { it.pages }
-            .forEach pageLoop@{ page ->
-                handled = page.requestHandleEvent(
-                    globalPosition.centerX,
-                    globalPosition.centerY,
-                    onTapListener
-                )
-                if (handled) {
-                    return@pageLoop
-                }
-
-                page.layers.forEach { layer ->
-                    handled = layer.requestHandleEvent(
-                        globalPosition.centerX,
-                        globalPosition.centerY,
-                        onTapListener
-                    )
-                    if (handled) {
-                        return@pageLoop
-                    }
-                }
-            }
-        return false
+        return true
     }
 
     private data class ScaleOperation(

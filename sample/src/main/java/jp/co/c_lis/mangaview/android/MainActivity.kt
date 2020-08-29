@@ -7,6 +7,8 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
 import dev.keiji.mangaview.widget.DoublePageLayoutManager
+import dev.keiji.mangaview.widget.EdgeNavigationHelper
+import dev.keiji.mangaview.widget.HorizontalLtrLayoutManager
 import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
 import dev.keiji.mangaview.widget.OnDoubleTapListener
@@ -88,6 +90,8 @@ class MainActivity : AppCompatActivity() {
             )
             it.onPageChangeListener = onPageChangeListener
             it.onDoubleTapListener = onDoubleTapListener
+
+            EdgeNavigationHelper().setup(it)
         }
     }
 
