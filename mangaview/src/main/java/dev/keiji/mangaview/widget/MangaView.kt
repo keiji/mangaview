@@ -164,7 +164,6 @@ class MangaView(
             postInvalidate()
         }
 
-
     internal val viewContext = ViewContext()
 
     private var isInitialized = false
@@ -221,16 +220,6 @@ class MangaView(
         get() {
             return currentPageLayout?.calcScrollArea(viewContext, tmpCurrentScrollArea)
         }
-
-    private val onDoubleTapListenerList = ArrayList<OnDoubleTapListener>()
-
-    fun addOnDoubleTapListener(onDoubleTapListener: OnDoubleTapListener) {
-        onDoubleTapListenerList.add(onDoubleTapListener)
-    }
-
-    fun removeOnDoubleTapListener(onDoubleTapListener: OnDoubleTapListener) {
-        onDoubleTapListenerList.remove(onDoubleTapListener)
-    }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
