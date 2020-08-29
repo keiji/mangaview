@@ -346,6 +346,7 @@ class MangaView(
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
                 abortAnimation()
+                scrollState = SCROLL_STATE_IDLE
             }
             MotionEvent.ACTION_UP -> {
                 populateToCurrent()
