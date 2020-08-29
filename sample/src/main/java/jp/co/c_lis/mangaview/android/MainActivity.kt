@@ -7,6 +7,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
 import dev.keiji.mangaview.widget.DoublePageLayoutManager
+import dev.keiji.mangaview.widget.DoubleTapZoomHelper
 import dev.keiji.mangaview.widget.EdgeNavigationHelper
 import dev.keiji.mangaview.widget.HorizontalLtrLayoutManager
 import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
@@ -88,9 +89,10 @@ class MainActivity : AppCompatActivity() {
                 assets, FILE_NAMES, coroutineScope,
                 PAGE_WIDTH, PAGE_HEIGHT
             )
-            it.onPageChangeListener = onPageChangeListener
-            it.onDoubleTapListener = onDoubleTapListener
+            it.addOnPageChangeListener(onPageChangeListener)
+            it.addOnDoubleTapListener(onDoubleTapListener)
 
+            DoubleTapZoomHelper().setup(it)
             EdgeNavigationHelper().setup(it)
         }
     }

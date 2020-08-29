@@ -59,8 +59,6 @@ class MangaView(
         const val SCROLL_STATE_DRAGGING = 1
         const val SCROLL_STATE_SETTLING = 2
 
-        private const val DOUBLE_TAP_ZOOM_MAX_SCALE = 4.0F
-
         private const val SCROLLING_DURATION = 280
         private const val REVERSE_SCROLLING_DURATION = 350
         private const val SCALING_DURATION = 250L
@@ -74,7 +72,9 @@ class MangaView(
         set(value) {
             if (field != value) {
                 field = value
-                onPageChangeListener.onScrollStateChanged(this, value)
+                onPageChangeListenerList.forEach {
+                    it.onScrollStateChanged(this, value)
+                }
             }
 
             if (value == SCROLL_STATE_IDLE) {
@@ -97,15 +97,16 @@ class MangaView(
         onTapListenerList.remove(onTapListener)
     }
 
-    var onPageChangeListener = object : OnPageChangeListener {
-        override fun onScrollStateChanged(mangaView: MangaView, scrollState: Int) {
-            Log.d(TAG, "scrollState -> ${scrollState}")
-        }
+    private val onPageChangeListenerList = ArrayList<OnPageChangeListener>()
 
-        override fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {
-            Log.d(TAG, "onPageLayoutSelected -> ${pageLayout.pages[0].index}")
-        }
+    fun addOnPageChangeListener(onPageChangeListener: OnPageChangeListener) {
+        onPageChangeListenerList.add(onPageChangeListener)
     }
+
+    fun removeOnPageChangeListener(onPageChangeListener: OnPageChangeListener) {
+        onPageChangeListenerList.add(onPageChangeListener)
+    }
+
     var layoutManager: LayoutManager? = null
         set(value) {
             field = value
@@ -132,8 +133,6 @@ class MangaView(
     internal val viewContext = ViewContext()
 
     private var isInitialized = false
-
-    var doubleTapZoomEnabled = true
 
     private val gestureDetector = GestureDetectorCompat(context, this).also {
         it.setOnDoubleTapListener(this)
@@ -188,19 +187,14 @@ class MangaView(
             return currentPageLayout?.calcScrollArea(viewContext, tmpCurrentScrollArea)
         }
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    var onDoubleTapListener = object : OnDoubleTapListener {
-        override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
-            return false
-        }
+    private val onDoubleTapListenerList = ArrayList<OnDoubleTapListener>()
 
-        override fun onDoubleTap(page: Page, x: Float, y: Float): Boolean {
-            return false
-        }
+    fun addOnDoubleTapListener(onDoubleTapListener: OnDoubleTapListener) {
+        onDoubleTapListenerList.add(onDoubleTapListener)
+    }
 
-        override fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean {
-            return false
-        }
+    fun removeOnDoubleTapListener(onDoubleTapListener: OnDoubleTapListener) {
+        onDoubleTapListenerList.remove(onDoubleTapListener)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -542,7 +536,9 @@ class MangaView(
                 Log.d(TAG, "Update currentPageIndex $currentPageIndex")
             }
 
-            onPageChangeListener.onPageLayoutSelected(this, value)
+            onPageChangeListenerList.forEach {
+                it.onPageLayoutSelected(this, value)
+            }
         }
 
     private fun fling(velocityX: Float, velocityY: Float): Boolean {
@@ -706,7 +702,7 @@ class MangaView(
         populate()
     }
 
-    private fun scale(
+    internal fun scale(
         scale: Float,
         focusX: Float?,
         focusY: Float?,
@@ -740,15 +736,26 @@ class MangaView(
     override fun onDoubleTap(e: MotionEvent?): Boolean {
         e ?: return false
 
-        doubleTapZoom(e)
-
-        var handled = onDoubleTapListener.onDoubleTap(this, e.x, e.y)
-        if (handled) {
-            return true
-        }
-
         // mapping global point
         val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
+
+        onDoubleTapListenerList.forEach {
+            handleOnDoubleTapListener(it, e.x, e.y, globalPosition)
+        }
+
+        return true
+    }
+
+    private fun handleOnDoubleTapListener(
+        onDoubleTapListener: OnDoubleTapListener,
+        x: Float,
+        y: Float,
+        globalPosition: Rectangle
+    ) {
+        var handled = onDoubleTapListener.onDoubleTap(this, x, y)
+        if (handled) {
+            return
+        }
 
         visiblePageLayoutList
             .flatMap { it.pages }
@@ -773,31 +780,6 @@ class MangaView(
                     }
                 }
             }
-
-        return true
-    }
-
-    private fun doubleTapZoom(e: MotionEvent): Boolean {
-        if (!doubleTapZoomEnabled) {
-            return false
-        }
-
-        val currentScrollArea = currentPageLayout?.scrollArea ?: return false
-
-        val scale2 = max(
-            viewContext.viewWidth / currentScrollArea.width,
-            viewContext.viewHeight / currentScrollArea.height
-        )
-
-        if (viewContext.currentScale < scale2) {
-            scale(scale2, e.x, e.y, smoothScale = true)
-        } else if (viewContext.currentScale >= DOUBLE_TAP_ZOOM_MAX_SCALE) {
-            scale(viewContext.minScale, e.x, e.y, smoothScale = true)
-        } else {
-            scale(DOUBLE_TAP_ZOOM_MAX_SCALE, e.x, e.y, smoothScale = true)
-        }
-
-        return true
     }
 
     override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
