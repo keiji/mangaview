@@ -7,6 +7,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
 import dev.keiji.mangaview.widget.DoublePageLayoutManager
+import dev.keiji.mangaview.widget.DoublePageStartOneSideLayoutManager
 import dev.keiji.mangaview.widget.DoubleTapZoomHelper
 import dev.keiji.mangaview.widget.EdgeNavigationHelper
 import dev.keiji.mangaview.widget.HorizontalLtrLayoutManager
@@ -93,7 +94,7 @@ class MainActivity : AppCompatActivity() {
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 SinglePageLayoutManager()
             } else {
-                DoublePageLayoutManager(isSpread = true)
+                DoublePageStartOneSideLayoutManager(isSpread = true)
             }
 
         mangaView = findViewById<MangaView>(R.id.manga_view).also {

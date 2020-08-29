@@ -1,6 +1,12 @@
 package dev.keiji.mangaview.widget
 
+import dev.keiji.mangaview.Log
+
 abstract class PageLayoutManager {
+
+    companion object {
+        private val TAG = PageLayoutManager::class.java.simpleName
+    }
 
     lateinit var viewContext: ViewContext
     lateinit var pageAdapter: PageAdapter

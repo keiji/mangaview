@@ -4,6 +4,7 @@ import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sign
 
 class DoublePageLayout(
     index: Int,
@@ -112,8 +113,6 @@ class DoublePageLayout(
         val paddingHorizontal = pageWidth - page.scaledWidth
         val paddingVertical = globalPosition.height - page.scaledHeight
 
-        Log.d(TAG, "${paddingHorizontal}")
-
         var paddingLeft = pageWidth
         var paddingRight = 0.0F
         val paddingTop = paddingVertical / 2
@@ -139,8 +138,8 @@ class DoublePageLayout(
 
     override val pages: List<Page>
         get() {
-            val evenPageSnapshot = rightPage ?: return emptyList<Page>()
-            val oddPageSnapshot = leftPage ?: return emptyList<Page>()
+            val evenPageSnapshot = rightPage ?: return emptyList()
+            val oddPageSnapshot = leftPage ?: return emptyList()
 
             return if (!isFlip) {
                 listOf(oddPageSnapshot, evenPageSnapshot)
@@ -152,6 +151,8 @@ class DoublePageLayout(
     private var isFlip = false
 
     override fun flip(): PageLayout {
+        isFlip = !isFlip
+
         val evenPageSnapshot = rightPage ?: return this
         val oddPageSnapshot = leftPage ?: return this
 
@@ -165,8 +166,6 @@ class DoublePageLayout(
             oddPageSnapshot.horizontalAlign = PageHorizontalAlign.Left
             evenPageSnapshot.horizontalAlign = PageHorizontalAlign.Right
         }
-
-        isFlip = !isFlip
 
         return this
     }

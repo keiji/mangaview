@@ -13,13 +13,16 @@ class AssetBitmapAdapter(
     private val pageHeight: Int
 ) : PageAdapter() {
 
-    override val pageCount = fileNames.size + 1 // page for detecting read complete
+    override val pageCount = fileNames.size
 
     override fun getPageWidth(index: Int) = pageWidth
 
     override fun getPageHeight(index: Int) = pageHeight
 
     override fun onConstructPage(index: Int, page: Page) {
+        if (index < 0) {
+            return
+        }
         if (index >= fileNames.size) {
             return
         }
