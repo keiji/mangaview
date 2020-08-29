@@ -637,12 +637,10 @@ class MangaView(
                 && !viewContext.canScrollLeft(currentScrollAreaSnapshot)
             ) {
                 populateHelper.populateToLeft(leftRect)
-                true
             } else if (scaledVelocityX < 0.0F && rightRect != null
                 && !viewContext.canScrollRight(currentScrollAreaSnapshot)
             ) {
                 populateHelper.populateToRight(rightRect)
-                true
             } else {
                 false
             }
@@ -654,12 +652,10 @@ class MangaView(
                 && !viewContext.canScrollTop(currentScrollAreaSnapshot)
             ) {
                 populateHelper.populateToTop(topRect)
-                true
             } else if (scaledVelocityY < 0.0F && bottomRect != null
                 && !viewContext.canScrollBottom(currentScrollAreaSnapshot)
             ) {
                 populateHelper.populateToBottom(bottomRect)
-                true
             } else {
                 false
             }

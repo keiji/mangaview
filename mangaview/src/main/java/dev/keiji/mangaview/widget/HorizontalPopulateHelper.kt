@@ -77,13 +77,13 @@ class HorizontalPopulateHelper : PopulateHelper() {
         }
     }
 
-    override fun populateToLeft(leftRect: PageLayout) {
-        val layoutManagerSnapshot = layoutManager ?: return
+    override fun populateToLeft(leftRect: PageLayout): Boolean {
+        val layoutManagerSnapshot = layoutManager ?: return false
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
         val scrollArea = currentRect?.getScaledScrollArea(viewContext)
 
-        populateTo(
+        return populateTo(
             scrollArea,
             leftRect.calcScrollArea(viewContext, tmpLeftScrollArea),
             shouldPopulateHorizontal,
@@ -92,13 +92,13 @@ class HorizontalPopulateHelper : PopulateHelper() {
         )
     }
 
-    override fun populateToRight(rightRect: PageLayout) {
-        val layoutManagerSnapshot = layoutManager ?: return
+    override fun populateToRight(rightRect: PageLayout): Boolean {
+        val layoutManagerSnapshot = layoutManager ?: return false
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
         val scrollArea = currentRect?.getScaledScrollArea(viewContext)
 
-        populateTo(
+        return populateTo(
             scrollArea,
             rightRect.calcScrollArea(
                 viewContext, tmpRightScrollArea

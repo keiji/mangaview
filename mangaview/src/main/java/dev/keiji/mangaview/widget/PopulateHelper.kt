@@ -145,16 +145,20 @@ abstract class PopulateHelper {
         }
     }
 
-    open fun populateToLeft(leftRect: PageLayout) {
+    open fun populateToLeft(leftRect: PageLayout): Boolean {
+        return false
     }
 
-    open fun populateToRight(rightRect: PageLayout) {
+    open fun populateToRight(rightRect: PageLayout): Boolean {
+        return false
     }
 
-    open fun populateToTop(topRect: PageLayout) {
+    open fun populateToTop(topRect: PageLayout): Boolean {
+        return false
     }
 
-    open fun populateToBottom(bottomRect: PageLayout) {
+    open fun populateToBottom(bottomRect: PageLayout): Boolean {
+        return false
     }
 
 }
