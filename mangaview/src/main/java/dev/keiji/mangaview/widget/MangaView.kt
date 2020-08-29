@@ -67,7 +67,7 @@ class MangaView(
 
     constructor(context: Context, attrs: AttributeSet) : this(context, attrs, 0x0)
 
-    private var scrollState: Int = -1
+    private var scrollState: Int = SCROLL_STATE_IDLE
         set(value) {
             if (field != value) {
                 Log.d(TAG, "scrollState $field -> $value")
@@ -216,7 +216,6 @@ class MangaView(
 
         pageLayoutManager.pageAdapter = adapterSnapshot
 
-        scrollState = SCROLL_STATE_IDLE
         isInitialized = true
     }
 
@@ -302,6 +301,8 @@ class MangaView(
             layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
 
             postInvalidate()
+            scrollState = SCROLL_STATE_IDLE
+
             return
         }
 
@@ -320,7 +321,6 @@ class MangaView(
                 scrollArea.top.roundToInt() - currentTop,
                 SCROLLING_DURATION
             )
-            startAnimation()
         }
 
         startAnimation()
