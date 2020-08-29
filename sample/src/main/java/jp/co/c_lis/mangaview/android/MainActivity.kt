@@ -21,7 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 
 private val FILE_NAMES = arrayOf(
-    "comic_001bj_1.jpg",
     "comic_001bj_2.jpg",
     "comic_001bj_3.jpg",
     "comic_001bj_4.jpg",
@@ -33,6 +32,7 @@ private val FILE_NAMES = arrayOf(
     "comic_001bj_10.jpg",
     "comic_001bj_11.jpg",
     "comic_001bj_12.jpg",
+    "comic_001bj_1.jpg",
 )
 
 class MainActivity : AppCompatActivity() {

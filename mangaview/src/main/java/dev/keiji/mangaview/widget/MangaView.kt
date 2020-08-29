@@ -400,37 +400,47 @@ class MangaView(
         if (layoutManagerSnapshot.leftPageLayout(viewContext) == null
             && viewport.left < currentScrollableAreaSnapshot.left
         ) {
-            fireEventReadComplete()
-            return true
+            return fireEventReadComplete(
+                abs(currentScrollableAreaSnapshot.left - viewport.left)
+            )
         }
 
         if (layoutManagerSnapshot.rightPageLayout(viewContext) == null
             && viewport.right > currentScrollableAreaSnapshot.right
         ) {
-            fireEventReadComplete()
-            return true
+            return fireEventReadComplete(
+                abs(viewport.right - currentScrollableAreaSnapshot.right)
+            )
         }
 
         if (layoutManagerSnapshot.topPageLayout(viewContext) == null
             && viewport.top < currentScrollableAreaSnapshot.top
         ) {
-            fireEventReadComplete()
-            return true
+            return fireEventReadComplete(
+                abs(currentScrollableAreaSnapshot.top - viewport.top)
+            )
         }
 
         if (layoutManagerSnapshot.bottomPageLayout(viewContext) == null
             && viewport.bottom > currentScrollableAreaSnapshot.bottom
         ) {
-            fireEventReadComplete()
-            return true
+            return fireEventReadComplete(
+                abs(viewport.bottom - currentScrollableAreaSnapshot.bottom)
+            )
         }
         return false
     }
 
-    private fun fireEventReadComplete() {
+    private fun fireEventReadComplete(overScroll: Float): Boolean {
+        if (overScroll < pagingTouchSlop) {
+            return false
+        }
+
         onReadCompleteListenerList.forEach {
             it.onReadCompleted(this)
         }
+
+        return true
     }
 
     private fun startAnimation() {
