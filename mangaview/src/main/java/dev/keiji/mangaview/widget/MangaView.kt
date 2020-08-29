@@ -94,7 +94,7 @@ class MangaView(
 
     private val onTapListenerList = ArrayList<OnTapListener>()
 
-    fun addOnReadCompleteListener(onTapListener: OnTapListener) {
+    fun addOnTapListener(onTapListener: OnTapListener) {
         onTapListenerList.add(onTapListener)
     }
 
