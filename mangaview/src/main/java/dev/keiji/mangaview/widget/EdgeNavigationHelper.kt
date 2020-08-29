@@ -13,7 +13,7 @@ class EdgeNavigationHelper : OnTapListener {
     private val tapEdgeScrollThresholdBottom = 1.0F - DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL
 
     fun setup(mangaView: MangaView) {
-        mangaView.addOnReadCompleteListener(this)
+        mangaView.addOnTapListener(this)
     }
 
     override fun onTap(mangaView: MangaView, x: Float, y: Float): Boolean {
