@@ -1,8 +1,6 @@
 package dev.keiji.mangaview.widget
 
-import android.widget.OverScroller
 import dev.keiji.mangaview.Rectangle
-import kotlin.math.roundToInt
 import kotlin.math.sign
 
 abstract class PopulateHelper {
@@ -11,13 +9,8 @@ abstract class PopulateHelper {
         private val TAG = PopulateHelper::class.java.simpleName
     }
 
-    var populateDuration: Int = 250
-    var reverseScrollDuration: Int = 250
-
     lateinit var viewContext: ViewContext
     var layoutManager: LayoutManager? = null
-
-    lateinit var settleScroller: OverScroller
 
     var pagingTouchSlop: Float = 0.0F
 
@@ -31,12 +24,12 @@ abstract class PopulateHelper {
         val diffRight = rect.right - viewContext.viewport.right
 
         if (diffLeft.sign != diffRight.sign) {
-            // no overflow
+            // no over-scroll
             return 0.0F
         }
 
-        val overflowLeft = diffLeft > 0
-        val dx = if (overflowLeft) {
+        val overScrollLeft = diffLeft > 0
+        val dx = if (overScrollLeft) {
             rect.left - viewContext.viewport.left
         } else {
             rect.right - viewContext.viewport.right
@@ -67,98 +60,79 @@ abstract class PopulateHelper {
     fun init(
         viewContext: ViewContext,
         layoutManager: LayoutManager,
-        settleScroller: OverScroller,
         pagingTouchSlop: Float,
-        scrollDuration: Int,
-        reverseScrollDuration: Int,
     ): PopulateHelper {
         this.viewContext = viewContext
         this.layoutManager = layoutManager
-        this.settleScroller = settleScroller
         this.pagingTouchSlop = pagingTouchSlop
-        this.populateDuration = scrollDuration
-        this.reverseScrollDuration = reverseScrollDuration
         return this
     }
 
-    abstract fun populate()
+    abstract fun populate(): Operation.Translate?
 
     fun populateTo(
         fromArea: Rectangle?,
         toArea: Rectangle?,
         shouldPopulate: (Rectangle?) -> Boolean,
         dx: (Rectangle) -> Float,
-        dy: (Rectangle) -> Float,
-        duration: Int
-    ): Boolean {
-        fromArea ?: return false
-        toArea ?: return false
+        dy: (Rectangle) -> Float
+    ): Operation.Translate? {
+        fromArea ?: return null
+        toArea ?: return null
 
         val overlap = Rectangle.and(fromArea, viewContext.viewport, tmp)
 
-        if (shouldPopulate(overlap)) {
-            val startX = viewContext.viewport.left
-            val startY = viewContext.viewport.top
-            val dx = dx(toArea)
-            val dy = dy(toArea)
-
-            if (dx == 0.0F && dy == 0.0F) {
-                return false
-            }
-
-            settleScroller.also {
-                it.abortAnimation()
-                it.startScroll(
-                    startX.roundToInt(),
-                    startY.roundToInt(),
-                    dx.roundToInt(),
-                    dy.roundToInt(),
-                    duration
-                )
-            }
-
-            return true
+        if (!shouldPopulate(overlap)) {
+            return null
         }
 
-        return false
+        val startX = viewContext.viewport.left
+        val startY = viewContext.viewport.top
+        val dx = dx(toArea)
+        val dy = dy(toArea)
+
+        if (dx == 0.0F && dy == 0.0F) {
+            return null
+        }
+
+        return Operation.Translate(
+            startX, startY,
+            dx, dy,
+        )
     }
 
-    fun populateToCurrent(area: Rectangle, duration: Int) {
+    fun populateToCurrent(area: Rectangle): Operation.Translate? {
         val startX = viewContext.viewport.left
         val startY = viewContext.viewport.top
         val dx = calcDiffHorizontal(area)
         val dy = calcDiffVertical(area)
 
         if (dx == 0.0F && dy == 0.0F) {
-            return
+            return null
         }
 
-        settleScroller.also {
-            it.abortAnimation()
-            it.startScroll(
-                startX.roundToInt(),
-                startY.roundToInt(),
-                dx.roundToInt(),
-                dy.roundToInt(),
-                duration
-            )
-        }
+        val destX = startX + dx
+        val destY = startY + dy
+
+        return Operation.Translate(
+            startX, startY,
+            destX, destY,
+        )
     }
 
-    open fun populateToLeft(leftRect: PageLayout): Boolean {
-        return false
+    open fun populateToLeft(leftRect: PageLayout): Operation.Translate? {
+        return null
     }
 
-    open fun populateToRight(rightRect: PageLayout): Boolean {
-        return false
+    open fun populateToRight(rightRect: PageLayout): Operation.Translate? {
+        return null
     }
 
-    open fun populateToTop(topRect: PageLayout): Boolean {
-        return false
+    open fun populateToTop(topRect: PageLayout): Operation.Translate? {
+        return null
     }
 
-    open fun populateToBottom(bottomRect: PageLayout): Boolean {
-        return false
+    open fun populateToBottom(bottomRect: PageLayout): Operation.Translate? {
+        return null
     }
-
 }

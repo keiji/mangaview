@@ -14,98 +14,72 @@ class HorizontalPopulateHelper : PopulateHelper() {
         return diff > (pagingTouchSlop / viewContext.currentScale)
     }
 
-    private val calcDiffXToLeft = fun(rect: Rectangle): Float {
-        return (rect.right - viewContext.viewport.right)
+    private val calcDiffX = fun(rect: Rectangle): Float {
+        return rect.left
     }
 
-    private val calcDiffXToRight = fun(rect: Rectangle): Float {
-        return (rect.left - viewContext.viewport.left)
-    }
-
-    override fun populate() {
+    override fun populate(): Operation.Translate? {
         Log.d(TAG, "populate!")
 
-        val layoutManagerSnapshot = layoutManager ?: return
+        val layoutManagerSnapshot = layoutManager ?: return null
 
         val currentPageLayout = layoutManagerSnapshot.currentPageLayout(viewContext)
         val scrollArea = currentPageLayout
-            ?.getScaledScrollArea(viewContext) ?: return
+            ?.getScaledScrollArea(viewContext) ?: return null
 
-        // detect overscroll
+        // detect over-scroll
         if (scrollArea.contains(viewContext.viewport)) {
-            Log.d(TAG, "no overscroll detected.")
-            return
+            Log.d(TAG, "no over-scroll detected.")
+            return null
         }
 
         val toLeft = (viewContext.viewport.centerX < scrollArea.centerX)
 
-        val handled = if (toLeft) {
-            val leftRect = layoutManagerSnapshot.leftPageLayout(viewContext)
-            val leftArea =
-                leftRect?.calcScrollArea(
-                    viewContext,
-                    tmpLeftScrollArea
-                )
-            populateTo(
-                scrollArea,
-                leftArea,
-                shouldPopulateHorizontal,
-                calcDiffXToLeft, calcDiffVertical,
-                populateDuration
-            )
+        val targetRect = if (toLeft) {
+            layoutManagerSnapshot.leftPageLayout(viewContext)
         } else {
-            val rightRect = layoutManagerSnapshot.rightPageLayout(viewContext)
-            val rightArea =
-                rightRect?.calcScrollArea(
-                    viewContext,
-                    tmpRightScrollArea
-                )
-            populateTo(
-                scrollArea,
-                rightArea,
-                shouldPopulateHorizontal,
-                calcDiffXToRight, calcDiffVertical,
-                populateDuration
-            )
+            layoutManagerSnapshot.rightPageLayout(viewContext)
         }
 
-        if (!handled) {
-            populateToCurrent(
-                scrollArea,
-                reverseScrollDuration
-            )
+        val populateOperation = populateTo(
+            scrollArea,
+            targetRect?.globalPosition,
+            shouldPopulateHorizontal,
+            calcDiffX, calcDiffVertical
+        )
+
+        return if (populateOperation == null) {
+            populateToCurrent(scrollArea)
+        } else {
+            null
         }
     }
 
-    override fun populateToLeft(leftRect: PageLayout): Boolean {
-        val layoutManagerSnapshot = layoutManager ?: return false
+    override fun populateToLeft(leftRect: PageLayout): Operation.Translate? {
+        val layoutManagerSnapshot = layoutManager ?: return null
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
         val scrollArea = currentRect?.getScaledScrollArea(viewContext)
 
         return populateTo(
             scrollArea,
-            leftRect.calcScrollArea(viewContext, tmpLeftScrollArea),
+            leftRect.globalPosition,
             shouldPopulateHorizontal,
-            calcDiffXToLeft, calcDiffVertical,
-            populateDuration
+            calcDiffX, calcDiffVertical
         )
     }
 
-    override fun populateToRight(rightRect: PageLayout): Boolean {
-        val layoutManagerSnapshot = layoutManager ?: return false
+    override fun populateToRight(rightRect: PageLayout): Operation.Translate? {
+        val layoutManagerSnapshot = layoutManager ?: return null
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
         val scrollArea = currentRect?.getScaledScrollArea(viewContext)
 
         return populateTo(
             scrollArea,
-            rightRect.calcScrollArea(
-                viewContext, tmpRightScrollArea
-            ),
+            rightRect.globalPosition,
             shouldPopulateHorizontal,
-            calcDiffXToRight, calcDiffVertical,
-            populateDuration
+            calcDiffX, calcDiffVertical
         )
     }
 }

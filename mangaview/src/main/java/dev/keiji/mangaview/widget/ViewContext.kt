@@ -46,7 +46,7 @@ data class ViewContext(
     private var scrollPolicyHorizontal = SCROLL_POLICY_UNLIMITED
     private var scrollPolicyVertical = SCROLL_POLICY_UNLIMITED
 
-    private fun applyViewport(scrollableArea: Rectangle? = null) {
+    internal fun applyViewport(scrollableArea: Rectangle? = null) {
         viewport.set(
             currentX,
             currentY,
@@ -75,40 +75,55 @@ data class ViewContext(
     fun scroll(
         distanceX: Float,
         distanceY: Float,
-        scrollArea: Rectangle? = null
-    ) = offset(distanceX, distanceY, scrollArea)
+        scrollArea: Rectangle? = null,
+        applyImmediately: Boolean = true
+    ) = offset(distanceX, distanceY, scrollArea, applyImmediately)
 
     fun offset(
         offsetX: Float,
         offsetY: Float,
-        scrollArea: Rectangle? = null
-    ) = offsetTo(currentX + offsetX, currentY + offsetY, scrollArea)
+        scrollArea: Rectangle? = null,
+        applyImmediately: Boolean = true
+    ) = offsetTo(currentX + offsetX, currentY + offsetY, scrollArea, applyImmediately)
 
     fun offsetTo(
         x: Float,
         y: Float,
-        scrollArea: Rectangle? = null
+        scrollArea: Rectangle? = null,
+        applyImmediately: Boolean = true
     ) {
         currentX = x
         currentY = y
 
-        applyViewport(scrollArea)
+        if (applyImmediately) {
+            applyViewport(scrollArea)
+        }
     }
 
-    fun scale(factor: Float, focusX: Float, focusY: Float) {
+    fun scale(
+        factor: Float,
+        focusX: Float,
+        focusY: Float,
+        scrollArea: Rectangle?,
+        applyImmediately: Boolean = true
+    ) {
         val scale = currentScale * factor
 
         scaleTo(
             scale,
             focusX,
-            focusY
+            focusY,
+            scrollArea,
+            applyImmediately
         )
     }
 
     fun scaleTo(
         scale: Float,
         focusX: Float,
-        focusY: Float
+        focusY: Float,
+        scrollArea: Rectangle? = null,
+        applyImmediately: Boolean = true
     ) {
         val newScale = max(min(scale, maxScale), minScale)
         if (currentScale == newScale) {
@@ -124,11 +139,9 @@ data class ViewContext(
         val diffX = viewportWidth - newViewportWidth
         val diffY = viewportHeight - newViewportHeight
 
-        offset(diffX * focusXRatio, diffY * focusYRatio)
-
         currentScale = newScale
 
-        applyViewport()
+        offset(diffX * focusXRatio, diffY * focusYRatio, scrollArea, applyImmediately)
     }
 
     fun canScrollLeft(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
