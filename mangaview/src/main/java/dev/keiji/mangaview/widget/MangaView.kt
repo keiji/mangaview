@@ -38,12 +38,12 @@ interface OnPageChangeListener {
     fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {}
 }
 
-interface OnContentViewportChangeListener {
-    fun onViewportChanged(mangaView: MangaView, layer: ContentLayer, viewport: RectF) = false
+interface OnReadCompleteListener {
+    fun onReadCompleted(mangaView: MangaView)
 }
 
-interface OnReadCompleteCallback {
-    fun onReadCompleted(mangaView: MangaView)
+interface OnContentViewportChangeListener {
+    fun onViewportChanged(mangaView: MangaView, layer: ContentLayer, viewport: RectF) = false
 }
 
 class MangaView(
@@ -112,7 +112,15 @@ class MangaView(
         onPageChangeListenerList.add(onPageChangeListener)
     }
 
-    var onReadCompleteCallback: OnReadCompleteCallback? = null
+    private val onReadCompleteListenerList = ArrayList<OnReadCompleteListener>()
+
+    fun addOnReadCompleteListener(onReadCompleteListener: OnReadCompleteListener) {
+        onReadCompleteListenerList.add(onReadCompleteListener)
+    }
+
+    fun removeOnReadCompleteListener(onReadCompleteListener: OnReadCompleteListener) {
+        onReadCompleteListenerList.remove(onReadCompleteListener)
+    }
 
     private val onDoubleTapListenerList = ArrayList<OnDoubleTapListener>()
 
@@ -430,7 +438,9 @@ class MangaView(
             return false
         }
 
-        onReadCompleteCallback?.onReadCompleted(this)
+        onReadCompleteListenerList.forEach {
+            it.onReadCompleted(this)
+        }
 
         return true
     }
