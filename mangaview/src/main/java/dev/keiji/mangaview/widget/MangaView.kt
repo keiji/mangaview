@@ -186,8 +186,6 @@ class MangaView(
 
     private var scroller = OverScroller(context, DecelerateInterpolator())
 
-    private var settleScroller = OverScroller(context, DecelerateInterpolator())
-
     enum class ScalingState {
         Begin,
         Scaling,
@@ -329,7 +327,7 @@ class MangaView(
             val currentLeft = viewContext.viewport.left.roundToInt()
             val currentTop = viewContext.viewport.top.roundToInt()
 
-            settleScroller.startScroll(
+            scroller.startScroll(
                 currentLeft,
                 currentTop,
                 scrollArea.left.roundToInt() - currentLeft,
@@ -383,7 +381,7 @@ class MangaView(
             .init(
                 viewContext,
                 layoutManagerSnapshot,
-                settleScroller,
+                scroller,
                 pagingTouchSlop,
                 SCROLLING_DURATION,
                 REVERSE_SCROLLING_DURATION
@@ -452,7 +450,6 @@ class MangaView(
 
     private fun abortAnimation() {
         scroller.abortAnimation()
-        settleScroller.abortAnimation()
         scaleOperation = null
     }
 
@@ -501,11 +498,7 @@ class MangaView(
         } ?: false
 
         val needPostInvalidateScroll =
-            if (scroller.isFinished && !settleScroller.isFinished && settleScroller.computeScrollOffset()) {
-                viewContext.offsetTo(settleScroller.currX.toFloat(), settleScroller.currY.toFloat())
-                !settleScroller.isFinished
-
-            } else if (!scroller.isFinished && scroller.computeScrollOffset()) {
+            if (!scroller.isFinished && scroller.computeScrollOffset()) {
                 viewContext.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
                 !scroller.isFinished
             } else {
@@ -620,7 +613,7 @@ class MangaView(
             .init(
                 viewContext,
                 layoutManagerSnapshot,
-                settleScroller,
+                scroller,
                 pagingTouchSlop,
                 SCROLLING_DURATION,
                 REVERSE_SCROLLING_DURATION
