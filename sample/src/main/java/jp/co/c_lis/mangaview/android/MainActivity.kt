@@ -13,7 +13,7 @@ import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
 import dev.keiji.mangaview.widget.OnDoubleTapListener
 import dev.keiji.mangaview.widget.OnPageChangeListener
-import dev.keiji.mangaview.widget.OnReadCompleteListener
+import dev.keiji.mangaview.widget.OnReadCompleteCallback
 import dev.keiji.mangaview.widget.PageLayout
 import dev.keiji.mangaview.widget.SinglePageLayoutManager
 import kotlinx.coroutines.CoroutineScope
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val onReadCompleteListener = object : OnReadCompleteListener {
+    private val onReadCompleteListener = object : OnReadCompleteCallback {
         override fun onReadCompleted(mangaView: MangaView) {
             currentToast?.cancel()
 
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             )
             it.addOnPageChangeListener(onPageChangeListener)
             it.addOnDoubleTapListener(onDoubleTapListener)
-            it.addOnReadCompleteListener(onReadCompleteListener)
+            it.onReadCompleteCallback = onReadCompleteListener
 
             DoubleTapZoomHelper().setup(it)
             EdgeNavigationHelper().setup(it)
