@@ -389,6 +389,7 @@ class MangaView(
                 REVERSE_SCROLLING_DURATION
             )
             .populateToCurrent(currentScrollableAreaSnapshot, SCROLLING_DURATION)
+        scrollState = SCROLL_STATE_SETTLING
         startAnimation()
 
         scalingState = ScalingState.Finish
@@ -502,7 +503,6 @@ class MangaView(
         val needPostInvalidateScroll =
             if (scroller.isFinished && !settleScroller.isFinished && settleScroller.computeScrollOffset()) {
                 viewContext.offsetTo(settleScroller.currX.toFloat(), settleScroller.currY.toFloat())
-                scrollState = SCROLL_STATE_SETTLING
                 !settleScroller.isFinished
 
             } else if (!scroller.isFinished && scroller.computeScrollOffset()) {
@@ -664,6 +664,7 @@ class MangaView(
         }
 
         if (handleHorizontal || handleVertical) {
+            scrollState = SCROLL_STATE_SETTLING
             return true
         }
 
