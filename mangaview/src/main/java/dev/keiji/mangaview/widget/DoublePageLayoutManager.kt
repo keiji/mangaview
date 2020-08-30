@@ -27,9 +27,8 @@ class DoublePageLayoutManager(
 
     override fun calcFirstPageIndex(pageLayoutIndex: Int): Int {
         if (startOneSide) {
-            return when (pageLayoutIndex) {
-                0 -> -1
-                1 -> 1
+            return when {
+                pageLayoutIndex < 2 -> pageLayoutIndex
                 else -> (pageLayoutIndex - 1) * 2 + 1
             }
         }
@@ -49,5 +48,6 @@ class DoublePageLayoutManager(
         return calcFirstPageIndex(pageLayoutIndex) + 1
     }
 
-    override fun createPageLayout(index: Int): PageLayout = DoublePageLayout(index, isSpread)
+    override fun createPageLayout(index: Int): PageLayout =
+        DoublePageLayout(index, startOneSide, isSpread)
 }

@@ -1,14 +1,13 @@
 package dev.keiji.mangaview.widget
 
-import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sign
 
 class DoublePageLayout(
     index: Int,
-    private val isSpread: Boolean
+    private val isSpread: Boolean,
+    private val startOneSide: Boolean
 ) : PageLayout(index) {
 
     companion object {
@@ -16,16 +15,23 @@ class DoublePageLayout(
     }
 
     override val isFilled: Boolean
-        get() = (leftPage != null && rightPage != null)
+        get() = centerPage != null || (leftPage != null && rightPage != null)
 
-    var leftPage: Page? = null
+    private var centerPage: Page? = null
         private set
 
-    var rightPage: Page? = null
+    private var leftPage: Page? = null
+        private set
+
+    private var rightPage: Page? = null
         private set
 
     override val keyPage: Page?
         get() {
+            if (centerPage != null) {
+                return centerPage
+            }
+
             return if (isFlip) {
                 leftPage
             } else {
@@ -34,32 +40,47 @@ class DoublePageLayout(
         }
 
     override fun add(page: Page) {
-        val layoutWidth = globalPosition.width / 2
-
-        val value = page.index + if (isFlip) {
-            1
+        if (index == 0 && startOneSide) {
+            setCenterPage(page, globalPosition.width)
         } else {
-            0
-        }
+            val layoutWidth = globalPosition.width / 2
 
-        if (value % 2 == 0) {
-            setRightPage(page, layoutWidth)
-        } else {
-            setLeftPage(page, layoutWidth)
+            val value = page.index + if (isFlip) {
+                1
+            } else {
+                0
+            }
+
+            if (value % 2 == 0) {
+                setRightPage(page, layoutWidth)
+            } else {
+                setLeftPage(page, layoutWidth)
+            }
         }
 
         initScrollArea()
     }
 
     override fun replace(targetPage: Page, newPage: Page?) {
-        if (leftPage == targetPage) {
-            leftPage = newPage
-        } else if (rightPage == targetPage) {
-            rightPage = newPage
+        when {
+            centerPage == targetPage -> {
+                centerPage = newPage
+            }
+            leftPage == targetPage -> {
+                leftPage = newPage
+            }
+            rightPage == targetPage -> {
+                rightPage = newPage
+            }
         }
     }
 
     override fun initScrollArea() {
+        centerPage?.also {
+            scrollArea.copyFrom(it.globalRect)
+            return
+        }
+
         val evenPagePosition = rightPage?.globalRect ?: return
         val oddPagePosition = leftPage?.globalRect ?: return
 
@@ -71,6 +92,31 @@ class DoublePageLayout(
         )
     }
 
+    private fun setCenterPage(page: Page, pageWidth: Float) {
+        page.baseScale = min(
+            pageWidth / page.width,
+            globalPosition.height / page.height
+        )
+
+        val paddingHorizontal = pageWidth - page.scaledWidth
+        val paddingVertical = globalPosition.height - page.scaledHeight
+
+        val paddingLeft = paddingHorizontal / 2
+        val paddingRight = paddingHorizontal - paddingLeft
+        val paddingTop = paddingVertical / 2
+        val paddingBottom = paddingVertical - paddingTop
+
+        page.horizontalAlign = PageHorizontalAlign.Center
+
+        page.globalRect.also {
+            it.left = globalPosition.left + paddingLeft
+            it.top = globalPosition.top + paddingTop
+            it.right = globalPosition.right - paddingRight
+            it.bottom = globalPosition.bottom - paddingBottom
+        }
+
+        centerPage = page
+    }
 
     private fun setRightPage(page: Page, pageWidth: Float) {
         page.baseScale = min(
@@ -138,13 +184,10 @@ class DoublePageLayout(
 
     override val pages: List<Page>
         get() {
-            val evenPageSnapshot = rightPage ?: return emptyList()
-            val oddPageSnapshot = leftPage ?: return emptyList()
-
             return if (!isFlip) {
-                listOf(oddPageSnapshot, evenPageSnapshot)
+                listOf(centerPage, leftPage, rightPage).filterNotNull()
             } else {
-                listOf(evenPageSnapshot, oddPageSnapshot)
+                listOf(centerPage, rightPage, leftPage).filterNotNull()
             }
         }
 
