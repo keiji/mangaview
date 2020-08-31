@@ -9,16 +9,16 @@ abstract class PopulateHelper {
         private val TAG = PopulateHelper::class.java.simpleName
     }
 
-    lateinit var viewContext: ViewContext
-    var layoutManager: LayoutManager? = null
+    internal lateinit var viewContext: ViewContext
+    internal var layoutManager: LayoutManager? = null
 
-    var pagingTouchSlop: Float = 0.0F
+    internal var pagingTouchSlop: Float = 0.0F
 
-    var duration: Long = 0
+    internal var resetScaleOnPageChanged = true
 
-    var resetScaleOnPageChanged = true
+    private var duration: Long = 0
 
-    val calcDiffHorizontal = fun(pageLayout: PageLayout): Float {
+    internal val calcDiffHorizontal = fun(pageLayout: PageLayout): Float {
         val rect = pageLayout.getScaledScrollArea(viewContext)
         val diffLeft = rect.left - viewContext.viewport.left
         val diffRight = rect.right - viewContext.viewport.right
@@ -37,7 +37,7 @@ abstract class PopulateHelper {
         return dx
     }
 
-    val calcDiffVertical = fun(pageLayout: PageLayout): Float {
+    internal val calcDiffVertical = fun(pageLayout: PageLayout): Float {
         val rect = pageLayout.getScaledScrollArea(viewContext)
         val diffTop = rect.top - viewContext.viewport.top
         val diffBottom = rect.bottom - viewContext.viewport.bottom
@@ -56,15 +56,15 @@ abstract class PopulateHelper {
         return dy
     }
 
-    val calcDiffX = fun(pageLayout: PageLayout): Float {
+    internal val calcDiffX = fun(pageLayout: PageLayout): Float {
         return pageLayout.globalPosition.left - viewContext.viewport.left
     }
 
-    val calcDiffY = fun(pageLayout: PageLayout): Float {
+    internal val calcDiffY = fun(pageLayout: PageLayout): Float {
         return pageLayout.globalPosition.top - viewContext.viewport.top
     }
 
-    val tmp = Rectangle()
+    private val tmp = Rectangle()
 
     fun init(
         viewContext: ViewContext,
@@ -82,16 +82,20 @@ abstract class PopulateHelper {
     }
 
     fun populateTo(
-        fromArea: Rectangle?,
-        toArea: PageLayout?,
+        from: PageLayout?,
+        to: PageLayout?,
         shouldPopulate: (Rectangle?) -> Boolean,
         dx: (PageLayout) -> Float,
         dy: (PageLayout) -> Float
-    ): Operation? {
-        fromArea ?: return null
-        toArea ?: return null
+    ): Animation? {
+        from ?: return null
+        to ?: return null
 
-        val overlap = Rectangle.and(fromArea, viewContext.viewport, tmp)
+        val overlap = Rectangle.and(
+            from.getScaledScrollArea(viewContext),
+            viewContext.viewport,
+            tmp
+        )
 
         if (!shouldPopulate(overlap)) {
             return null
@@ -99,8 +103,8 @@ abstract class PopulateHelper {
 
         val startX = viewContext.viewport.left
         val startY = viewContext.viewport.top
-        val dx = dx(toArea)
-        val dy = dy(toArea)
+        val dx = dx(to)
+        val dy = dy(to)
 
         if (dx == 0.0F && dy == 0.0F) {
             return null
@@ -109,8 +113,8 @@ abstract class PopulateHelper {
         val destX = startX + dx
         val destY = startY + dy
 
-        val operation = Operation(
-            translate = Operation.Translate(
+        val operation = Animation(
+            translate = Animation.Translate(
                 startX, startY,
                 destX, destY,
             ),
@@ -118,7 +122,7 @@ abstract class PopulateHelper {
         )
 
         if (resetScaleOnPageChanged) {
-            operation.scale = Operation.Scale(
+            operation.scale = Animation.Scale(
                 viewContext.currentScale,
                 viewContext.minScale,
                 null, null
@@ -128,7 +132,7 @@ abstract class PopulateHelper {
         return operation
     }
 
-    fun populateToCurrent(pageLayout: PageLayout?): Operation? {
+    fun populateTo(pageLayout: PageLayout?): Animation? {
         pageLayout ?: return null
 
         val startX = viewContext.viewport.left
@@ -143,8 +147,8 @@ abstract class PopulateHelper {
         val destX = startX + dx
         val destY = startY + dy
 
-        return Operation(
-            translate = Operation.Translate(
+        return Animation(
+            translate = Animation.Translate(
                 startX, startY,
                 destX, destY,
             ),
@@ -152,19 +156,19 @@ abstract class PopulateHelper {
         )
     }
 
-    open fun populateToLeft(leftRect: PageLayout): Operation? {
+    open fun populateToLeft(leftRect: PageLayout): Animation? {
         return null
     }
 
-    open fun populateToRight(rightRect: PageLayout): Operation? {
+    open fun populateToRight(rightRect: PageLayout): Animation? {
         return null
     }
 
-    open fun populateToTop(topRect: PageLayout): Operation? {
+    open fun populateToTop(topRect: PageLayout): Animation? {
         return null
     }
 
-    open fun populateToBottom(bottomRect: PageLayout): Operation? {
+    open fun populateToBottom(bottomRect: PageLayout): Animation? {
         return null
     }
 }

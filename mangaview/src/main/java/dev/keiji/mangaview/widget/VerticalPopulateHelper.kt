@@ -31,11 +31,8 @@ class VerticalPopulateHelper : PopulateHelper() {
         return pageLayout.globalPosition.top - viewContext.viewport.top
     }
 
-    override fun populateToTop(topRect: PageLayout): Operation? {
+    override fun populateToTop(topRect: PageLayout): Animation? {
         val layoutManagerSnapshot = layoutManager ?: return null
-
-        val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
-        val scrollArea = currentRect?.getScaledScrollArea(viewContext) ?: return null
 
         val dx = if (resetScaleOnPageChanged) {
             calcDiffX
@@ -49,18 +46,15 @@ class VerticalPopulateHelper : PopulateHelper() {
         }
 
         return populateTo(
-            scrollArea,
+            layoutManagerSnapshot.currentPageLayout(viewContext),
             topRect,
             shouldPopulateVertical,
             dx, dy,
         )
     }
 
-    override fun populateToBottom(bottomRect: PageLayout): Operation? {
+    override fun populateToBottom(bottomRect: PageLayout): Animation? {
         val layoutManagerSnapshot = layoutManager ?: return null
-
-        val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
-        val scrollArea = currentRect?.getScaledScrollArea(viewContext) ?: return null
 
         val dx = if (resetScaleOnPageChanged) {
             calcDiffX
@@ -74,7 +68,7 @@ class VerticalPopulateHelper : PopulateHelper() {
         }
 
         return populateTo(
-            scrollArea,
+            layoutManagerSnapshot.currentPageLayout(viewContext),
             bottomRect,
             shouldPopulateVertical,
             dx, dy,

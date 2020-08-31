@@ -1,12 +1,12 @@
 package dev.keiji.mangaview.widget
 
-data class Operation(
+internal data class Animation(
     var translate: Translate? = null,
     var scale: Scale? = null,
     val durationMillis: Long,
     val startTimeMillis: Long = System.currentTimeMillis(),
     val priority: Int = 0,
-    val onOperationEnd: () -> Unit = {}
+    val onAnimationEnd: () -> Unit = {}
 ) {
     val elapsed: Long
         get() = System.currentTimeMillis() - startTimeMillis
