@@ -14,12 +14,12 @@ abstract class PopulateHelper {
 
     var pagingTouchSlop: Float = 0.0F
 
-    val tmpLeftScrollArea = Rectangle()
-    val tmpRightScrollArea = Rectangle()
-    val tmpTopScrollArea = Rectangle()
-    val tmpBottomScrollArea = Rectangle()
+    var duration: Long = 0
 
-    val calcDiffHorizontal = fun(rect: Rectangle): Float {
+    var resetScaleOnPageChanged = true
+
+    val calcDiffHorizontal = fun(pageLayout: PageLayout): Float {
+        val rect = pageLayout.getScaledScrollArea(viewContext)
         val diffLeft = rect.left - viewContext.viewport.left
         val diffRight = rect.right - viewContext.viewport.right
 
@@ -37,7 +37,8 @@ abstract class PopulateHelper {
         return dx
     }
 
-    val calcDiffVertical = fun(rect: Rectangle): Float {
+    val calcDiffVertical = fun(pageLayout: PageLayout): Float {
+        val rect = pageLayout.getScaledScrollArea(viewContext)
         val diffTop = rect.top - viewContext.viewport.top
         val diffBottom = rect.bottom - viewContext.viewport.bottom
 
@@ -55,28 +56,38 @@ abstract class PopulateHelper {
         return dy
     }
 
+    val calcDiffX = fun(pageLayout: PageLayout): Float {
+        return pageLayout.globalPosition.left - viewContext.viewport.left
+    }
+
+    val calcDiffY = fun(pageLayout: PageLayout): Float {
+        return pageLayout.globalPosition.top - viewContext.viewport.top
+    }
+
     val tmp = Rectangle()
 
     fun init(
         viewContext: ViewContext,
         layoutManager: LayoutManager,
         pagingTouchSlop: Float,
+        duration: Long,
+        resetScaleOnPageChanged: Boolean = false
     ): PopulateHelper {
         this.viewContext = viewContext
         this.layoutManager = layoutManager
         this.pagingTouchSlop = pagingTouchSlop
+        this.duration = duration
+        this.resetScaleOnPageChanged = resetScaleOnPageChanged
         return this
     }
 
-    abstract fun populate(): Operation.Translate?
-
     fun populateTo(
         fromArea: Rectangle?,
-        toArea: Rectangle?,
+        toArea: PageLayout?,
         shouldPopulate: (Rectangle?) -> Boolean,
-        dx: (Rectangle) -> Float,
-        dy: (Rectangle) -> Float
-    ): Operation.Translate? {
+        dx: (PageLayout) -> Float,
+        dy: (PageLayout) -> Float
+    ): Operation? {
         fromArea ?: return null
         toArea ?: return null
 
@@ -95,17 +106,35 @@ abstract class PopulateHelper {
             return null
         }
 
-        return Operation.Translate(
-            startX, startY,
-            dx, dy,
+        val destX = startX + dx
+        val destY = startY + dy
+
+        val operation = Operation(
+            translate = Operation.Translate(
+                startX, startY,
+                destX, destY,
+            ),
+            durationMillis = duration
         )
+
+        if (resetScaleOnPageChanged) {
+            operation.scale = Operation.Scale(
+                viewContext.currentScale,
+                viewContext.minScale,
+                null, null
+            )
+        }
+
+        return operation
     }
 
-    fun populateToCurrent(area: Rectangle): Operation.Translate? {
+    fun populateToCurrent(pageLayout: PageLayout?): Operation? {
+        pageLayout ?: return null
+
         val startX = viewContext.viewport.left
         val startY = viewContext.viewport.top
-        val dx = calcDiffHorizontal(area)
-        val dy = calcDiffVertical(area)
+        val dx = calcDiffHorizontal(pageLayout)
+        val dy = calcDiffVertical(pageLayout)
 
         if (dx == 0.0F && dy == 0.0F) {
             return null
@@ -114,25 +143,28 @@ abstract class PopulateHelper {
         val destX = startX + dx
         val destY = startY + dy
 
-        return Operation.Translate(
-            startX, startY,
-            destX, destY,
+        return Operation(
+            translate = Operation.Translate(
+                startX, startY,
+                destX, destY,
+            ),
+            durationMillis = duration
         )
     }
 
-    open fun populateToLeft(leftRect: PageLayout): Operation.Translate? {
+    open fun populateToLeft(leftRect: PageLayout): Operation? {
         return null
     }
 
-    open fun populateToRight(rightRect: PageLayout): Operation.Translate? {
+    open fun populateToRight(rightRect: PageLayout): Operation? {
         return null
     }
 
-    open fun populateToTop(topRect: PageLayout): Operation.Translate? {
+    open fun populateToTop(topRect: PageLayout): Operation? {
         return null
     }
 
-    open fun populateToBottom(bottomRect: PageLayout): Operation.Translate? {
+    open fun populateToBottom(bottomRect: PageLayout): Operation? {
         return null
     }
 }

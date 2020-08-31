@@ -5,6 +5,8 @@ import kotlin.math.max
 class DoubleTapZoomHelper : OnDoubleTapListener {
 
     companion object {
+        private val TAG = DoubleTapZoomHelper::class.java.simpleName
+
         private const val DOUBLE_TAP_ZOOM_MAX_SCALE = 4.0F
     }
 

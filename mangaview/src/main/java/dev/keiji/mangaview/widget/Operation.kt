@@ -3,8 +3,8 @@ package dev.keiji.mangaview.widget
 data class Operation(
     var translate: Translate? = null,
     var scale: Scale? = null,
-    val startTimeMillis: Long,
     val durationMillis: Long,
+    val startTimeMillis: Long = System.currentTimeMillis(),
     val priority: Int = 0,
     val onOperationEnd: () -> Unit = {}
 ) {

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import dev.keiji.mangaview.widget.Config
 import dev.keiji.mangaview.widget.DoublePageLayoutManager
 import dev.keiji.mangaview.widget.DoubleTapZoomHelper
 import dev.keiji.mangaview.widget.EdgeNavigationHelper
@@ -16,6 +17,7 @@ import dev.keiji.mangaview.widget.OnPageChangeListener
 import dev.keiji.mangaview.widget.OnReadCompleteListener
 import dev.keiji.mangaview.widget.PageLayout
 import dev.keiji.mangaview.widget.SinglePageLayoutManager
+import dev.keiji.mangaview.widget.VerticalLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -106,6 +108,9 @@ class MainActivity : AppCompatActivity() {
             }
 
         mangaView = findViewById<MangaView>(R.id.manga_view).also {
+            it.config = Config(
+                resetScaleOnPageChanged = true
+            )
             it.layoutManager = HorizontalRtlLayoutManager()
             it.pageLayoutManager = pageLayoutManager
             it.adapter = AssetBitmapAdapter(

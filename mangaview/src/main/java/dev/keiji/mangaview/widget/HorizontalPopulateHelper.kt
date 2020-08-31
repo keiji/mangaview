@@ -1,6 +1,5 @@
 package dev.keiji.mangaview.widget
 
-import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 
 class HorizontalPopulateHelper : PopulateHelper() {
@@ -14,72 +13,69 @@ class HorizontalPopulateHelper : PopulateHelper() {
         return diff > (pagingTouchSlop / viewContext.currentScale)
     }
 
-    private val calcDiffX = fun(rect: Rectangle): Float {
-        return rect.left
+    private val calcDiffXToLeft = fun(pageLayout: PageLayout): Float {
+        return pageLayout.getScaledScrollArea(viewContext).right - viewContext.viewport.right
     }
 
-    override fun populate(): Operation.Translate? {
-        Log.d(TAG, "populate!")
-
-        val layoutManagerSnapshot = layoutManager ?: return null
-
-        val currentPageLayout = layoutManagerSnapshot.currentPageLayout(viewContext)
-        val scrollArea = currentPageLayout
-            ?.getScaledScrollArea(viewContext) ?: return null
-
-        // detect over-scroll
-        if (scrollArea.contains(viewContext.viewport)) {
-            Log.d(TAG, "no over-scroll detected.")
-            return null
-        }
-
-        val toLeft = (viewContext.viewport.centerX < scrollArea.centerX)
-
-        val targetRect = if (toLeft) {
-            layoutManagerSnapshot.leftPageLayout(viewContext)
-        } else {
-            layoutManagerSnapshot.rightPageLayout(viewContext)
-        }
-
-        val populateOperation = populateTo(
-            scrollArea,
-            targetRect?.globalPosition,
-            shouldPopulateHorizontal,
-            calcDiffX, calcDiffVertical
-        )
-
-        return if (populateOperation == null) {
-            populateToCurrent(scrollArea)
-        } else {
-            null
-        }
+    private val calcDiffXToRight = fun(pageLayout: PageLayout): Float {
+        return pageLayout.getScaledScrollArea(viewContext).left - viewContext.viewport.left
     }
 
-    override fun populateToLeft(leftRect: PageLayout): Operation.Translate? {
+    private val calcDiffXToGlobalLeft = fun(pageLayout: PageLayout): Float {
+        return pageLayout.globalPosition.left - viewContext.viewport.left
+    }
+
+    private val calcDiffXToGlobalRight = fun(pageLayout: PageLayout): Float {
+        return pageLayout.globalPosition.left - viewContext.viewport.left
+    }
+
+    override fun populateToLeft(leftRect: PageLayout): Operation? {
         val layoutManagerSnapshot = layoutManager ?: return null
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
         val scrollArea = currentRect?.getScaledScrollArea(viewContext)
 
+        val dx = if (resetScaleOnPageChanged) {
+            calcDiffXToGlobalLeft
+        } else {
+            calcDiffXToLeft
+        }
+        val dy = if (resetScaleOnPageChanged) {
+            calcDiffY
+        } else {
+            calcDiffVertical
+        }
+
         return populateTo(
             scrollArea,
-            leftRect.globalPosition,
+            leftRect,
             shouldPopulateHorizontal,
-            calcDiffX, calcDiffVertical
+            dx, dy
         )
     }
 
-    override fun populateToRight(rightRect: PageLayout): Operation.Translate? {
+    override fun populateToRight(rightRect: PageLayout): Operation? {
         val layoutManagerSnapshot = layoutManager ?: return null
 
         val currentRect = layoutManagerSnapshot.currentPageLayout(viewContext)
         val scrollArea = currentRect?.getScaledScrollArea(viewContext)
 
+        val dx = if (resetScaleOnPageChanged) {
+            calcDiffXToGlobalRight
+        } else {
+            calcDiffXToRight
+        }
+        val dy = if (resetScaleOnPageChanged) {
+            calcDiffY
+        } else {
+            calcDiffVertical
+        }
+
         return populateTo(
             scrollArea,
-            rightRect.globalPosition,
+            rightRect,
             shouldPopulateHorizontal,
-            calcDiffX, calcDiffVertical
+            dx, dy
         )
     }
 }

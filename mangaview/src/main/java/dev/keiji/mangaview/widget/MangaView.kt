@@ -163,6 +163,8 @@ class MangaView(
             postInvalidate()
         }
 
+    var config = Config()
+
     internal val viewContext = ViewContext()
 
     private var isInitialized = false
@@ -315,16 +317,16 @@ class MangaView(
             return
         }
 
-        val scrollArea = pageLayout.globalPosition
+        val position = pageLayout.globalPosition
 
         if (!smoothScroll) {
             scale(
-                1.0F,
+                viewContext.minScale,
                 viewContext.viewport.centerY,
                 viewContext.viewport.centerY,
                 smoothScale = false
             )
-            viewContext.offsetTo(scrollArea.left, scrollArea.top)
+            viewContext.offsetTo(position.left, position.top)
             layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
 
             postInvalidate()
@@ -339,8 +341,8 @@ class MangaView(
         val translateOperation = Operation.Translate(
             currentLeft,
             currentTop,
-            scrollArea.left,
-            scrollArea.top
+            position.left,
+            position.top
         )
         operation = Operation(
             translate = translateOperation,
@@ -384,27 +386,24 @@ class MangaView(
 
     private fun populateToCurrent() {
         val layoutManagerSnapshot = layoutManager ?: return
-        val currentScrollableAreaSnapshot = currentScrollableArea ?: return
 
         val lastPageLayout = layoutManagerSnapshot.lastPageLayout(viewContext) ?: return
         if (currentPageLayout == lastPageLayout) {
             handleReadCompleteEvent()
         }
 
-        val translateOperation = layoutManagerSnapshot.populateHelper
+        val populateOperation = layoutManagerSnapshot.populateHelper
             .init(
                 viewContext,
                 layoutManagerSnapshot,
-                pagingTouchSlop
+                pagingTouchSlop,
+                SCROLLING_DURATION,
+                resetScaleOnPageChanged = config.resetScaleOnPageChanged
             )
-            .populateToCurrent(currentScrollableAreaSnapshot)
+            .populateToCurrent(currentPageLayout)
 
-        if (translateOperation != null) {
-            operation = Operation(
-                translate = translateOperation,
-                startTimeMillis = System.currentTimeMillis(),
-                durationMillis = SCALING_DURATION
-            )
+        if (populateOperation != null) {
+            operation = populateOperation
             scrollState = SCROLL_STATE_SETTLING
             startAnimation()
         }
@@ -670,55 +669,49 @@ class MangaView(
             .init(
                 viewContext,
                 layoutManagerSnapshot,
-                pagingTouchSlop
+                pagingTouchSlop,
+                SCROLLING_DURATION,
+                resetScaleOnPageChanged = config.resetScaleOnPageChanged
             )
 
         val horizontal = (abs(scaledVelocityX) > abs(scaledVelocityY))
 
-        val translateOperation = if (horizontal) {
-            val leftRect = layoutManagerSnapshot.leftPageLayout(viewContext, currentPageLayout)
-            val rightRect = layoutManagerSnapshot.rightPageLayout(viewContext, currentPageLayout)
+        operation = if (horizontal) {
+            val leftPageLayout =
+                layoutManagerSnapshot.leftPageLayout(viewContext, currentPageLayout)
+            val rightPageLayout =
+                layoutManagerSnapshot.rightPageLayout(viewContext, currentPageLayout)
 
-            if (scaledVelocityX > 0.0F && leftRect != null
+            if (scaledVelocityX > 0.0F && leftPageLayout != null
                 && !viewContext.canScrollLeft(currentScrollAreaSnapshot)
             ) {
-                populateHelper.populateToLeft(leftRect)
-            } else if (scaledVelocityX < 0.0F && rightRect != null
+                populateHelper.populateToLeft(leftPageLayout)
+            } else if (scaledVelocityX < 0.0F && rightPageLayout != null
                 && !viewContext.canScrollRight(currentScrollAreaSnapshot)
             ) {
-                populateHelper.populateToRight(rightRect)
+                populateHelper.populateToRight(rightPageLayout)
             } else {
                 null
             }
         } else {
-            val topRect = layoutManagerSnapshot.topPageLayout(viewContext, currentPageLayout)
-            val bottomRect = layoutManagerSnapshot.bottomPageLayout(viewContext, currentPageLayout)
+            val topPageLayout = layoutManagerSnapshot.topPageLayout(viewContext, currentPageLayout)
+            val bottomPageLayout =
+                layoutManagerSnapshot.bottomPageLayout(viewContext, currentPageLayout)
 
-            if (scaledVelocityY > 0.0F && topRect != null
+            if (scaledVelocityY > 0.0F && topPageLayout != null
                 && !viewContext.canScrollTop(currentScrollAreaSnapshot)
             ) {
-                populateHelper.populateToTop(topRect)
-            } else if (scaledVelocityY < 0.0F && bottomRect != null
+                populateHelper.populateToTop(topPageLayout)
+            } else if (scaledVelocityY < 0.0F && bottomPageLayout != null
                 && !viewContext.canScrollBottom(currentScrollAreaSnapshot)
             ) {
-                populateHelper.populateToBottom(bottomRect)
+                populateHelper.populateToBottom(bottomPageLayout)
             } else {
                 null
             }
         }
 
-        if (translateOperation != null) {
-            operation = Operation(
-                translate = translateOperation,
-                scale = Operation.Scale(
-                    viewContext.currentScale,
-                    viewContext.minScale,
-                    null,
-                    null
-                ),
-                startTimeMillis = System.currentTimeMillis(),
-                SCROLLING_DURATION
-            )
+        if (operation != null) {
             scrollState = SCROLL_STATE_SETTLING
             startAnimation()
             return true

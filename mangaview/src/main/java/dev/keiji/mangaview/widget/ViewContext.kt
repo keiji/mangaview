@@ -11,8 +11,11 @@ data class ViewContext(
     internal var currentX: Float = 0.0F,
     internal var currentY: Float = 0.0F,
     internal var currentScale: Float = 1.0F,
-    // Global Viewport
-    internal val viewport: Rectangle = Rectangle(0.0F, 0.0F, viewWidth, viewHeight)
+    internal var minScale: Float = 1.0F,
+    internal var maxScale: Float = 5.0F,
+
+    private var scrollPolicyHorizontal: Int = SCROLL_POLICY_UNLIMITED,
+    private var scrollPolicyVertical: Int = SCROLL_POLICY_UNLIMITED
 ) {
 
     companion object {
@@ -22,8 +25,8 @@ data class ViewContext(
         const val SCROLL_POLICY_STRICT_SCROLL_AREA = 1
     }
 
-    var minScale = 1.0F
-    var maxScale = 5.0F
+    // Global Viewport
+    internal val viewport: Rectangle = Rectangle(0.0F, 0.0F, viewWidth, viewHeight)
 
     @VisibleForTesting
     val viewportWidth: Float
@@ -42,9 +45,6 @@ data class ViewContext(
         viewport.right = viewWidth
         viewport.bottom = viewHeight
     }
-
-    private var scrollPolicyHorizontal = SCROLL_POLICY_UNLIMITED
-    private var scrollPolicyVertical = SCROLL_POLICY_UNLIMITED
 
     internal fun applyViewport(scrollableArea: Rectangle? = null) {
         viewport.set(
