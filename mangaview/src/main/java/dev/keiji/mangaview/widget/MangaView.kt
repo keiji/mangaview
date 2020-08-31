@@ -478,11 +478,16 @@ class MangaView(
             return
         }
 
+        // Scroller first
+        val needPostInvalidate = if (scroller.isFinished) {
+            operateAnimate(animation)
+        } else {
+            false
+        }
+
         if (!scroller.isFinished && scroller.computeScrollOffset()) {
             viewContext.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
         }
-
-        val needPostInvalidate = operateAnimate(animation)
 
         val needPostInvalidateScroll = !scroller.isFinished || needPostInvalidate
 
