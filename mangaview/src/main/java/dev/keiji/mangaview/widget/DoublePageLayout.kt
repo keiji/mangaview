@@ -18,13 +18,10 @@ class DoublePageLayout(
         get() = centerPage != null || (leftPage != null && rightPage != null)
 
     private var centerPage: Page? = null
-        private set
 
     private var leftPage: Page? = null
-        private set
 
     private var rightPage: Page? = null
-        private set
 
     override val keyPage: Page?
         get() {
@@ -40,25 +37,37 @@ class DoublePageLayout(
         }
 
     override fun add(page: Page) {
-        if (index == 0 && startOneSide) {
+        val centerPageSnapshot = centerPage
+        val leftPageSnapshot = leftPage
+        val rightPageSnapshot = rightPage
+
+        if (centerPageSnapshot == null && leftPageSnapshot == null && rightPageSnapshot == null) {
             setCenterPage(page, globalPosition.width)
+        } else if (centerPageSnapshot != null) {
+            centerPage = null
+            setLeftOrRightPage(centerPageSnapshot)
+            setLeftOrRightPage(page)
         } else {
-            val layoutWidth = globalPosition.width / 2
-
-            val value = page.index + if (isFlip) {
-                1
-            } else {
-                0
-            }
-
-            if (value % 2 == 0) {
-                setRightPage(page, layoutWidth)
-            } else {
-                setLeftPage(page, layoutWidth)
-            }
+            setLeftOrRightPage(page)
         }
 
         initScrollArea()
+    }
+
+    fun setLeftOrRightPage(page: Page) {
+        val layoutWidth = globalPosition.width / 2
+
+        val value = page.index + if (isFlip) {
+            1
+        } else {
+            0
+        }
+
+        if (value % 2 == 0) {
+            setRightPage(page, layoutWidth)
+        } else {
+            setLeftPage(page, layoutWidth)
+        }
     }
 
     override fun replace(targetPage: Page, newPage: Page?) {

@@ -1,6 +1,7 @@
 package dev.keiji.mangaview.widget
 
 import kotlin.math.floor
+import kotlin.math.min
 
 class DoublePageLayoutManager(
     private val isSpread: Boolean = true,
@@ -38,11 +39,7 @@ class DoublePageLayoutManager(
 
     override fun calcLastPageIndex(pageLayoutIndex: Int): Int {
         if (startOneSide) {
-            return when (pageLayoutIndex) {
-                0 -> 0
-                1 -> 2
-                else -> pageLayoutIndex * 2
-            }
+            return min(pageLayoutIndex * 2, pageAdapter.pageCount - 1)
         }
 
         return calcFirstPageIndex(pageLayoutIndex) + 1
