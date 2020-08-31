@@ -1,6 +1,6 @@
 package dev.keiji.mangaview.widget
 
-internal data class Animation(
+data class Animation(
     var translate: Translate? = null,
     var scale: Scale? = null,
     val durationMillis: Long,
