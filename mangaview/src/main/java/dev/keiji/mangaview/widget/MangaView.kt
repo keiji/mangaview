@@ -582,13 +582,6 @@ class MangaView(
     override fun onSingleTapUp(e: MotionEvent?): Boolean {
         e ?: return false
 
-        // mapping global point
-        val globalPosition = viewContext.projectToGlobalPosition(x, y, tmpEventPoint)
-
-        onTapListenerList.forEach {
-            handleOnTapListener(it, e.x, e.y, globalPosition)
-        }
-
         return true
     }
 
@@ -843,13 +836,6 @@ class MangaView(
     override fun onDoubleTap(e: MotionEvent?): Boolean {
         e ?: return false
 
-        // mapping global point
-        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
-
-        onDoubleTapListenerList.forEach {
-            handleOnDoubleTapListener(it, e.x, e.y, globalPosition)
-        }
-
         return true
     }
 
@@ -891,11 +877,28 @@ class MangaView(
 
     override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
         e ?: return false
+
+        if (e.action == MotionEvent.ACTION_UP) {
+            // mapping global point
+            val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
+
+            onDoubleTapListenerList.forEach {
+                handleOnDoubleTapListener(it, e.x, e.y, globalPosition)
+            }
+        }
+
         return true
     }
 
     override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
         e ?: return false
+
+        // mapping global point
+        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
+
+        onTapListenerList.forEach {
+            handleOnTapListener(it, e.x, e.y, globalPosition)
+        }
 
         return true
     }
