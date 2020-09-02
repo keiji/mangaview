@@ -28,8 +28,8 @@ class AssetBitmapImageSource(
 
     override fun getState(viewContext: ViewContext): State {
         return when {
-            bitmap != null -> State.Prepared
-            job != null -> State.Preparing
+            bitmap != null -> State.Loaded
+            job != null -> State.Loading
             else -> State.NA
         }
     }

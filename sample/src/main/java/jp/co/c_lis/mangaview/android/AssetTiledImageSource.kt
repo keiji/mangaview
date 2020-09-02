@@ -60,7 +60,7 @@ class AssetTiledImageSource(
     }
 
     override fun getState(viewContext: ViewContext): State {
-        return State.Prepared
+        return State.Loaded
     }
 
     override fun recycle() {

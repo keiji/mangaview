@@ -4,8 +4,8 @@ abstract class ImageSource {
 
     enum class State {
         NA,
-        Preparing,
-        Prepared,
+        Loading,
+        Loaded,
     }
 
     abstract val contentWidth: Float
