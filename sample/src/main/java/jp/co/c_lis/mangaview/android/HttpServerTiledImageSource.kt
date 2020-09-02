@@ -1,0 +1,100 @@
+package jp.co.c_lis.mangaview.android
+
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Log
+import dev.keiji.mangaview.widget.TiledImageSource
+import dev.keiji.mangaview.widget.TiledSource
+import dev.keiji.mangaview.widget.ViewContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.net.URI
+import java.net.URL
+
+class HttpServerTiledImageSource(
+    tiledSource: TiledSource,
+    private val urlList: List<String>,
+    private val tmpDir: File,
+    private val coroutineScope: CoroutineScope
+) : TiledImageSource(tiledSource) {
+
+    companion object {
+        private val TAG = HttpServerTiledImageSource::class.java.simpleName
+    }
+
+    @Volatile
+    private var jobMap = HashMap<TiledSource.Tile, Job>()
+
+    private val options = BitmapFactory.Options().also {
+        it.inPreferredConfig = Bitmap.Config.RGB_565
+    }
+
+    override fun load(tile: TiledSource.Tile): Bitmap? {
+        val tileBitmap = cacheBin[tile]
+        if (tileBitmap != null) {
+            return tileBitmap
+        }
+
+        if (jobMap.containsKey(tile)) {
+            return null
+        }
+
+        jobMap[tile] = coroutineScope.launch(Dispatchers.IO) {
+            val url = URL(urlList[tile.index])
+            val fileName = Uri.parse(urlList[tile.index]).lastPathSegment ?: return@launch
+            val tmpFilePath = File(tmpDir, fileName)
+
+            if (!tmpFilePath.exists()) {
+                FileOutputStream(tmpFilePath).use { outputStream ->
+                    val conn = url.openConnection().also {
+                        it.connect()
+                    }
+                    conn.getInputStream().use { inputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                    outputStream.flush()
+                }
+            }
+
+            val bitmap = FileInputStream(tmpFilePath).use {
+                BitmapFactory.decodeStream(it, null, options)
+            }
+
+            if (bitmap == null) {
+                Log.e(TAG, "Bitmap decoding error occurred.")
+                tmpFilePath.deleteOnExit()
+            }
+
+            synchronized(cacheBin) {
+                cacheBin[tile] = bitmap
+            }
+            jobMap.remove(tile)
+        }
+
+        return null
+    }
+
+    override fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
+        onImageSourceLoaded()
+        return true
+    }
+
+    override fun getState(viewContext: ViewContext): State {
+        return State.Prepared
+    }
+
+    override fun recycle() {
+        super.recycle()
+
+        jobMap.values.forEach { job ->
+            job.cancel()
+        }
+        jobMap.clear()
+    }
+}

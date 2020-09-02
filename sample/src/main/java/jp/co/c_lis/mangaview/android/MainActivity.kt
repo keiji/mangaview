@@ -39,9 +39,11 @@ private val FILE_NAMES = arrayOf(
 
 private val TILED_SOURCE = TiledSource.build(2149F, 3035F, 256.0F, 256.0F)
 
-private val TILED_FILE_DIRS = arrayOf(
-    "comic_001bj_2"
-)
+private const val URL_PREFIX = "https://raw.githubusercontent.com/keiji/mangaview/master/sample/images"
+
+private val TILED_IMAGE_URL_LIST = (0 until TILED_SOURCE.colCount * TILED_SOURCE.rowCount).map {
+    "$URL_PREFIX/comic_001bj_2/comic_001bj_2-%04d.jpg".format(it)
+}
 
 class MainActivity : AppCompatActivity() {
 
@@ -121,7 +123,8 @@ class MainActivity : AppCompatActivity() {
             it.pageLayoutManager = pageLayoutManager
             it.adapter = SampleBitmapAdapter(
                 assets, FILE_NAMES,
-                TILED_SOURCE, TILED_FILE_DIRS,
+                TILED_SOURCE, TILED_IMAGE_URL_LIST,
+                cacheDir,
                 coroutineScope,
                 PAGE_WIDTH, PAGE_HEIGHT
             )
