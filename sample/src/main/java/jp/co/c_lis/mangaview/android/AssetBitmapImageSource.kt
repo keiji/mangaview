@@ -28,8 +28,8 @@ class AssetBitmapImageSource(
 
     override fun getState(viewContext: ViewContext): State {
         return when {
-            bitmap != null -> State.Loaded
-            job != null -> State.Loading
+            bitmap != null -> State.Prepared
+            job != null -> State.Preparing
             else -> State.NA
         }
     }
@@ -40,7 +40,7 @@ class AssetBitmapImageSource(
 
     private var job: Job? = null
 
-    override fun load(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
+    override fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
         if (getState(viewContext) != State.NA) {
             return true
         }

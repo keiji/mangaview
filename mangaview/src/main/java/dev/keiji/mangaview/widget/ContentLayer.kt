@@ -50,7 +50,7 @@ abstract class ContentLayer(
 
     private var state = State.NA
 
-    private val onImageSourceLoaded = fun() {
+    private val imageSourcePrepareCallback = fun() {
         val pageSnapshot = page ?: return
 
         state = State.Initializing
@@ -101,7 +101,7 @@ abstract class ContentLayer(
         paint: Paint,
         onContentViewportChangeListener: (ContentLayer, RectF) -> Unit
     ): Boolean {
-        if (!imageSource.load(viewContext, onImageSourceLoaded)) {
+        if (!imageSource.prepare(viewContext, imageSourcePrepareCallback)) {
             state = State.Waiting
             return false
         }

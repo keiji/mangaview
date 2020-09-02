@@ -4,8 +4,8 @@ abstract class ImageSource {
 
     enum class State {
         NA,
-        Loading,
-        Loaded,
+        Preparing,
+        Prepared,
     }
 
     abstract val contentWidth: Float
@@ -13,7 +13,7 @@ abstract class ImageSource {
 
     abstract fun getState(viewContext: ViewContext): State
 
-    abstract fun load(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean
+    abstract fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean
 
     abstract fun recycle()
 }

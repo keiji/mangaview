@@ -29,10 +29,10 @@ class DummyImageSource(
         get() = cHeight
 
     override fun getState(viewContext: ViewContext): State {
-        return State.Loaded
+        return State.Prepared
     }
 
-    override fun load(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
+    override fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
         return true
     }
 

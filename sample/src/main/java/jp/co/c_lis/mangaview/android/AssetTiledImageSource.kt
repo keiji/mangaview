@@ -54,13 +54,13 @@ class AssetTiledImageSource(
         return null
     }
 
-    override fun load(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
+    override fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
         onImageSourceLoaded()
         return true
     }
 
     override fun getState(viewContext: ViewContext): State {
-        return State.Loaded
+        return State.Prepared
     }
 
     override fun recycle() {
