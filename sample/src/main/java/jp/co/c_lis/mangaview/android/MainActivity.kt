@@ -17,7 +17,7 @@ import dev.keiji.mangaview.widget.OnPageChangeListener
 import dev.keiji.mangaview.widget.OnReadCompleteListener
 import dev.keiji.mangaview.widget.PageLayout
 import dev.keiji.mangaview.widget.SinglePageLayoutManager
-import dev.keiji.mangaview.widget.VerticalLayoutManager
+import dev.keiji.mangaview.widget.TiledSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -35,6 +35,12 @@ private val FILE_NAMES = arrayOf(
     "comic_001bj_11.jpg",
     "comic_001bj_12.jpg",
     "comic_001bj_1.jpg",
+)
+
+private val TILED_SOURCE = TiledSource.build(2149F, 3035F, 256.0F, 256.0F)
+
+private val TILED_FILE_DIRS = arrayOf(
+    "comic_001bj_2"
 )
 
 class MainActivity : AppCompatActivity() {
@@ -113,8 +119,10 @@ class MainActivity : AppCompatActivity() {
             )
             it.layoutManager = HorizontalRtlLayoutManager()
             it.pageLayoutManager = pageLayoutManager
-            it.adapter = AssetBitmapAdapter(
-                assets, FILE_NAMES, coroutineScope,
+            it.adapter = SampleBitmapAdapter(
+                assets, FILE_NAMES,
+                TILED_SOURCE, TILED_FILE_DIRS,
+                coroutineScope,
                 PAGE_WIDTH, PAGE_HEIGHT
             )
             it.addOnPageChangeListener(onPageChangeListener)
