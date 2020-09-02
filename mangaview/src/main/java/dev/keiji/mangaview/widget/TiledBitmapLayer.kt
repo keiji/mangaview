@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import dev.keiji.mangaview.BuildConfig
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlin.jvm.Throws
@@ -184,7 +185,10 @@ abstract class TiledBitmapLayer(
             )
 
             canvas?.drawBitmap(tiledBitmap, srcRect, dstRect, paint)
-            canvas?.drawRect(dstRect, paint)
+
+            if (BuildConfig.DEBUG) {
+                canvas?.drawRect(dstRect, paint)
+            }
         }
 
         return allTilesShown
