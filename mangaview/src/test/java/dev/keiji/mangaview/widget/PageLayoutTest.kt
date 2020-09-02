@@ -112,7 +112,6 @@ class PageLayoutTest {
                 )
 
                 page.layers[0].also { layer ->
-                    assertTrue(layer.isContentPrepared)
                     assertEquals(1.2572759F, layer.baseScale, FLOAT_DELTA)
                     assertEquals(0.0F, layer.paddingLeft, FLOAT_DELTA)
                     assertEquals(0.0F, layer.paddingTop, FLOAT_DELTA)
@@ -184,7 +183,6 @@ class PageLayoutTest {
                 )
 
                 page.layers[0].also { layer ->
-                    assertTrue(layer.isContentPrepared)
                     assertEquals(1.2572759F, layer.baseScale, FLOAT_DELTA)
                     assertEquals(0.0F, layer.paddingLeft, FLOAT_DELTA)
                     assertEquals(0.0F, layer.paddingTop, FLOAT_DELTA)

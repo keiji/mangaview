@@ -33,6 +33,7 @@ class DummyImageSource(
     }
 
     override fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
+        onImageSourceLoaded()
         return true
     }
 
