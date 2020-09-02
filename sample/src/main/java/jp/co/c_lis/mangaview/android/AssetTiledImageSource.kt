@@ -45,9 +45,7 @@ class AssetTiledImageSource(
             val bitmap = assetManager.open(filePath).use {
                 BitmapFactory.decodeStream(it, null, options)
             }
-            synchronized(cacheBin) {
-                cacheBin[tile] = bitmap
-            }
+            cacheBin[tile] = bitmap
             jobMap.remove(tile)
         }
 

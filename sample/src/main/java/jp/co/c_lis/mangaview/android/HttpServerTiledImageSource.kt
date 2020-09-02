@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.net.URI
 import java.net.URL
+import java.util.concurrent.ConcurrentHashMap
 
 class HttpServerTiledImageSource(
     tiledSource: TiledSource,
@@ -29,7 +29,7 @@ class HttpServerTiledImageSource(
     }
 
     @Volatile
-    private var jobMap = HashMap<TiledSource.Tile, Job>()
+    private var jobMap = ConcurrentHashMap<TiledSource.Tile, Job>()
 
     private val options = BitmapFactory.Options().also {
         it.inPreferredConfig = Bitmap.Config.RGB_565
@@ -37,7 +37,7 @@ class HttpServerTiledImageSource(
 
     override fun load(tile: TiledSource.Tile): Bitmap? {
         val tileBitmap = cacheBin[tile]
-        if (tileBitmap != null) {
+        if (tileBitmap != null && !tileBitmap.isRecycled) {
             return tileBitmap
         }
 
@@ -71,9 +71,7 @@ class HttpServerTiledImageSource(
                 tmpFilePath.deleteOnExit()
             }
 
-            synchronized(cacheBin) {
-                cacheBin[tile] = bitmap
-            }
+            cacheBin[tile] = bitmap
             jobMap.remove(tile)
         }
 
@@ -87,6 +85,13 @@ class HttpServerTiledImageSource(
 
     override fun getState(viewContext: ViewContext): State {
         return State.Prepared
+    }
+
+    override fun recycle(tile: TiledSource.Tile) {
+        jobMap[tile]?.cancel()
+        jobMap.remove(tile)
+
+        super.recycle(tile)
     }
 
     override fun recycle() {

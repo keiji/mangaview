@@ -1,6 +1,7 @@
 package dev.keiji.mangaview.widget
 
 import android.graphics.Bitmap
+import java.util.concurrent.ConcurrentHashMap
 
 abstract class TiledImageSource(
     private val tiledSource: TiledSource,
@@ -12,7 +13,7 @@ abstract class TiledImageSource(
     val cachedTiles: Set<TiledSource.Tile>
         get() = cacheBin.keys
 
-    val cacheBin = HashMap<TiledSource.Tile, Bitmap?>()
+    val cacheBin = ConcurrentHashMap<TiledSource.Tile, Bitmap?>()
 
     override val contentWidth: Float
         get() = tiledSource.sourceWidth
@@ -21,15 +22,13 @@ abstract class TiledImageSource(
         get() = tiledSource.sourceHeight
 
     override fun recycle() {
-        synchronized(cacheBin) {
-            cacheBin.keys.forEach { tile ->
-                cacheBin[tile]?.recycle()
-            }
-            cacheBin.clear()
+        cacheBin.keys.forEach { tile ->
+            recycle(tile)
         }
+        cacheBin.clear()
     }
 
-    fun recycle(tile: TiledSource.Tile) {
+    open fun recycle(tile: TiledSource.Tile) {
         cacheBin[tile]?.recycle()
         cacheBin.remove(tile)
     }
