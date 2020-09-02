@@ -1,12 +1,10 @@
 package dev.keiji.mangaview.widget
 
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import dev.keiji.mangaview.BuildConfig
-import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlin.jvm.Throws
 import kotlin.math.ceil
@@ -79,10 +77,10 @@ data class TiledSource(
     )
 }
 
-abstract class TiledBitmapLayer(
-    private val tiledSource: TiledSource,
+class TiledBitmapLayer(
+    private val tiledImageSource: TiledImageSource,
     private val scaleThreshold: Float = DEFAULT_SCALE_SHOW_TILE_THRESHOLD,
-) : ContentLayer() {
+) : ContentLayer(tiledImageSource) {
 
     companion object {
         private val TAG = TiledBitmapLayer::class.java.simpleName
@@ -90,27 +88,10 @@ abstract class TiledBitmapLayer(
         private const val DEFAULT_SCALE_SHOW_TILE_THRESHOLD = 3.0F
     }
 
-    override val contentWidth: Float
-        get() = tiledSource.sourceWidth
-
-    override val contentHeight: Float
-        get() = tiledSource.sourceHeight
-
-    override fun onContentPrepared(viewContext: ViewContext, page: Page): Boolean {
-        return true
-    }
-
-    override val isContentPrepared: Boolean
-        get() = true
-
     private val tmpTilePosition = Rectangle()
 
     private val displayTileList = ArrayList<TiledSource.Tile>()
     private val recycleBin = ArrayList<TiledSource.Tile>()
-
-    val cacheBin = HashMap<TiledSource.Tile, Bitmap?>()
-
-    abstract fun onContentPrepared(tile: TiledSource.Tile): Boolean
 
     override fun onDraw(
         canvas: Canvas?,
@@ -121,13 +102,11 @@ abstract class TiledBitmapLayer(
     ): Boolean {
         val pageSnapshot = page ?: return false
 
-        synchronized(cacheBin) {
-            recycleBin.addAll(cacheBin.keys)
-        }
+        recycleBin.addAll(tiledImageSource.cachedTiles)
 
         displayTileList.clear()
 
-        tiledSource.tileList.forEach { tile ->
+        tiledImageSource.tileList.forEach { tile ->
             if (tile.position.intersect(contentSrc)) {
                 recycleBin.remove(tile)
                 displayTileList.add(tile)
@@ -141,26 +120,23 @@ abstract class TiledBitmapLayer(
         }
 
         recycleBin.forEach {
-            synchronized(cacheBin) {
-                cacheBin[it]?.recycle()
-                cacheBin.remove(it)
-            }
+            tiledImageSource.recycle(it)
         }
         recycleBin.clear()
 
         return allTilesShown
     }
 
-    private fun drawTiles(canvas: Canvas?, pageSnapshot: Page, paint: Paint): Boolean {
+    private fun drawTiles(
+        canvas: Canvas?,
+        pageSnapshot: Page,
+        paint: Paint
+    ): Boolean {
         var allTilesShown = true
 
         displayTileList.forEach { tile ->
-            val tiledBitmap = synchronized(cacheBin) {
-                cacheBin[tile]
-            }
-
+            val tiledBitmap = tiledImageSource.load(tile)
             if (tiledBitmap == null) {
-                onContentPrepared(tile)
                 allTilesShown = false
                 return@forEach
             }
@@ -211,12 +187,7 @@ abstract class TiledBitmapLayer(
     }
 
     override fun onRecycled() {
-        synchronized(cacheBin) {
-            cacheBin.keys.forEach { tile ->
-                cacheBin[tile]?.recycle()
-            }
-            cacheBin.clear()
-        }
+        tiledImageSource.recycle()
 
         super.onRecycled()
     }

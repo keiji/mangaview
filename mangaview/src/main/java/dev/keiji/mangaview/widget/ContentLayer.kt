@@ -8,24 +8,22 @@ import androidx.annotation.VisibleForTesting
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.min
 
-enum class ContentState {
-    NotReady,
-    Preparing,
-    Ready,
-    Initializing,
-    Initialized,
-}
-
-abstract class ContentLayer {
+abstract class ContentLayer(
+    private val imageSource: ImageSource
+) {
 
     companion object {
         private val TAG = ContentLayer::class.java.simpleName
     }
 
-    var page: Page? = null
+    enum class State {
+        NA,
+        Waiting,
+        Initializing,
+        Initialized,
+    }
 
-    abstract val contentWidth: Float
-    abstract val contentHeight: Float
+    var page: Page? = null
 
     internal var baseScale: Float = 1.0F
 
@@ -44,34 +42,36 @@ abstract class ContentLayer {
 
     private val prevContentViewport = RectF()
 
-    abstract fun onContentPrepared(viewContext: ViewContext, page: Page): Boolean
+    @VisibleForTesting
+    val srcRect = Rect()
 
-    open val isContentPrepared
-        get() = false
+    @VisibleForTesting
+    val dstRect = RectF()
 
-    @Volatile
-    private var state = ContentState.NotReady
+    private var state = State.NA
 
-    private fun init(page: Page) {
-        state = ContentState.Initializing
+    private val onImageSourceLoaded = fun() {
+        val pageSnapshot = page ?: return
+
+        state = State.Initializing
 
         baseScale = min(
-            page.globalRect.width / contentWidth,
-            page.globalRect.height / contentHeight
+            pageSnapshot.globalRect.width / imageSource.contentWidth,
+            pageSnapshot.globalRect.height / imageSource.contentHeight
         )
 
-        val scaledContentWidth = contentWidth * baseScale
-        val scaledContentHeight = contentHeight * baseScale
+        val scaledContentWidth = imageSource.contentWidth * baseScale
+        val scaledContentHeight = imageSource.contentHeight * baseScale
 
-        val paddingHorizontal = (page.globalRect.width - scaledContentWidth)
-        val paddingVertical = (page.globalRect.height - scaledContentHeight)
+        val paddingHorizontal = (pageSnapshot.globalRect.width - scaledContentWidth)
+        val paddingVertical = (pageSnapshot.globalRect.height - scaledContentHeight)
 
-        paddingLeft = when (page.horizontalAlign) {
+        paddingLeft = when (pageSnapshot.horizontalAlign) {
             PageHorizontalAlign.Center -> paddingHorizontal / 2
             PageHorizontalAlign.Left -> 0.0F
             PageHorizontalAlign.Right -> paddingHorizontal
         }
-        paddingTop = when (page.verticalAlign) {
+        paddingTop = when (pageSnapshot.verticalAlign) {
             PageVerticalAlign.Middle -> paddingVertical / 2
             PageVerticalAlign.Top -> 0.0F
             PageVerticalAlign.Bottom -> paddingVertical
@@ -79,7 +79,7 @@ abstract class ContentLayer {
         paddingRight = paddingHorizontal - paddingLeft
         paddingBottom = paddingVertical - paddingTop
 
-        globalRect.copyFrom(page.globalRect).also {
+        globalRect.copyFrom(pageSnapshot.globalRect).also {
             it.left += paddingLeft
             it.top += paddingTop
             it.right -= paddingRight
@@ -91,14 +91,8 @@ abstract class ContentLayer {
         paddingRight /= baseScale
         paddingBottom /= baseScale
 
-        state = ContentState.Initialized
+        state = State.Initialized
     }
-
-    @VisibleForTesting
-    val srcRect = Rect()
-
-    @VisibleForTesting
-    val dstRect = RectF()
 
     fun draw(
         canvas: Canvas?,
@@ -107,17 +101,14 @@ abstract class ContentLayer {
         paint: Paint,
         onContentViewportChangeListener: (ContentLayer, RectF) -> Unit
     ): Boolean {
-        if (state == ContentState.NotReady || state == ContentState.Preparing) {
-            state = ContentState.Preparing
-
-            if (!isContentPrepared && !onContentPrepared(viewContext, page)) {
-                return false
-            }
-
-            state = ContentState.Ready
+        if (!imageSource.load(viewContext, onImageSourceLoaded)) {
+            state = State.Waiting
+            return false
         }
 
-        init(page)
+        if (state != State.Initialized) {
+            return false
+        }
 
         contentSrc
             .copyFrom(page.contentSrc)
@@ -176,7 +167,7 @@ abstract class ContentLayer {
         }
 
         val localPoint = convertToLocal()
-        if (localPoint.right > contentWidth || localPoint.bottom > contentHeight) {
+        if (localPoint.right > imageSource.contentWidth || localPoint.bottom > imageSource.contentHeight) {
             return false
         }
 
@@ -195,7 +186,7 @@ abstract class ContentLayer {
         }
 
         val localPoint = convertToLocal()
-        if (localPoint.right > contentWidth || localPoint.bottom > contentHeight) {
+        if (localPoint.right > imageSource.contentWidth || localPoint.bottom > imageSource.contentHeight) {
             return false
         }
 
@@ -215,7 +206,7 @@ abstract class ContentLayer {
     fun recycle() {
         onRecycled()
 
-        state = ContentState.NotReady
+        state = State.NA
     }
 
     open fun onRecycled() {

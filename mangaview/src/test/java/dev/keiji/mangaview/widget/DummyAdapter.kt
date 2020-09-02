@@ -14,24 +14,36 @@ class DummyAdapter(private val pageWidth: Int, private val pageHeight: Int) : Pa
     override fun getPageHeight(index: Int) = pageHeight
 
     override fun onConstructPage(index: Int, page: Page) {
-        page.addLayer(DummyLayer(pageWidth.toFloat(), pageHeight.toFloat()))
+        page.addLayer(DummyLayer(DummyImageSource(pageWidth.toFloat(), pageHeight.toFloat())))
     }
 }
 
-class DummyLayer(
+class DummyImageSource(
     private val cWidth: Float,
     private val cHeight: Float
-) : ContentLayer() {
+) : ImageSource() {
 
     override val contentWidth: Float
         get() = cWidth
     override val contentHeight: Float
         get() = cHeight
 
-    private var isContentLoaded = false
+    override fun getState(viewContext: ViewContext): State {
+        return State.Prepared
+    }
 
-    override val isContentPrepared: Boolean
-        get() = isContentLoaded
+    override fun load(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
+        return true
+    }
+
+    override fun recycle() {
+    }
+
+}
+
+class DummyLayer(
+    dummyImageSource: DummyImageSource
+) : ContentLayer(dummyImageSource) {
 
     override fun onDraw(
         canvas: Canvas?,
@@ -40,9 +52,4 @@ class DummyLayer(
         viewContext: ViewContext,
         paint: Paint
     ): Boolean = true
-
-    override fun onContentPrepared(viewContext: ViewContext, page: Page): Boolean {
-        isContentLoaded = true
-        return true
-    }
 }

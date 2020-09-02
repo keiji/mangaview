@@ -3,36 +3,40 @@ package jp.co.c_lis.mangaview.android
 import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ColorSpace
-import android.util.Log
-import dev.keiji.mangaview.widget.TiledBitmapLayer
+import dev.keiji.mangaview.widget.TiledImageSource
 import dev.keiji.mangaview.widget.TiledSource
+import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class AssetTiledBitmapLayer(
+class AssetTiledImageSource(
     tiledSource: TiledSource,
-    private val assetManager: AssetManager,
     private val tiledFileDir: String,
-    private val coroutineScope: CoroutineScope,
-) : TiledBitmapLayer(tiledSource) {
+    private val assetManager: AssetManager,
+    private val coroutineScope: CoroutineScope
+) : TiledImageSource(tiledSource) {
+
+    companion object {
+        private val TAG = AssetTiledImageSource::class.java.simpleName
+    }
 
     @Volatile
     private var jobMap = HashMap<TiledSource.Tile, Job>()
-
-    companion object {
-        private val TAG = AssetTiledBitmapLayer::class.java.simpleName
-    }
 
     private val options = BitmapFactory.Options().also {
         it.inPreferredConfig = Bitmap.Config.RGB_565
     }
 
-    override fun onContentPrepared(tile: TiledSource.Tile): Boolean {
+    override fun load(tile: TiledSource.Tile): Bitmap? {
+        val tileBitmap = cacheBin[tile]
+        if (tileBitmap != null) {
+            return tileBitmap
+        }
+
         if (jobMap.containsKey(tile)) {
-            return false
+            return null
         }
 
         jobMap[tile] = coroutineScope.launch(Dispatchers.IO) {
@@ -47,17 +51,24 @@ class AssetTiledBitmapLayer(
             jobMap.remove(tile)
         }
 
-        return false
+        return null
     }
 
-    override fun onRecycled() {
-        synchronized(jobMap) {
-            jobMap.values.forEach { job ->
-                job.cancel()
-            }
-            jobMap.clear()
-        }
+    override fun load(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
+        onImageSourceLoaded()
+        return true
+    }
 
-        super.onRecycled()
+    override fun getState(viewContext: ViewContext): State {
+        return State.Prepared
+    }
+
+    override fun recycle() {
+        super.recycle()
+
+        jobMap.values.forEach { job ->
+            job.cancel()
+        }
+        jobMap.clear()
     }
 }

@@ -1,8 +1,10 @@
 package jp.co.c_lis.mangaview.android
 
 import android.content.res.AssetManager
+import dev.keiji.mangaview.widget.BitmapLayer
 import dev.keiji.mangaview.widget.Page
 import dev.keiji.mangaview.widget.PageAdapter
+import dev.keiji.mangaview.widget.TiledBitmapLayer
 import dev.keiji.mangaview.widget.TiledSource
 import kotlinx.coroutines.CoroutineScope
 
@@ -31,15 +33,16 @@ class SampleBitmapAdapter(
         }
 
         val fileName = fileNames[index]
-        page.addLayer(AssetBitmapLayer(assetManager, fileName, coroutineScope))
+        page.addLayer(BitmapLayer(AssetBitmapImageSource(assetManager, fileName, coroutineScope)))
 
         if (index == 0) {
-            page.addLayer(
-                AssetTiledBitmapLayer(
-                    tiledSource,
-                    assetManager, tiledFileDirs[index], coroutineScope
-                )
+            val tiledImageSource = AssetTiledImageSource(
+                tiledSource,
+                tiledFileDirs[index],
+                assetManager,
+                coroutineScope
             )
+            page.addLayer(TiledBitmapLayer(tiledImageSource))
         }
 
     }
