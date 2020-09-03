@@ -3,8 +3,8 @@ package jp.co.c_lis.mangaview.android
 import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import dev.keiji.mangaview.TiledSource
 import dev.keiji.mangaview.widget.TiledImageSource
-import dev.keiji.mangaview.widget.TiledSource
 import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

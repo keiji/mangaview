@@ -6,80 +6,15 @@ import android.graphics.Rect
 import android.graphics.RectF
 import dev.keiji.mangaview.BuildConfig
 import dev.keiji.mangaview.Rectangle
-import kotlin.jvm.Throws
-import kotlin.math.ceil
+import dev.keiji.mangaview.TiledSource
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
-
-data class TiledSource(
-    val sourceWidth: Float,
-    val sourceHeight: Float,
-    var colCount: Int,
-    var rowCount: Int,
-    val tileList: ArrayList<Tile> = ArrayList()
-) {
-    companion object {
-        private val TAG = TiledSource::class.java.simpleName
-
-        @Throws(IllegalArgumentException::class)
-        fun build(
-            sourceWidth: Float, sourceHeight: Float,
-            tileWidth: Float, tileHeight: Float,
-            strideHorizontal: Float = tileWidth, strideVertical: Float = tileHeight
-        ): TiledSource {
-            if (sourceWidth < tileWidth) {
-                throw IllegalArgumentException("tileWidth must not be greater than sourceWidth.")
-            }
-            if (sourceHeight < tileHeight) {
-                throw IllegalArgumentException("tileHeight must not be greater than sourceHeight.")
-            }
-            if (strideHorizontal > tileWidth) {
-                throw IllegalArgumentException("strideHorizontal must not be greater than tileWidth.")
-            }
-            if (strideVertical > tileHeight) {
-                throw IllegalArgumentException("strideVertical must not be greater than tileHeight.")
-            }
-
-            val tiledSource = TiledSource(
-                sourceWidth,
-                sourceHeight,
-                colCount = ceil(sourceWidth / strideHorizontal).roundToInt(),
-                rowCount = ceil(sourceHeight / strideVertical).roundToInt()
-            )
-
-            var index = 0
-
-            for (y in 0 until tiledSource.rowCount) {
-                for (x in 0 until tiledSource.colCount) {
-                    val left = x * strideHorizontal
-                    var right = left + tileWidth
-                    val top = y * strideVertical
-                    var bottom = top + tileHeight
-
-                    right = min(right, sourceWidth)
-                    bottom = min(bottom, sourceHeight)
-
-                    tiledSource.tileList.add(
-                        Tile(index, position = Rectangle(left, top, right, bottom))
-                    )
-
-                    index++
-                }
-            }
-
-            return tiledSource
-        }
-    }
-
-    data class Tile(
-        val index: Int,
-        val position: Rectangle = Rectangle()
-    )
-}
 
 class TiledBitmapLayer(
     private val tiledImageSource: TiledImageSource,
     private val scaleThreshold: Float = DEFAULT_SCALE_SHOW_TILE_THRESHOLD,
+    private val offscreenTileLimit: Int = 0
 ) : ContentLayer(tiledImageSource) {
 
     companion object {
@@ -104,32 +39,115 @@ class TiledBitmapLayer(
 
         recycleBin.addAll(tiledImageSource.cachedTiles)
 
-        displayTileList.clear()
-
-        tiledImageSource.tileList.forEach { tile ->
-            if (tile.position.intersect(contentSrc)) {
-                recycleBin.remove(tile)
-                displayTileList.add(tile)
-            }
-        }
-
         val allTilesShown = if (viewContext.currentScale >= scaleThreshold) {
-            drawTiles(canvas, pageSnapshot, paint)
+            searchVisibleTiles(
+                tiledImageSource.tiledSource,
+                tiledImageSource.tileList,
+                contentSrc,
+                displayTileList,
+                offscreenTileLimit = offscreenTileLimit
+            )
+            drawTiles(canvas, pageSnapshot.displayProjection, displayTileList, paint)
         } else {
             true
         }
 
         recycleBin.forEach {
-            tiledImageSource.recycle(it)
+            if (!displayTileList.contains(it)) {
+                tiledImageSource.recycle(it)
+            }
         }
         recycleBin.clear()
 
         return allTilesShown
     }
 
+    private fun searchVisibleTiles(
+        tiledSource: TiledSource,
+        tileList: ArrayList<TiledSource.Tile>,
+        contentSrc: Rectangle,
+        displayTileList: ArrayList<TiledSource.Tile>,
+        offscreenTileLimit: Int
+    ) {
+        displayTileList.clear()
+
+        val centerX = (contentSrc.centerX / tiledSource.strideHorizontal).roundToInt()
+        val centerY = (contentSrc.centerY / tiledSource.strideVertical).roundToInt()
+
+        var leftX = centerX
+        var rightX = centerX
+        var topY = centerY
+        var bottomY = centerY
+
+        // search visible area to left
+        for (x in (1..centerX)) {
+            val baseX = centerX - x
+            val index = centerY * tiledSource.colCount + baseX
+
+            if (tileList[index].position.intersect(contentSrc)) {
+                leftX = baseX
+            } else {
+                break
+            }
+        }
+
+        // search visible area to right
+        for (x in (centerX + 1 until tiledSource.colCount)) {
+            val index = centerY * tiledSource.colCount + x
+
+            if (tileList[index].position.intersect(contentSrc)) {
+                rightX = x
+            } else {
+                break
+            }
+        }
+
+        // search visible area to top
+        for (y in (1..centerY)) {
+            val baseY = centerY - y
+            val index = baseY * tiledSource.colCount + centerX
+
+            if (tileList[index].position.intersect(contentSrc)) {
+                topY = baseY
+            } else {
+                break
+            }
+        }
+
+        // search visible area to bottom
+        for (y in (centerY + 1 until tiledSource.rowCount)) {
+            val index = y * tiledSource.colCount + centerX
+
+            if (tileList[index].position.intersect(contentSrc)) {
+                bottomY = y
+            } else {
+                break
+            }
+        }
+
+        // add visible area
+        leftX -= offscreenTileLimit
+        rightX += offscreenTileLimit
+        topY -= offscreenTileLimit
+        bottomY += offscreenTileLimit
+
+        leftX = max(leftX, 0)
+        rightX = min(rightX, tiledSource.colCount - 1)
+        topY = max(topY, 0)
+        bottomY = min(bottomY, tiledSource.rowCount - 1)
+
+        for (y in (topY..bottomY)) {
+            for (x in (leftX..rightX)) {
+                val index = y * tiledSource.colCount + x
+                displayTileList.add(tileList[index])
+            }
+        }
+    }
+
     private fun drawTiles(
         canvas: Canvas?,
-        pageSnapshot: Page,
+        displayProjection: Rectangle,
+        displayTileList: ArrayList<TiledSource.Tile>,
         paint: Paint
     ): Boolean {
         var allTilesShown = true
@@ -148,7 +166,7 @@ class TiledBitmapLayer(
             project(
                 tmpTilePosition,
                 contentSrc,
-                pageSnapshot.displayProjection,
+                displayProjection,
                 tmpTilePosition
             )
             tmpTilePosition.copyTo(dstRect)

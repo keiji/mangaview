@@ -1,6 +1,5 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview
 
-import dev.keiji.mangaview.Rectangle
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith

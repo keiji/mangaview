@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import dev.keiji.mangaview.TiledSource
 import dev.keiji.mangaview.widget.Config
 import dev.keiji.mangaview.widget.DoublePageLayoutManager
 import dev.keiji.mangaview.widget.DoubleTapZoomHelper
@@ -17,7 +18,6 @@ import dev.keiji.mangaview.widget.OnPageChangeListener
 import dev.keiji.mangaview.widget.OnReadCompleteListener
 import dev.keiji.mangaview.widget.PageLayout
 import dev.keiji.mangaview.widget.SinglePageLayoutManager
-import dev.keiji.mangaview.widget.TiledSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
