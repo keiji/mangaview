@@ -14,14 +14,14 @@ class DummyAdapter(private val pageWidth: Int, private val pageHeight: Int) : Pa
     override fun getPageHeight(index: Int) = pageHeight
 
     override fun onConstructPage(index: Int, page: Page) {
-        page.addLayer(DummyLayer(DummyImageSource(pageWidth.toFloat(), pageHeight.toFloat())))
+        page.addLayer(DummyLayer(DummyContentSource(pageWidth.toFloat(), pageHeight.toFloat())))
     }
 }
 
-class DummyImageSource(
+class DummyContentSource(
     private val cWidth: Float,
     private val cHeight: Float
-) : ImageSource() {
+) : ContentSource() {
 
     override val contentWidth: Float
         get() = cWidth
@@ -43,7 +43,7 @@ class DummyImageSource(
 }
 
 class DummyLayer(
-    dummyImageSource: DummyImageSource
+    dummyImageSource: DummyContentSource
 ) : ContentLayer(dummyImageSource) {
 
     override fun onDraw(

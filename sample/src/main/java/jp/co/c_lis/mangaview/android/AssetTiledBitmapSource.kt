@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class AssetTiledImageSource(
+class AssetTiledBitmapSource(
     tiledSource: TiledSource,
     private val tiledFileDir: String,
     private val assetManager: AssetManager,
@@ -19,7 +19,7 @@ class AssetTiledImageSource(
 ) : TiledImageSource(tiledSource) {
 
     companion object {
-        private val TAG = AssetTiledImageSource::class.java.simpleName
+        private val TAG = AssetTiledBitmapSource::class.java.simpleName
     }
 
     @Volatile

@@ -9,7 +9,7 @@ import dev.keiji.mangaview.Rectangle
 import kotlin.math.min
 
 abstract class ContentLayer(
-    private val imageSource: ImageSource
+    private val contentSource: ContentSource
 ) {
 
     companion object {
@@ -50,18 +50,18 @@ abstract class ContentLayer(
 
     private var state = State.NA
 
-    private val imageSourcePrepareCallback = fun() {
+    private val contentSourcePrepareCallback = fun() {
         val pageSnapshot = page ?: return
 
         state = State.Initializing
 
         baseScale = min(
-            pageSnapshot.globalRect.width / imageSource.contentWidth,
-            pageSnapshot.globalRect.height / imageSource.contentHeight
+            pageSnapshot.globalRect.width / contentSource.contentWidth,
+            pageSnapshot.globalRect.height / contentSource.contentHeight
         )
 
-        val scaledContentWidth = imageSource.contentWidth * baseScale
-        val scaledContentHeight = imageSource.contentHeight * baseScale
+        val scaledContentWidth = contentSource.contentWidth * baseScale
+        val scaledContentHeight = contentSource.contentHeight * baseScale
 
         val paddingHorizontal = (pageSnapshot.globalRect.width - scaledContentWidth)
         val paddingVertical = (pageSnapshot.globalRect.height - scaledContentHeight)
@@ -101,7 +101,7 @@ abstract class ContentLayer(
         paint: Paint,
         onContentViewportChangeListener: (ContentLayer, RectF) -> Unit
     ): Boolean {
-        if (!imageSource.prepare(viewContext, imageSourcePrepareCallback)) {
+        if (!contentSource.prepare(viewContext, contentSourcePrepareCallback)) {
             state = State.Waiting
             return false
         }
@@ -167,7 +167,7 @@ abstract class ContentLayer(
         }
 
         val localPoint = convertToLocal()
-        if (localPoint.right > imageSource.contentWidth || localPoint.bottom > imageSource.contentHeight) {
+        if (localPoint.right > contentSource.contentWidth || localPoint.bottom > contentSource.contentHeight) {
             return false
         }
 
@@ -186,7 +186,7 @@ abstract class ContentLayer(
         }
 
         val localPoint = convertToLocal()
-        if (localPoint.right > imageSource.contentWidth || localPoint.bottom > imageSource.contentHeight) {
+        if (localPoint.right > contentSource.contentWidth || localPoint.bottom > contentSource.contentHeight) {
             return false
         }
 

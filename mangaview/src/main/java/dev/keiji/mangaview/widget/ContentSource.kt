@@ -1,6 +1,6 @@
 package dev.keiji.mangaview.widget
 
-abstract class ImageSource {
+abstract class ContentSource {
 
     enum class State {
         NA,

@@ -12,10 +12,10 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 class TiledBitmapLayer(
-    private val tiledImageSource: TiledImageSource,
+    private val tiledBitmapSource: TiledBitmapSource,
     private val scaleThreshold: Float = DEFAULT_SCALE_SHOW_TILE_THRESHOLD,
     private val offscreenTileLimit: Int = 0
-) : ContentLayer(tiledImageSource) {
+) : ContentLayer(tiledBitmapSource) {
 
     companion object {
         private val TAG = TiledBitmapLayer::class.java.simpleName
@@ -37,12 +37,12 @@ class TiledBitmapLayer(
     ): Boolean {
         val pageSnapshot = page ?: return false
 
-        recycleBin.addAll(tiledImageSource.cachedTiles)
+        recycleBin.addAll(tiledBitmapSource.cachedTiles)
 
         val allTilesShown = if (viewContext.currentScale >= scaleThreshold) {
             searchVisibleTiles(
-                tiledImageSource.tiledSource,
-                tiledImageSource.tileList,
+                tiledBitmapSource.tiledSource,
+                tiledBitmapSource.tileList,
                 contentSrc,
                 displayTileList,
                 offscreenTileLimit = offscreenTileLimit
@@ -54,7 +54,7 @@ class TiledBitmapLayer(
 
         recycleBin.forEach {
             if (!displayTileList.contains(it)) {
-                tiledImageSource.recycle(it)
+                tiledBitmapSource.recycle(it)
             }
         }
         recycleBin.clear()
@@ -153,7 +153,7 @@ class TiledBitmapLayer(
         var allTilesShown = true
 
         displayTileList.forEach { tile ->
-            val tiledBitmap = tiledImageSource.load(tile)
+            val tiledBitmap = tiledBitmapSource.load(tile)
             if (tiledBitmap == null) {
                 allTilesShown = false
                 return@forEach
@@ -205,7 +205,7 @@ class TiledBitmapLayer(
     }
 
     override fun onRecycled() {
-        tiledImageSource.recycle()
+        tiledBitmapSource.recycle()
 
         super.onRecycled()
     }

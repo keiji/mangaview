@@ -4,9 +4,9 @@ import android.graphics.Bitmap
 import dev.keiji.mangaview.TiledSource
 import java.util.concurrent.ConcurrentHashMap
 
-abstract class TiledImageSource(
+abstract class TiledBitmapSource(
     val tiledSource: TiledSource,
-) : ImageSource() {
+) : ContentSource() {
 
     val tileList: ArrayList<TiledSource.Tile>
         get() = tiledSource.tileList

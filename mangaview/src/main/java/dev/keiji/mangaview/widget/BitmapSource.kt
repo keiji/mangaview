@@ -2,7 +2,7 @@ package dev.keiji.mangaview.widget
 
 import android.graphics.Bitmap
 
-abstract class BitmapImageSource : ImageSource() {
+abstract class BitmapSource : ContentSource() {
 
     abstract val bitmap: Bitmap?
 

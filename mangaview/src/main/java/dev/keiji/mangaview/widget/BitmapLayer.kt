@@ -6,8 +6,8 @@ import android.graphics.Rect
 import android.graphics.RectF
 
 class BitmapLayer(
-    val bitmapImageSource: BitmapImageSource
-) : ContentLayer(bitmapImageSource) {
+    private val bitmapSource: BitmapSource
+) : ContentLayer(bitmapSource) {
 
     companion object {
         private val TAG = BitmapLayer::class.java.simpleName
@@ -20,7 +20,7 @@ class BitmapLayer(
         viewContext: ViewContext,
         paint: Paint
     ): Boolean {
-        val bitmapSnapshot = bitmapImageSource.bitmap ?: return false
+        val bitmapSnapshot = bitmapSource.bitmap ?: return false
 
         canvas?.drawBitmap(
             bitmapSnapshot,
@@ -35,6 +35,6 @@ class BitmapLayer(
     override fun onRecycled() {
         super.onRecycled()
 
-        bitmapImageSource.recycle()
+        bitmapSource.recycle()
     }
 }
