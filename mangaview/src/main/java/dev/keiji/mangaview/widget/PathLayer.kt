@@ -4,13 +4,16 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import dev.keiji.mangaview.Log
+import kotlin.math.max
+import kotlin.math.min
 
-class BitmapLayer(
-    private val bitmapSource: BitmapSource
-) : ContentLayer(bitmapSource) {
+class PathLayer(
+    private val pathSource: PathSource
+) : ContentLayer(pathSource) {
 
     companion object {
-        private val TAG = BitmapLayer::class.java.simpleName
+        private val TAG = PathLayer::class.java.simpleName
     }
 
     override fun onDraw(
@@ -20,14 +23,20 @@ class BitmapLayer(
         viewContext: ViewContext,
         paint: Paint
     ): Boolean {
-        val bitmapSnapshot = bitmapSource.bitmap ?: return false
+        Log.d(TAG, "onDraw")
+        canvas ?: return false
 
-        canvas?.drawBitmap(
-            bitmapSnapshot,
-            srcRect,
-            dstRect,
-            paint
-        )
+        val pathList = pathSource.pathList
+
+        val left = min(globalRect.left - viewContext.currentX, 0.0F)
+        val top = min(globalRect.top - viewContext.currentY, 0.0F)
+        canvas.save()
+        canvas.translate(left, top)
+        canvas.translate(dstRect.left, dstRect.top)
+        canvas.scale(viewContext.currentScale, viewContext.currentScale)
+        Log.d(TAG, pathList[0].toString())
+        canvas.drawPath(pathList[0], paint)
+        canvas.restore()
 
         return true
     }
@@ -35,6 +44,6 @@ class BitmapLayer(
     override fun onRecycled() {
         super.onRecycled()
 
-        bitmapSource.recycle()
+        pathSource.pathList.clear()
     }
 }

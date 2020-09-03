@@ -3,58 +3,48 @@ package jp.co.c_lis.mangaview.android
 import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import dev.keiji.mangaview.widget.BitmapImageSource
+import android.graphics.Path
+import dev.keiji.mangaview.widget.PathSource
 import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class AssetBitmapSource(
+class AssetPathSource(
     private val assetManager: AssetManager,
     private val fileName: String,
+    private val width: Float,
+    private val height: Float,
     private val coroutineScope: CoroutineScope
-) : BitmapImageSource() {
+) : PathSource() {
 
-    override val bitmap: Bitmap?
-        get() = assetBitmap
+    override val contentWidth: Float
+        get() =  width
 
-    private var assetBitmap: Bitmap? = null
-
-    override fun recycle() {
-        assetBitmap?.recycle()
-        assetBitmap = null
-    }
+    override val contentHeight: Float
+        get() =  height
 
     override fun getState(viewContext: ViewContext): State {
-        return when {
-            bitmap != null -> State.Prepared
-            job != null -> State.Preparing
-            else -> State.NA
-        }
+        return State.Prepared
     }
-
-    private val options = BitmapFactory.Options().also {
-        it.inPreferredConfig = Bitmap.Config.RGB_565
-    }
-
-    private var job: Job? = null
 
     override fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
-        if (getState(viewContext) != State.NA) {
-            return true
+        val path = Path().also {
+            it.lineTo(0.0F, 150F)
+            it.lineTo(150F, 150F)
+            it.lineTo(150F, 0.0F)
+            it.lineTo(0.0F, 0.0F)
+            it.close()
         }
+        pathList.add(path)
 
-        job = coroutineScope.launch(Dispatchers.IO) {
-            assetBitmap = assetManager.open(fileName).use {
-                BitmapFactory.decodeStream(it, null, options)
-            }
-            onImageSourceLoaded()
-            job = null
-        }
+        onImageSourceLoaded()
 
-        return false
+        return true
     }
 
+    override fun recycle() {
 
+    }
 }

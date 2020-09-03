@@ -5,6 +5,8 @@ import dev.keiji.mangaview.TiledSource
 import dev.keiji.mangaview.widget.BitmapLayer
 import dev.keiji.mangaview.widget.Page
 import dev.keiji.mangaview.widget.PageAdapter
+import dev.keiji.mangaview.widget.PathLayer
+import dev.keiji.mangaview.widget.PathSource
 import dev.keiji.mangaview.widget.TiledBitmapLayer
 import kotlinx.coroutines.CoroutineScope
 import java.io.File
@@ -38,13 +40,20 @@ class SampleBitmapAdapter(
         page.addLayer(BitmapLayer(AssetBitmapSource(assetManager, fileName, coroutineScope)))
 
         if (index == 0) {
-            val tiledImageSource = HttpServerTiledImageSource(
+            val tiledImageSource = HttpServerTiledBitmapSource(
                 tiledSource,
                 urlList,
                 tmpDir,
                 coroutineScope
             )
             page.addLayer(TiledBitmapLayer(tiledImageSource))
+        } else if (index == 3) {
+            val pathSource = AssetPathSource(
+                assetManager, "",
+                pageWidth.toFloat(), pageHeight.toFloat(),
+                coroutineScope
+            )
+            page.addLayer(PathLayer(pathSource))
         }
 
     }

@@ -1,4 +1,8 @@
 package dev.keiji.mangaview.widget
 
-class PathSource {
+import android.graphics.Path
+
+abstract class PathSource : ContentSource() {
+
+    val pathList = ArrayList<Path>()
 }
