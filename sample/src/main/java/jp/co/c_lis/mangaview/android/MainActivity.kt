@@ -39,8 +39,8 @@ private val FILE_NAMES = arrayOf(
 
 private val TILED_SOURCE = TiledSource.build(2149F, 3035F, 256.0F, 256.0F)
 
+// Tiled-images have been made by `script/tiled_bitmap_maker`.
 private const val URL_PREFIX = "https://raw.githubusercontent.com/keiji/mangaview/master/sample/images"
-
 private val TILED_IMAGE_URL_LIST = (0 until TILED_SOURCE.colCount * TILED_SOURCE.rowCount).map {
     "$URL_PREFIX/comic_001bj_2/comic_001bj_2-%04d.jpg".format(it)
 }
