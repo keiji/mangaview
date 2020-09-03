@@ -5,7 +5,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import dev.keiji.mangaview.TiledSource
-import dev.keiji.mangaview.widget.TiledImageSource
+import dev.keiji.mangaview.widget.TiledBitmapSource
 import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,15 +17,15 @@ import java.io.FileOutputStream
 import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 
-class HttpServerTiledImageSource(
+class HttpServerTiledBitmapSource(
     tiledSource: TiledSource,
     private val urlList: List<String>,
     private val tmpDir: File,
     private val coroutineScope: CoroutineScope
-) : TiledImageSource(tiledSource) {
+) : TiledBitmapSource(tiledSource) {
 
     companion object {
-        private val TAG = HttpServerTiledImageSource::class.java.simpleName
+        private val TAG = HttpServerTiledBitmapSource::class.java.simpleName
     }
 
     @Volatile

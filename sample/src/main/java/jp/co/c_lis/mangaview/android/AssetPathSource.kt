@@ -3,7 +3,7 @@ package jp.co.c_lis.mangaview.android
 import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import dev.keiji.mangaview.widget.BitmapSource
+import dev.keiji.mangaview.widget.BitmapImageSource
 import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +14,7 @@ class AssetBitmapSource(
     private val assetManager: AssetManager,
     private val fileName: String,
     private val coroutineScope: CoroutineScope
-) : BitmapSource() {
+) : BitmapImageSource() {
 
     override val bitmap: Bitmap?
         get() = assetBitmap
