@@ -27,10 +27,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-
-        maven {
-            url "https://c-lis.bintray.com/maven"
-        }
     }
 }
 
