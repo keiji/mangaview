@@ -125,7 +125,7 @@ class PageLayoutTest {
                             right = 0.0F,
                             bottom = 1787.1665F
                         ),
-                        layer.globalRect
+                        layer.globalPosition
                     )
                     assertEquals(
                         Rectangle(left = 0.0F, top = 0.0F, right = 859.0F, bottom = 1214.0F),
@@ -196,7 +196,7 @@ class PageLayoutTest {
                             right = -1080.0F,
                             bottom = 1787.1665F
                         ),
-                        layer.globalRect
+                        layer.globalPosition
                     )
                     assertEquals(
                         Rectangle(left = 859.0F, top = 0.0F, right = 859.0F, bottom = 1214.0F),

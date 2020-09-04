@@ -48,8 +48,7 @@ class DummyLayer(
 
     override fun onDraw(
         canvas: Canvas?,
-        srcRect: Rect,
-        dstRect: RectF,
+        page: Page,
         viewContext: ViewContext,
         paint: Paint
     ): Boolean = true

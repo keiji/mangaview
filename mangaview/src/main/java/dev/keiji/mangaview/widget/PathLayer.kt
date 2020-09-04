@@ -22,8 +22,7 @@ class PathLayer(
 
     override fun onDraw(
         canvas: Canvas?,
-        srcRect: Rect,
-        dstRect: RectF,
+        page: Page,
         viewContext: ViewContext,
         paint: Paint
     ): Boolean {
@@ -32,12 +31,11 @@ class PathLayer(
         }
 
         canvas ?: return false
-        val pageSnapshot = page ?: return false
 
         val sc = canvas.save()
 
-        val left = min(globalRect.left - viewContext.currentX, pageSnapshot.displayProjection.left)
-        val top = min(globalRect.top - viewContext.currentY, pageSnapshot.displayProjection.top)
+        val left = min(globalPosition.left - viewContext.currentX, page.displayProjection.left)
+        val top = min(globalPosition.top - viewContext.currentY, page.displayProjection.top)
 
         val scaledLeft = left * viewContext.currentScale
         val scaledTop = top * viewContext.currentScale
@@ -90,7 +88,7 @@ class PathLayer(
                 it.bottom = it.bottom * baseScale
             }
             tmpSelectedBounds
-                .offset(globalRect.left, globalRect.top)
+                .offset(globalPosition.left, globalPosition.top)
 
             mangaView.focus(tmpSelectedBounds)
         }

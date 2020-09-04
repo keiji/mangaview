@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import androidx.annotation.VisibleForTesting
 import dev.keiji.mangaview.BuildConfig
 import dev.keiji.mangaview.Rectangle
 import dev.keiji.mangaview.TiledSource
@@ -23,6 +24,12 @@ class TiledBitmapLayer(
         private const val DEFAULT_SCALE_SHOW_TILE_THRESHOLD = 3.0F
     }
 
+    @VisibleForTesting
+    val srcRect = Rect()
+
+    @VisibleForTesting
+    val dstRect = RectF()
+
     private val tmpTilePosition = Rectangle()
 
     private val displayTileList = ArrayList<TiledSource.Tile>()
@@ -30,12 +37,10 @@ class TiledBitmapLayer(
 
     override fun onDraw(
         canvas: Canvas?,
-        srcRect: Rect,
-        dstRect: RectF,
+        page: Page,
         viewContext: ViewContext,
         paint: Paint
     ): Boolean {
-        val pageSnapshot = page ?: return false
 
         recycleBin.addAll(tiledBitmapSource.cachedTiles)
 
@@ -47,7 +52,7 @@ class TiledBitmapLayer(
                 displayTileList,
                 offscreenTileLimit = offscreenTileLimit
             )
-            drawTiles(canvas, pageSnapshot.displayProjection, displayTileList, paint)
+            drawTiles(canvas, page.displayProjection, displayTileList, paint)
         } else {
             true
         }
@@ -150,12 +155,12 @@ class TiledBitmapLayer(
         displayTileList: ArrayList<TiledSource.Tile>,
         paint: Paint
     ): Boolean {
-        var allTilesShown = true
+        var allTilesAreShown = true
 
         displayTileList.forEach { tile ->
             val tiledBitmap = tiledBitmapSource.load(tile)
             if (tiledBitmap == null) {
-                allTilesShown = false
+                allTilesAreShown = false
                 return@forEach
             }
 
@@ -185,7 +190,7 @@ class TiledBitmapLayer(
             }
         }
 
-        return allTilesShown
+        return allTilesAreShown
     }
 
     private fun project(

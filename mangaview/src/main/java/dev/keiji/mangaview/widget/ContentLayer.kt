@@ -33,7 +33,7 @@ abstract class ContentLayer(
     var paddingBottom = 0.0F
 
     @VisibleForTesting
-    val globalRect = Rectangle()
+    val globalPosition = Rectangle()
 
     @VisibleForTesting
     val contentSrc = Rectangle()
@@ -42,13 +42,9 @@ abstract class ContentLayer(
 
     private val prevContentViewport = RectF()
 
-    @VisibleForTesting
-    val srcRect = Rect()
-
-    @VisibleForTesting
-    val dstRect = RectF()
-
     private var state = State.NA
+
+    private val tmpLocalPoint = Rectangle()
 
     private val contentSourcePrepareCallback = fun() {
         val pageSnapshot = page ?: return
@@ -79,7 +75,7 @@ abstract class ContentLayer(
         paddingRight = paddingHorizontal - paddingLeft
         paddingBottom = paddingVertical - paddingTop
 
-        globalRect.copyFrom(pageSnapshot.globalRect).also {
+        globalPosition.copyFrom(pageSnapshot.globalRect).also {
             it.left += paddingLeft
             it.top += paddingTop
             it.right -= paddingRight
@@ -133,36 +129,29 @@ abstract class ContentLayer(
             prevContentViewport.set(contentViewport)
         }
 
-        contentSrc.copyTo(srcRect)
-        page.displayProjection
-            .copyTo(dstRect)
-
         if (page.displayProjection.area == 0.0F) {
             // do not draw
             return true
         }
 
-        return onDraw(canvas, srcRect, dstRect, viewContext, paint)
+        return onDraw(canvas, page, viewContext, paint)
     }
 
     abstract fun onDraw(
         canvas: Canvas?,
-        srcRect: Rect,
-        dstRect: RectF,
+        page: Page,
         viewContext: ViewContext,
         paint: Paint,
     ): Boolean
-
-    private val localPointTmp = Rectangle()
 
     fun requestHandleEvent(
         globalX: Float,
         globalY: Float,
         onTapListener: OnTapListener? = null
     ): Boolean {
-        localPointTmp.set(globalX, globalY, globalX, globalY)
+        tmpLocalPoint.set(globalX, globalY, globalX, globalY)
 
-        if (!globalRect.contains(localPointTmp)) {
+        if (!globalPosition.contains(tmpLocalPoint)) {
             return false
         }
 
@@ -187,9 +176,9 @@ abstract class ContentLayer(
         globalY: Float,
         onDoubleTapListener: OnDoubleTapListener? = null
     ): Boolean {
-        localPointTmp.set(globalX, globalY, globalX, globalY)
+        tmpLocalPoint.set(globalX, globalY, globalX, globalY)
 
-        if (!globalRect.contains(localPointTmp)) {
+        if (!globalPosition.contains(tmpLocalPoint)) {
             return false
         }
 
@@ -216,10 +205,10 @@ abstract class ContentLayer(
         globalY: Float,
         onLongTapListener: OnLongTapListener? = null
     ): Boolean {
-        localPointTmp.set(globalX, globalY, globalX, globalY)
+        tmpLocalPoint.set(globalX, globalY, globalX, globalY)
 
 
-        if (!globalRect.contains(localPointTmp)) {
+        if (!globalPosition.contains(tmpLocalPoint)) {
             return false
         }
 
@@ -240,8 +229,8 @@ abstract class ContentLayer(
     }
 
     private fun convertToLocal(): Rectangle {
-        return localPointTmp
-            .relativeBy(globalRect).also {
+        return tmpLocalPoint
+            .relativeBy(globalPosition).also {
                 it.left /= baseScale
                 it.top /= baseScale
                 it.right /= baseScale
