@@ -95,6 +95,6 @@ class PathLayer(
     override fun onRecycled() {
         super.onRecycled()
 
-        pathSource.pathList.clear()
+        pathSource.recycle()
     }
 }

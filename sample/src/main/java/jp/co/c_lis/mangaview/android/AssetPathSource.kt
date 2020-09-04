@@ -69,6 +69,8 @@ class AssetPathSource(
     }
 
     override fun recycle() {
-
+        bitmapWidth = -1.0F
+        bitmapHeight = -1.0F
+        pathList.clear()
     }
 }
