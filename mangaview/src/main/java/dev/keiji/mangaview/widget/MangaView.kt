@@ -70,6 +70,8 @@ class MangaView(
 
         private const val SCROLLING_DURATION = 280L
         private const val SCALING_DURATION = 250L
+
+        private const val FOCUS_DURATION = 220L
     }
 
     constructor(context: Context) : this(context, null, 0x0)
@@ -375,8 +377,13 @@ class MangaView(
         startAnimation()
     }
 
-    fun focus(focusRect: Rectangle) {
-        animation = FocusHelper().focus(viewContext, focusRect)
+    private val focusHelper = FocusHelper()
+
+    fun focus(focusRect: Rectangle, duration: Long = FOCUS_DURATION) {
+        val currentPageLayoutSnapshot = currentPageLayout ?: return
+        animation = focusHelper
+            .init(duration)
+            .focus(viewContext, currentPageLayoutSnapshot, focusRect)
         postInvalidate()
     }
 
@@ -553,7 +560,7 @@ class MangaView(
                     focusX,
                     focusY,
                     currentScrollableArea,
-                    applyImmediately = animation.applyImmediatelyEachAnimation
+                    applyImmediately = false
                 )
                 animation.scale = null
             } else {
@@ -564,7 +571,7 @@ class MangaView(
                     focusX,
                     focusY,
                     currentScrollableArea,
-                    applyImmediately = animation.applyImmediatelyEachAnimation
+                    applyImmediately = false
                 )
             }
         }
@@ -575,7 +582,7 @@ class MangaView(
                     translateOperation.destX,
                     translateOperation.destY,
                     currentScrollableArea,
-                    applyImmediately = animation.applyImmediatelyEachAnimation
+                    applyImmediately = false
                 )
                 animation.translate = null
             } else {
@@ -586,7 +593,7 @@ class MangaView(
                     newX,
                     newY,
                     currentScrollableArea,
-                    applyImmediately = animation.applyImmediatelyEachAnimation
+                    applyImmediately = false
                 )
             }
         }
