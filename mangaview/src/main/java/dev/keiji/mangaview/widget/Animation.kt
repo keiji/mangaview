@@ -6,6 +6,7 @@ data class Animation(
     val durationMillis: Long,
     val startTimeMillis: Long = System.currentTimeMillis(),
     val priority: Int = 0,
+    val applyImmediatelyEachAnimation: Boolean = false,
     val onAnimationEnd: () -> Unit = {}
 ) {
     val elapsed: Long

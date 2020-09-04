@@ -1,11 +1,13 @@
 package dev.keiji.mangaview.widget
 
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
-import dev.keiji.mangaview.Log
-import kotlin.math.max
+import dev.keiji.mangaview.BuildConfig
+import dev.keiji.mangaview.Rectangle
 import kotlin.math.min
 
 class PathLayer(
@@ -16,6 +18,8 @@ class PathLayer(
         private val TAG = PathLayer::class.java.simpleName
     }
 
+    private val matrix = Matrix()
+
     override fun onDraw(
         canvas: Canvas?,
         srcRect: Rect,
@@ -23,22 +27,69 @@ class PathLayer(
         viewContext: ViewContext,
         paint: Paint
     ): Boolean {
-        Log.d(TAG, "onDraw")
         canvas ?: return false
+        val pageSnapshot = page ?: return false
 
-        val pathList = pathSource.pathList
+        val sc = canvas.save()
 
-        val left = min(globalRect.left - viewContext.currentX, 0.0F)
-        val top = min(globalRect.top - viewContext.currentY, 0.0F)
-        canvas.save()
-        canvas.translate(left, top)
-        canvas.translate(dstRect.left, dstRect.top)
-        canvas.scale(viewContext.currentScale, viewContext.currentScale)
-        Log.d(TAG, pathList[0].toString())
-        canvas.drawPath(pathList[0], paint)
-        canvas.restore()
+        val left = min(globalRect.left - viewContext.currentX, pageSnapshot.displayProjection.left)
+        val top = min(globalRect.top - viewContext.currentY, pageSnapshot.displayProjection.top)
+
+        val scaledLeft = left * viewContext.currentScale
+        val scaledTop = top * viewContext.currentScale
+
+        val scaleHorizontal = viewContext.currentScale * baseScale
+        val scaleVertical = viewContext.currentScale * baseScale
+
+        matrix.setScale(scaleHorizontal, scaleVertical)
+        matrix.postTranslate(scaledLeft, scaledTop)
+
+        pathSource.pathList.forEach { path ->
+
+            if (BuildConfig.DEBUG && path == selectedPath) {
+                canvas.setMatrix(matrix)
+                canvas.drawPath(path, paint)
+                canvas.setMatrix(null)
+            }
+        }
+
+        canvas.restoreToCount(sc)
 
         return true
+    }
+
+    private val tmpIntersectBounds = RectF()
+    private val tmpSelectedBounds = Rectangle()
+
+    private var selectedPath: Path? = null
+
+    override fun onLongTap(mangaView: MangaView, x: Float, y: Float) {
+        super.onLongTap(mangaView, x, y)
+
+        selectedPath = null
+
+        pathSource.pathList.forEach { path ->
+            path.computeBounds(tmpIntersectBounds, true)
+
+            if (tmpIntersectBounds.contains(x, y)) {
+                selectedPath = path
+                tmpSelectedBounds.copyFrom(tmpIntersectBounds)
+                return@forEach
+            }
+        }
+
+        if (selectedPath != null) {
+            tmpSelectedBounds.also {
+                it.left = it.left * baseScale
+                it.top = it.top * baseScale
+                it.right = it.right * baseScale
+                it.bottom = it.bottom * baseScale
+            }
+            tmpSelectedBounds
+                .offset(globalRect.left, globalRect.top)
+
+            mangaView.focus(tmpSelectedBounds)
+        }
     }
 
     override fun onRecycled() {

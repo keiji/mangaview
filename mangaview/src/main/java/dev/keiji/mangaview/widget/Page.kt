@@ -111,7 +111,7 @@ class Page(
     fun requestHandleEvent(
         globalX: Float,
         globalY: Float,
-        onTapListener: OnTapListener
+        onTapListener: OnTapListener? = null
     ): Boolean {
         localPointTmp.set(globalX, globalY, globalX, globalY)
 
@@ -122,13 +122,13 @@ class Page(
         val localPoint = localPointTmp
             .relativeBy(globalRect)
 
-        return onTapListener.onTap(this, localPoint.centerX, localPoint.centerY)
+        return onTapListener?.onTap(this, localPoint.centerX, localPoint.centerY) ?: false
     }
 
     fun requestHandleEvent(
         globalX: Float,
         globalY: Float,
-        onDoubleTapListener: OnDoubleTapListener
+        onDoubleTapListener: OnDoubleTapListener? = null
     ): Boolean {
         localPointTmp.set(globalX, globalY, globalX, globalY)
 
@@ -139,6 +139,24 @@ class Page(
         val localPoint = localPointTmp
             .relativeBy(globalRect)
 
-        return onDoubleTapListener.onDoubleTap(this, localPoint.centerX, localPoint.centerY)
+        return onDoubleTapListener?.onDoubleTap(this, localPoint.centerX, localPoint.centerY)
+            ?: false
+    }
+
+    fun requestHandleEvent(
+        globalX: Float,
+        globalY: Float,
+        onLongTapListener: OnLongTapListener? = null
+    ): Boolean {
+        localPointTmp.set(globalX, globalY, globalX, globalY)
+
+        if (!globalRect.contains(localPointTmp)) {
+            return false
+        }
+
+        val localPoint = localPointTmp
+            .relativeBy(globalRect)
+
+        return onLongTapListener?.onLongTap(this, localPoint.centerX, localPoint.centerY) ?: false
     }
 }

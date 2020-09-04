@@ -158,7 +158,7 @@ abstract class ContentLayer(
     fun requestHandleEvent(
         globalX: Float,
         globalY: Float,
-        onTapListener: OnTapListener
+        onTapListener: OnTapListener? = null
     ): Boolean {
         localPointTmp.set(globalX, globalY, globalX, globalY)
 
@@ -171,13 +171,21 @@ abstract class ContentLayer(
             return false
         }
 
-        return onTapListener.onTap(this, localPoint.centerX, localPoint.centerY)
+        if (onTapListener == null) {
+            onTap(localPoint.centerX, localPoint.centerY)
+        }
+
+        return onTapListener?.onTap(this, localPoint.centerX, localPoint.centerY) ?: false
+    }
+
+    open fun onTap(x: Float, y: Float) {
+        // Do nothing
     }
 
     fun requestHandleEvent(
         globalX: Float,
         globalY: Float,
-        onDoubleTapListener: OnDoubleTapListener
+        onDoubleTapListener: OnDoubleTapListener? = null
     ): Boolean {
         localPointTmp.set(globalX, globalY, globalX, globalY)
 
@@ -190,7 +198,45 @@ abstract class ContentLayer(
             return false
         }
 
-        return onDoubleTapListener.onDoubleTap(this, localPoint.centerX, localPoint.centerY)
+        if (onDoubleTapListener == null) {
+            onDoubleTap(localPoint.centerX, localPoint.centerY)
+        }
+
+        return onDoubleTapListener?.onDoubleTap(this, localPoint.centerX, localPoint.centerY)
+            ?: false
+    }
+
+    open fun onDoubleTap(x: Float, y: Float) {
+        // Do nothing
+    }
+
+    fun requestHandleEvent(
+        mangaView: MangaView,
+        globalX: Float,
+        globalY: Float,
+        onLongTapListener: OnLongTapListener? = null
+    ): Boolean {
+        localPointTmp.set(globalX, globalY, globalX, globalY)
+
+
+        if (!globalRect.contains(localPointTmp)) {
+            return false
+        }
+
+        val localPoint = convertToLocal()
+        if (localPoint.right > contentSource.contentWidth || localPoint.bottom > contentSource.contentHeight) {
+            return false
+        }
+
+        if (onLongTapListener == null) {
+            onLongTap(mangaView, localPoint.centerX, localPoint.centerY)
+        }
+
+        return onLongTapListener?.onLongTap(this, localPoint.centerX, localPoint.centerY) ?: false
+    }
+
+    open fun onLongTap(mangaView: MangaView, x: Float, y: Float) {
+        // Do nothing
     }
 
     private fun convertToLocal(): Rectangle {

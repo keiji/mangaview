@@ -1,6 +1,7 @@
 package jp.co.c_lis.mangaview.android
 
 import android.content.res.AssetManager
+import dev.keiji.mangaview.Region
 import dev.keiji.mangaview.TiledSource
 import dev.keiji.mangaview.widget.BitmapLayer
 import dev.keiji.mangaview.widget.Page
@@ -17,6 +18,7 @@ class SampleBitmapAdapter(
     private val tiledSource: TiledSource,
     private val urlList: List<String>,
     private val tmpDir: File,
+    private val regionList: ArrayList<Region>,
     private val coroutineScope: CoroutineScope,
     private val pageWidth: Int,
     private val pageHeight: Int
@@ -47,10 +49,10 @@ class SampleBitmapAdapter(
                 coroutineScope
             )
             page.addLayer(TiledBitmapLayer(tiledImageSource))
-        } else if (index == 3) {
+        } else if (index == 4) {
             val pathSource = AssetPathSource(
-                assetManager, "",
-                pageWidth.toFloat(), pageHeight.toFloat(),
+                assetManager, fileName,
+                regionList,
                 coroutineScope
             )
             page.addLayer(PathLayer(pathSource))

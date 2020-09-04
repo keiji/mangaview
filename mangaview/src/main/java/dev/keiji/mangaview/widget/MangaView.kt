@@ -33,6 +33,12 @@ interface OnDoubleTapListener {
     fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
 }
 
+interface OnLongTapListener {
+    fun onLongTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
+    fun onLongTap(page: Page, x: Float, y: Float): Boolean = false
+    fun onLongTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
+}
+
 interface OnPageChangeListener {
     fun onScrollStateChanged(mangaView: MangaView, scrollState: Int) {}
     fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {}
@@ -129,6 +135,16 @@ class MangaView(
 
     fun removeOnDoubleTapListener(onDoubleTapListener: OnDoubleTapListener) {
         onDoubleTapListenerList.remove(onDoubleTapListener)
+    }
+
+    private val onLongTapListenerList = ArrayList<OnLongTapListener>()
+
+    fun addOnDoubleTapListener(onLongTapListener: OnLongTapListener) {
+        onLongTapListenerList.add(onLongTapListener)
+    }
+
+    fun removeOnDoubleTapListener(onLongTapListener: OnLongTapListener) {
+        onLongTapListenerList.remove(onLongTapListener)
     }
 
     private var onContentViewportChangeListenerList = ArrayList<OnContentViewportChangeListener>()
@@ -359,6 +375,11 @@ class MangaView(
         startAnimation()
     }
 
+    fun focus(focusRect: Rectangle) {
+        animation = FocusHelper().focus(viewContext, focusRect)
+        postInvalidate()
+    }
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event ?: return super.onTouchEvent(event)
 
@@ -532,7 +553,7 @@ class MangaView(
                     focusX,
                     focusY,
                     currentScrollableArea,
-                    applyImmediately = false
+                    applyImmediately = animation.applyImmediatelyEachAnimation
                 )
                 animation.scale = null
             } else {
@@ -543,7 +564,7 @@ class MangaView(
                     focusX,
                     focusY,
                     currentScrollableArea,
-                    applyImmediately = false
+                    applyImmediately = animation.applyImmediatelyEachAnimation
                 )
             }
         }
@@ -554,14 +575,19 @@ class MangaView(
                     translateOperation.destX,
                     translateOperation.destY,
                     currentScrollableArea,
-                    applyImmediately = false
+                    applyImmediately = animation.applyImmediatelyEachAnimation
                 )
                 animation.translate = null
             } else {
                 val factor = translateInterpolator.getInterpolation(input)
                 val newX = translateOperation.startX + translateOperation.diffX * factor
                 val newY = translateOperation.startY + translateOperation.diffY * factor
-                viewContext.offsetTo(newX, newY, currentScrollableArea, applyImmediately = false)
+                viewContext.offsetTo(
+                    newX,
+                    newY,
+                    currentScrollableArea,
+                    applyImmediately = animation.applyImmediatelyEachAnimation
+                )
             }
         }
 
@@ -586,12 +612,12 @@ class MangaView(
     }
 
     private fun handleOnTapListener(
-        onTapListener: OnTapListener,
         x: Float,
         y: Float,
-        globalPosition: Rectangle
+        globalPosition: Rectangle,
+        onTapListener: OnTapListener? = null
     ) {
-        var handled = onTapListener.onTap(this, x, y)
+        var handled = onTapListener?.onTap(this, x, y) ?: false
         if (handled) {
             return
         }
@@ -766,7 +792,55 @@ class MangaView(
     }
 
     override fun onLongPress(e: MotionEvent?) {
-        Log.d(TAG, "onLongPress")
+        e ?: return
+
+        // mapping global point
+        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
+
+        handleOnLongTap(e.x, e.y, globalPosition)
+
+        onLongTapListenerList.forEach {
+            handleOnLongTap(e.x, e.y, globalPosition, it)
+        }
+
+        postInvalidate()
+    }
+
+    private fun handleOnLongTap(
+        x: Float,
+        y: Float,
+        globalPosition: Rectangle,
+        onLongTapListener: OnLongTapListener? = null
+    ) {
+        var handled = onLongTapListener?.onLongTap(this, x, y) ?: false
+        if (handled) {
+            return
+        }
+
+        visiblePageLayoutList
+            .flatMap { it.pages }
+            .forEach pageLoop@{ page ->
+                handled = page.requestHandleEvent(
+                    globalPosition.centerX,
+                    globalPosition.centerY,
+                    onLongTapListener
+                )
+                if (handled) {
+                    return@pageLoop
+                }
+
+                page.layers.forEach { layer ->
+                    handled = layer.requestHandleEvent(
+                        this,
+                        globalPosition.centerX,
+                        globalPosition.centerY,
+                        onLongTapListener
+                    )
+                    if (handled) {
+                        return@pageLoop
+                    }
+                }
+            }
     }
 
     override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
@@ -840,12 +914,12 @@ class MangaView(
     }
 
     private fun handleOnDoubleTapListener(
-        onDoubleTapListener: OnDoubleTapListener,
         x: Float,
         y: Float,
-        globalPosition: Rectangle
+        globalPosition: Rectangle,
+        onDoubleTapListener: OnDoubleTapListener? = null
     ) {
-        var handled = onDoubleTapListener.onDoubleTap(this, x, y)
+        var handled = onDoubleTapListener?.onDoubleTap(this, x, y) ?: false
         if (handled) {
             return
         }
@@ -883,9 +957,11 @@ class MangaView(
             val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
 
             onDoubleTapListenerList.forEach {
-                handleOnDoubleTapListener(it, e.x, e.y, globalPosition)
+                handleOnDoubleTapListener(e.x, e.y, globalPosition, it)
             }
         }
+
+        postInvalidate()
 
         return true
     }
@@ -897,8 +973,10 @@ class MangaView(
         val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
 
         onTapListenerList.forEach {
-            handleOnTapListener(it, e.x, e.y, globalPosition)
+            handleOnTapListener(e.x, e.y, globalPosition, it)
         }
+
+        postInvalidate()
 
         return true
     }

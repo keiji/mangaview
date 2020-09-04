@@ -192,4 +192,12 @@ data class Rectangle(
         rect.top = top
         rect.bottom = bottom
     }
+
+    fun copyFrom(rectF: RectF): Rectangle {
+        left = rectF.left
+        right = rectF.right
+        top = rectF.top
+        bottom = rectF.bottom
+        return this
+    }
 }
