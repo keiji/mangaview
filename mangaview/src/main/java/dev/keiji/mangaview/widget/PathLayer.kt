@@ -27,6 +27,10 @@ class PathLayer(
         viewContext: ViewContext,
         paint: Paint
     ): Boolean {
+        if (BuildConfig.DEBUG) {
+            return true
+        }
+
         canvas ?: return false
         val pageSnapshot = page ?: return false
 
@@ -46,7 +50,7 @@ class PathLayer(
 
         pathSource.pathList.forEach { path ->
 
-            if (BuildConfig.DEBUG && path == selectedPath) {
+            if (path == selectedPath) {
                 canvas.setMatrix(matrix)
                 canvas.drawPath(path, paint)
                 canvas.setMatrix(null)
