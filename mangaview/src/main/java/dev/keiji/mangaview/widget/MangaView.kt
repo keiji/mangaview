@@ -963,6 +963,8 @@ class MangaView(
             // mapping global point
             val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
 
+            handleOnDoubleTapListener(e.x, e.y, globalPosition)
+
             onDoubleTapListenerList.forEach {
                 handleOnDoubleTapListener(e.x, e.y, globalPosition, it)
             }
@@ -978,6 +980,8 @@ class MangaView(
 
         // mapping global point
         val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
+
+        handleOnTapListener(e.x, e.y, globalPosition)
 
         onTapListenerList.forEach {
             handleOnTapListener(e.x, e.y, globalPosition, it)
