@@ -238,7 +238,7 @@ class MangaView(
 
             val op = field ?: return
 
-            if (op.isFinished || op.priority >= value.priority) {
+            if (op.isFinished || op.priority <= value.priority) {
                 field = value
             }
         }
@@ -907,7 +907,7 @@ class MangaView(
             ),
             startTimeMillis = System.currentTimeMillis(),
             durationMillis = SCALING_DURATION,
-            priority = -1
+            priority = Thread.MAX_PRIORITY
         ) {
             populateToCurrent()
         }

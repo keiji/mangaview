@@ -5,7 +5,7 @@ data class Animation(
     var scale: Scale? = null,
     val durationMillis: Long,
     val startTimeMillis: Long = System.currentTimeMillis(),
-    val priority: Int = 0,
+    val priority: Int = Thread.NORM_PRIORITY,
     val onAnimationEnd: () -> Unit = {}
 ) {
     val elapsed: Long

@@ -88,7 +88,7 @@ class FocusHelper() {
                 null
             ),
             durationMillis = focusDuration,
-            priority = -1
+            priority = Thread.MAX_PRIORITY
         )
     }
 }
