@@ -622,32 +622,39 @@ class MangaView(
         x: Float,
         y: Float,
         globalPosition: Rectangle,
-        onTapListener: OnTapListener? = null
+        onTapListenerList: List<OnTapListener>
     ) {
-        var handled = onTapListener?.onTap(this, x, y) ?: false
-        if (handled) {
+        var consumed = false
+
+        onTapListenerList.forEach {
+            if (it.onTap(this, x, y)) {
+                consumed = true
+                return@forEach
+            }
+        }
+        if (consumed) {
             return
         }
 
         visiblePageLayoutList
             .flatMap { it.pages }
             .forEach pageLoop@{ page ->
-                handled = page.requestHandleEvent(
+                consumed = page.requestHandleOnTapEvent(
                     globalPosition.centerX,
                     globalPosition.centerY,
-                    onTapListener
+                    onTapListenerList
                 )
-                if (handled) {
+                if (consumed) {
                     return@pageLoop
                 }
 
                 page.layers.forEach { layer ->
-                    handled = layer.requestHandleEvent(
+                    consumed = layer.requestHandleOnTapEvent(
                         globalPosition.centerX,
                         globalPosition.centerY,
-                        onTapListener
+                        onTapListenerList
                     )
-                    if (handled) {
+                    if (consumed) {
                         return@pageLoop
                     }
                 }
@@ -827,7 +834,7 @@ class MangaView(
         visiblePageLayoutList
             .flatMap { it.pages }
             .forEach pageLoop@{ page ->
-                handled = page.requestHandleEvent(
+                handled = page.requestHandleOnLongTapEvent(
                     globalPosition.centerX,
                     globalPosition.centerY,
                     onLongTapListener
@@ -837,7 +844,7 @@ class MangaView(
                 }
 
                 page.layers.forEach { layer ->
-                    handled = layer.requestHandleEvent(
+                    handled = layer.requestHandleOnLongTapEvent(
                         this,
                         globalPosition.centerX,
                         globalPosition.centerY,
@@ -941,7 +948,7 @@ class MangaView(
         visiblePageLayoutList
             .flatMap { it.pages }
             .forEach pageLoop@{ page ->
-                consumed = page.requestHandleEvent(
+                consumed = page.requestHandleOnDoubleTapEvent(
                     globalPosition.centerX,
                     globalPosition.centerY,
                     onDoubleTapListenerList
@@ -951,7 +958,7 @@ class MangaView(
                 }
 
                 page.layers.forEach { layer ->
-                    consumed = layer.requestHandleEvent(
+                    consumed = layer.requestHandleOnDoubleTapEvent(
                         globalPosition.centerX,
                         globalPosition.centerY,
                         onDoubleTapListenerList
@@ -984,11 +991,7 @@ class MangaView(
         // mapping global point
         val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
 
-        handleOnTapListener(e.x, e.y, globalPosition)
-
-        onTapListenerList.forEach {
-            handleOnTapListener(e.x, e.y, globalPosition, it)
-        }
+        handleOnTapListener(e.x, e.y, globalPosition, onTapListenerList)
 
         postInvalidate()
 
