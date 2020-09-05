@@ -811,11 +811,7 @@ class MangaView(
         // mapping global point
         val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
 
-        handleOnLongTap(e.x, e.y, globalPosition)
-
-        onLongTapListenerList.forEach {
-            handleOnLongTap(e.x, e.y, globalPosition, it)
-        }
+        handleOnLongTap(e.x, e.y, globalPosition, onLongTapListenerList)
 
         postInvalidate()
     }
@@ -824,33 +820,40 @@ class MangaView(
         x: Float,
         y: Float,
         globalPosition: Rectangle,
-        onLongTapListener: OnLongTapListener? = null
+        onLongTapListenerList: List<OnLongTapListener>
     ) {
-        var handled = onLongTapListener?.onLongTap(this, x, y) ?: false
-        if (handled) {
+        var consumed = false
+
+        onLongTapListenerList.forEach {
+            if (it.onLongTap(this, x, y)) {
+                consumed = true
+                return@forEach
+            }
+        }
+        if (consumed) {
             return
         }
 
         visiblePageLayoutList
             .flatMap { it.pages }
             .forEach pageLoop@{ page ->
-                handled = page.requestHandleOnLongTapEvent(
+                consumed = page.requestHandleOnLongTapEvent(
                     globalPosition.centerX,
                     globalPosition.centerY,
-                    onLongTapListener
+                    onLongTapListenerList
                 )
-                if (handled) {
+                if (consumed) {
                     return@pageLoop
                 }
 
                 page.layers.forEach { layer ->
-                    handled = layer.requestHandleOnLongTapEvent(
+                    consumed = layer.requestHandleOnLongTapEvent(
                         this,
                         globalPosition.centerX,
                         globalPosition.centerY,
-                        onLongTapListener
+                        onLongTapListenerList
                     )
-                    if (handled) {
+                    if (consumed) {
                         return@pageLoop
                     }
                 }

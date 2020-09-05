@@ -161,7 +161,7 @@ class Page(
     fun requestHandleOnLongTapEvent(
         globalX: Float,
         globalY: Float,
-        onLongTapListener: OnLongTapListener? = null
+        onLongTapListenerList: List<OnLongTapListener>
     ): Boolean {
         localPointTmp.set(globalX, globalY, globalX, globalY)
 
@@ -172,6 +172,15 @@ class Page(
         val localPoint = localPointTmp
             .relativeBy(globalRect)
 
-        return onLongTapListener?.onLongTap(this, localPoint.centerX, localPoint.centerY) ?: false
+        var consumed = false
+
+        onLongTapListenerList.forEach {
+            if (it.onLongTap(this, localPoint.centerX, localPoint.centerY)) {
+                consumed = true
+                return@forEach
+            }
+        }
+
+        return consumed
     }
 }

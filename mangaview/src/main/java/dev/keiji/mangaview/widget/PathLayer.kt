@@ -65,7 +65,7 @@ class PathLayer(
 
     private var selectedPath: Path? = null
 
-    override fun onLongTap(mangaView: MangaView, x: Float, y: Float) {
+    override fun onLongTap(mangaView: MangaView, x: Float, y: Float): Boolean {
         super.onLongTap(mangaView, x, y)
 
         selectedPath = null
@@ -92,6 +92,8 @@ class PathLayer(
 
             mangaView.focus(tmpSelectedBounds)
         }
+
+        return false
     }
 
     override fun onRecycled() {
