@@ -924,32 +924,39 @@ class MangaView(
         x: Float,
         y: Float,
         globalPosition: Rectangle,
-        onDoubleTapListener: OnDoubleTapListener? = null
+        onDoubleTapListenerList: List<OnDoubleTapListener>
     ) {
-        var handled = onDoubleTapListener?.onDoubleTap(this, x, y) ?: false
-        if (handled) {
+        var consumed = false
+
+        onDoubleTapListenerList.forEach {
+            if (it.onDoubleTap(this, x, y)) {
+                consumed = true
+                return@forEach
+            }
+        }
+        if (consumed) {
             return
         }
 
         visiblePageLayoutList
             .flatMap { it.pages }
             .forEach pageLoop@{ page ->
-                handled = page.requestHandleEvent(
+                consumed = page.requestHandleEvent(
                     globalPosition.centerX,
                     globalPosition.centerY,
-                    onDoubleTapListener
+                    onDoubleTapListenerList
                 )
-                if (handled) {
+                if (consumed) {
                     return@pageLoop
                 }
 
                 page.layers.forEach { layer ->
-                    handled = layer.requestHandleEvent(
+                    consumed = layer.requestHandleEvent(
                         globalPosition.centerX,
                         globalPosition.centerY,
-                        onDoubleTapListener
+                        onDoubleTapListenerList
                     )
-                    if (handled) {
+                    if (consumed) {
                         return@pageLoop
                     }
                 }
@@ -963,11 +970,7 @@ class MangaView(
             // mapping global point
             val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
 
-            handleOnDoubleTapListener(e.x, e.y, globalPosition)
-
-            onDoubleTapListenerList.forEach {
-                handleOnDoubleTapListener(e.x, e.y, globalPosition, it)
-            }
+            handleOnDoubleTapListener(e.x, e.y, globalPosition, onDoubleTapListenerList)
         }
 
         postInvalidate()

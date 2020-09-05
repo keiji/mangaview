@@ -174,7 +174,7 @@ abstract class ContentLayer(
     fun requestHandleEvent(
         globalX: Float,
         globalY: Float,
-        onDoubleTapListener: OnDoubleTapListener? = null
+        onDoubleTapListenerList: List<OnDoubleTapListener>
     ): Boolean {
         tmpLocalPoint.set(globalX, globalY, globalX, globalY)
 
@@ -187,17 +187,22 @@ abstract class ContentLayer(
             return false
         }
 
-        if (onDoubleTapListener == null) {
-            onDoubleTap(localPoint.centerX, localPoint.centerY)
+        var consumed = onDoubleTap(localPoint.centerX, localPoint.centerY)
+        if (consumed) {
+            return true
         }
 
-        return onDoubleTapListener?.onDoubleTap(this, localPoint.centerX, localPoint.centerY)
-            ?: false
+        onDoubleTapListenerList.forEach {
+            if (it.onDoubleTap(this, localPoint.centerX, localPoint.centerY)) {
+                consumed = true
+                return@forEach
+            }
+        }
+
+        return consumed
     }
 
-    open fun onDoubleTap(x: Float, y: Float) {
-        // Do nothing
-    }
+    open fun onDoubleTap(x: Float, y: Float): Boolean = false
 
     fun requestHandleEvent(
         mangaView: MangaView,

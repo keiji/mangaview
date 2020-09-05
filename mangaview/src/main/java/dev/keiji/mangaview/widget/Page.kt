@@ -128,7 +128,7 @@ class Page(
     fun requestHandleEvent(
         globalX: Float,
         globalY: Float,
-        onDoubleTapListener: OnDoubleTapListener? = null
+        onDoubleTapListenerList: List<OnDoubleTapListener>
     ): Boolean {
         localPointTmp.set(globalX, globalY, globalX, globalY)
 
@@ -139,8 +139,16 @@ class Page(
         val localPoint = localPointTmp
             .relativeBy(globalRect)
 
-        return onDoubleTapListener?.onDoubleTap(this, localPoint.centerX, localPoint.centerY)
-            ?: false
+        var consumed = false
+
+        onDoubleTapListenerList.forEach {
+            if (it.onDoubleTap(this, localPoint.centerX, localPoint.centerY)) {
+                consumed = true
+                return@forEach
+            }
+        }
+
+        return consumed
     }
 
     fun requestHandleEvent(
