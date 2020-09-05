@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import dev.keiji.mangaview.Rectangle
 import dev.keiji.mangaview.Region
 import dev.keiji.mangaview.TiledSource
 import dev.keiji.mangaview.widget.Config
@@ -18,7 +19,9 @@ import dev.keiji.mangaview.widget.MangaView
 import dev.keiji.mangaview.widget.OnDoubleTapListener
 import dev.keiji.mangaview.widget.OnPageChangeListener
 import dev.keiji.mangaview.widget.OnReadCompleteListener
+import dev.keiji.mangaview.widget.Page
 import dev.keiji.mangaview.widget.PageLayout
+import dev.keiji.mangaview.widget.RegionLayer
 import dev.keiji.mangaview.widget.SinglePageLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -141,6 +144,18 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private val onSelectedRegionListener = object : RegionLayer.OnSelectedRegionListener {
+        override fun onSelectedRegion(
+            page: Page,
+            layer: RegionLayer,
+            region: Region,
+            selectedRegionContent: Rectangle,
+            selectedRegionGlobal: Rectangle,
+        ) {
+            mangaView?.focus(selectedRegionGlobal)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -167,6 +182,7 @@ class MainActivity : AppCompatActivity() {
                 TILED_SOURCE, TILED_IMAGE_URL_LIST,
                 cacheDir,
                 PAGE5_REGION_LIST,
+                onSelectedRegionListener,
                 coroutineScope,
                 PAGE_WIDTH, PAGE_HEIGHT
             )

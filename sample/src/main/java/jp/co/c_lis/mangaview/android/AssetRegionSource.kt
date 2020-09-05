@@ -4,19 +4,19 @@ import android.content.res.AssetManager
 import android.graphics.BitmapFactory
 import android.graphics.Path
 import dev.keiji.mangaview.Region
-import dev.keiji.mangaview.widget.PathSource
+import dev.keiji.mangaview.widget.RegionSource
 import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class AssetPathSource(
+class AssetRegionSource(
     private val assetManager: AssetManager,
     private val fileName: String,
-    private val regionList: List<Region>,
+    override val regionList: ArrayList<Region>,
     private val coroutineScope: CoroutineScope
-) : PathSource() {
+) : RegionSource() {
 
     override val contentWidth: Float
         get() = bitmapWidth
@@ -52,10 +52,6 @@ class AssetPathSource(
                     BitmapFactory.decodeStream(it, null, options)
                     bitmapWidth = options.outWidth.toFloat()
                     bitmapHeight = options.outHeight.toFloat()
-                }
-
-                regionList.forEach { region ->
-                    pathList.add(region.toPath(bitmapWidth, bitmapHeight))
                 }
 
                 job = null

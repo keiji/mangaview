@@ -6,8 +6,7 @@ import dev.keiji.mangaview.TiledSource
 import dev.keiji.mangaview.widget.BitmapLayer
 import dev.keiji.mangaview.widget.Page
 import dev.keiji.mangaview.widget.PageAdapter
-import dev.keiji.mangaview.widget.PathLayer
-import dev.keiji.mangaview.widget.PathSource
+import dev.keiji.mangaview.widget.RegionLayer
 import dev.keiji.mangaview.widget.TiledBitmapLayer
 import kotlinx.coroutines.CoroutineScope
 import java.io.File
@@ -19,6 +18,7 @@ class SampleBitmapAdapter(
     private val urlList: List<String>,
     private val tmpDir: File,
     private val regionList: ArrayList<Region>,
+    private val onSelectedRegionListener: RegionLayer.OnSelectedRegionListener,
     private val coroutineScope: CoroutineScope,
     private val pageWidth: Int,
     private val pageHeight: Int
@@ -50,12 +50,15 @@ class SampleBitmapAdapter(
             )
             page.addLayer(TiledBitmapLayer(tiledImageSource))
         } else if (index == 4) {
-            val pathSource = AssetPathSource(
+            val pathSource = AssetRegionSource(
                 assetManager, fileName,
                 regionList,
                 coroutineScope
             )
-            page.addLayer(PathLayer(pathSource))
+            val pathLayer = RegionLayer(pathSource).also {
+                it.addOnSelectRegionListener(onSelectedRegionListener)
+            }
+            page.addLayer(pathLayer)
         }
 
     }
