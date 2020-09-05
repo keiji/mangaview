@@ -236,9 +236,9 @@ class MangaView(
                 return
             }
 
-            val op = field ?: return
+            val anim = field ?: return
 
-            if (op.isFinished || op.priority <= value.priority) {
+            if (anim.isFinished || anim.priority <= value.priority) {
                 field = value
             }
         }
@@ -508,7 +508,7 @@ class MangaView(
 
         // Scroller first
         val needPostInvalidate = if (scroller.isFinished) {
-            operateAnimate(animation)
+            operateAnimation(animation)
         } else {
             false
         }
@@ -528,7 +528,7 @@ class MangaView(
         }
     }
 
-    private fun operateAnimate(animation: Animation?): Boolean {
+    private fun operateAnimation(animation: Animation?): Boolean {
         animation ?: return false
         if (animation.scale == null && animation.translate == null) {
             return false
