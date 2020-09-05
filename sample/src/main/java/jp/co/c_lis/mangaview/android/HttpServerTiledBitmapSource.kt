@@ -68,7 +68,9 @@ class HttpServerTiledBitmapSource(
 
             if (bitmap == null) {
                 Log.e(TAG, "Bitmap decoding error occurred.")
-                tmpFilePath.deleteOnExit()
+                if (tmpFilePath.delete()) {
+                    Log.e(TAG, "Cache file ${tmpFilePath.absolutePath} has been deleted.")
+                }
             } else {
                 cacheBin[tile] = bitmap
             }
