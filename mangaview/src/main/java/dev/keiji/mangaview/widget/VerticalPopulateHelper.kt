@@ -15,21 +15,25 @@ class VerticalPopulateHelper : PopulateHelper() {
         return diff > (pagingTouchSlop / viewContext.currentScale)
     }
 
-    private val calcDiffXToTop = fun(pageLayout: PageLayout): Float {
-        return pageLayout.getScaledScrollArea(viewContext).top - viewContext.viewport.top
-    }
+    private val calcDiffXToTop =
+        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
+            return pageLayout.getScaledScrollArea(viewContext).top - viewContext.viewport.top
+        }
 
-    private val calcDiffXToBottom = fun(pageLayout: PageLayout): Float {
-        return pageLayout.getScaledScrollArea(viewContext).bottom - viewContext.viewport.bottom
-    }
+    private val calcDiffXToBottom =
+        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
+            return pageLayout.getScaledScrollArea(viewContext).bottom - viewContext.viewport.bottom
+        }
 
-    private val calcDiffYToGlobalTop = fun(pageLayout: PageLayout): Float {
-        return pageLayout.globalPosition.top - viewContext.viewport.top
-    }
+    private val calcDiffYToGlobalTop =
+        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
+            return pageLayout.globalPosition.top - viewContext.viewport.top
+        }
 
-    private val calcDiffYToGlobalBottom = fun(pageLayout: PageLayout): Float {
-        return pageLayout.globalPosition.top - viewContext.viewport.top
-    }
+    private val calcDiffYToGlobalBottom =
+        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
+            return pageLayout.globalPosition.top - viewContext.viewport.top
+        }
 
     override fun populateToTop(topRect: PageLayout): Animation? {
         val layoutManagerSnapshot = layoutManager ?: return null

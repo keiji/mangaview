@@ -13,21 +13,25 @@ class HorizontalPopulateHelper : PopulateHelper() {
         return diff > (pagingTouchSlop / viewContext.currentScale)
     }
 
-    private val calcDiffXToLeft = fun(pageLayout: PageLayout): Float {
-        return pageLayout.getScaledScrollArea(viewContext).right - viewContext.viewport.right
-    }
+    private val calcDiffXToLeft =
+        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
+            return pageLayout.getScaledScrollArea(viewContext).right - viewContext.viewport.right
+        }
 
-    private val calcDiffXToRight = fun(pageLayout: PageLayout): Float {
-        return pageLayout.getScaledScrollArea(viewContext).left - viewContext.viewport.left
-    }
+    private val calcDiffXToRight =
+        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
+            return pageLayout.getScaledScrollArea(viewContext).left - viewContext.viewport.left
+        }
 
-    private val calcDiffXToGlobalLeft = fun(pageLayout: PageLayout): Float {
-        return pageLayout.globalPosition.left - viewContext.viewport.left
-    }
+    private val calcDiffXToGlobalLeft =
+        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
+            return pageLayout.globalPosition.left - viewContext.viewport.left
+        }
 
-    private val calcDiffXToGlobalRight = fun(pageLayout: PageLayout): Float {
-        return pageLayout.globalPosition.left - viewContext.viewport.left
-    }
+    private val calcDiffXToGlobalRight =
+        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
+            return pageLayout.globalPosition.left - viewContext.viewport.left
+        }
 
     override fun populateToLeft(leftRect: PageLayout): Animation? {
         val layoutManagerSnapshot = layoutManager ?: return null
