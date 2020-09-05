@@ -506,6 +506,15 @@ class MangaView(
             return
         }
 
+        animator?.also {
+            if (it.computeAnimation(viewContext)) {
+                postInvalidate()
+                return
+            } else {
+                animator = null
+            }
+        }
+
         // Scroller first
         val needPostInvalidate = if (scroller.isFinished) {
             operateAnimation(animation)
@@ -889,10 +898,12 @@ class MangaView(
         populateToCurrent()
     }
 
+    var animator: Animator? = null
+
     internal fun scale(
         scale: Float,
-        focusX: Float?,
-        focusY: Float?,
+        focusOnViewX: Float?,
+        focusOnViewY: Float?,
         smoothScale: Boolean = false,
     ) {
         if (!smoothScale) {
@@ -903,25 +914,18 @@ class MangaView(
             )
             viewContext.scaleTo(
                 scale,
-                focusX ?: tmpEventPoint.centerX,
-                focusY ?: tmpEventPoint.centerY,
+                focusOnViewX ?: tmpEventPoint.centerX,
+                focusOnViewY ?: tmpEventPoint.centerY,
                 currentScrollableArea
             )
             postInvalidate()
             return
         }
 
-        animation = Animation(
-            scale = Animation.Scale(
-                viewContext.currentScale, scale, focusX, focusY
-            ),
-            startTimeMillis = System.currentTimeMillis(),
-            durationMillis = SCALING_DURATION,
-            priority = Thread.MAX_PRIORITY
-        ) {
-            populateToCurrent()
+        if (focusOnViewX != null && focusOnViewY != null) {
+            animator = Animator().scale(viewContext, currentPageLayout, scale, focusOnViewX, focusOnViewY)
+            startAnimation()
         }
-        startAnimation()
     }
 
     override fun onDoubleTap(e: MotionEvent?): Boolean {
