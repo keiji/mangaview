@@ -69,9 +69,10 @@ class HttpServerTiledBitmapSource(
             if (bitmap == null) {
                 Log.e(TAG, "Bitmap decoding error occurred.")
                 tmpFilePath.deleteOnExit()
+            } else {
+                cacheBin[tile] = bitmap
             }
 
-            cacheBin[tile] = bitmap
             jobMap.remove(tile)
         }
 
@@ -95,11 +96,11 @@ class HttpServerTiledBitmapSource(
     }
 
     override fun recycle() {
-        super.recycle()
-
         jobMap.values.forEach { job ->
             job.cancel()
         }
         jobMap.clear()
+
+        super.recycle()
     }
 }
