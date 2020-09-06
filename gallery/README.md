@@ -3,8 +3,11 @@ MangaView Gallery
 
 An ImageView for reading manga(comics) for Android.
 
+### Scale and swipe
 ![scale_and_swipe](https://user-images.githubusercontent.com/932136/91121347-8b21f300-e6d2-11ea-895c-a74f6095ebfc.gif)
-![split_page_orientation](https://user-images.githubusercontent.com/932136/91121378-9b39d280-e6d2-11ea-9914-c390ae3000ba.gif)
+
+### Double-page spread
+![double_spread_page](https://user-images.githubusercontent.com/932136/91121378-9b39d280-e6d2-11ea-9914-c390ae3000ba.gif)
 
 ### Page Layout Orientation
 MangaView supports various page layout orientation.
