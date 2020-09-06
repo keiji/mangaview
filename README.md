@@ -6,21 +6,8 @@ An ImageView for reading manga(comics) for Android.
 ![mangaview1](https://user-images.githubusercontent.com/932136/91121347-8b21f300-e6d2-11ea-895c-a74f6095ebfc.gif)
 ![mangaview2](https://user-images.githubusercontent.com/932136/91121378-9b39d280-e6d2-11ea-9914-c390ae3000ba.gif)
 
-### Page Layout Orientation
-MangaView supports various page layout orientation.
-
- * Horizontal(RTL: Right to Left, LTR: Left to Right)
-
-![mangaview4](https://user-images.githubusercontent.com/932136/91523749-8199c480-e938-11ea-9d2f-b2a4f7268e4a.gif)
-![mangaview5](https://user-images.githubusercontent.com/932136/91523849-bad23480-e938-11ea-89fb-66e24bb8d65f.gif)
-
-
- * Vertical
- 
-![mangaview3](https://user-images.githubusercontent.com/932136/91523666-4bf4db80-e938-11ea-9b71-d46ec06f5ab7.gif)
-
-#### Gallery
-And you'll look other functions [here](./gallery.md).
+### Gallery
+You'll look other functions [here](./gallery/README.md).
 
 Installation
 ========
