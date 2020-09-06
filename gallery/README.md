@@ -3,8 +3,6 @@ MangaView
 
 An ImageView for reading manga(comics) for Android.
 
-Sample App
-========
 You can download the sample app via [deploygate](https://dply.me/1dakl4).
 
 Gallery
