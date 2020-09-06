@@ -120,8 +120,8 @@ data class ViewContext(
 
     fun scaleTo(
         scale: Float,
-        focusX: Float,
-        focusY: Float,
+        focusX: Float = currentX,
+        focusY: Float = currentY,
         scrollArea: Rectangle? = null,
         applyImmediately: Boolean = true
     ) {

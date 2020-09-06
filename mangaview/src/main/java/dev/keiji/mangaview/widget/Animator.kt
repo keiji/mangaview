@@ -35,12 +35,25 @@ class Animator {
     fun populateTo(
         viewContext: ViewContext,
         pageLayout: PageLayout?,
-        scale: Float,
         durationMillis: Long
     ): Animator? {
         pageLayout ?: return null
 
-        return null
+        fromViewport.copyFrom(viewContext.viewport)
+
+        val scaledViewport = viewContext.copy().also {
+            it.scaleTo(viewContext.minScale)
+        }
+
+        val scrollableArea = pageLayout.getScaledScrollArea(scaledViewport)
+
+        toViewport.copyFrom(scrollableArea)
+        correction(toViewport, scrollableArea)
+
+        startTimeInMills = System.currentTimeMillis()
+        duration = durationMillis
+
+        return this
     }
 
     fun populateTo(
@@ -97,7 +110,7 @@ class Animator {
         }
 
         val scaledViewport = viewContext.copy().also {
-            it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
+            it.scaleTo(scale)
         }
         val scrollableArea = pageLayout.getScaledScrollArea(scaledViewport)
 
@@ -142,7 +155,7 @@ class Animator {
         toViewport.set(left, top, right, bottom)
 
         val scaledViewport = viewContext.copy().also {
-            it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
+            it.scaleTo(scale)
         }
         val scrollableArea = pageLayout.getScaledScrollArea(scaledViewport)
 

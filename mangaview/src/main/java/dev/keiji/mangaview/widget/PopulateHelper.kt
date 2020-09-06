@@ -55,7 +55,7 @@ abstract class PopulateHelper {
             viewContext
         } else {
             viewContext.copy().also {
-                it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
+                it.scaleTo(scale)
             }
         }
 

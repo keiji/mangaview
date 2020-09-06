@@ -334,7 +334,6 @@ class MangaView(
         animator = Animator().populateTo(
             viewContext,
             pageLayout,
-            viewContext.minScale,
             durationMillis = SCROLLING_DURATION
         )
         scrollState = SCROLL_STATE_SETTLING
@@ -462,16 +461,14 @@ class MangaView(
         }
 
         val animatorSnapshot = animator
+
         // Scroller first
         val needPostInvalidate = if (scroller.isFinished && animatorSnapshot != null) {
             animatorSnapshot.let {
-                Log.d(TAG, "1currX ${viewContext.currentX}, currY ${viewContext.currentY}")
                 scrollState = SCROLL_STATE_SETTLING
                 if (it.computeAnimation(viewContext)) {
-                    Log.d(TAG, "2currX ${viewContext.currentX}, currY ${viewContext.currentY}")
                     return@let true
                 } else {
-                    Log.d(TAG, "4currX ${viewContext.currentX}, currY ${viewContext.currentY}")
                     animator = null
                     scrollState = SCROLL_STATE_IDLE
                     return@let false
@@ -482,7 +479,6 @@ class MangaView(
         }
 
         if (!scroller.isFinished && scroller.computeScrollOffset()) {
-            Log.d(TAG, "3currX ${scroller.currX.toFloat()}, currY ${scroller.currY.toFloat()}")
             viewContext.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
         }
 
@@ -784,42 +780,29 @@ class MangaView(
         populateToCurrent()
     }
 
-    var animator: Animator? = null
+    private var animator: Animator? = null
 
     internal fun scale(
         scale: Float,
-        focusOnViewX: Float?,
-        focusOnViewY: Float?,
+        focusOnViewX: Float,
+        focusOnViewY: Float,
         smoothScale: Boolean = false,
     ) {
-        if (!smoothScale) {
-            viewContext.projectToScreenPosition(
-                viewContext.viewport.centerX,
-                viewContext.viewport.centerY,
-                tmpEventPoint
-            )
-            viewContext.scaleTo(
-                scale,
-                focusOnViewX ?: tmpEventPoint.centerX,
-                focusOnViewY ?: tmpEventPoint.centerY,
-                currentScrollableArea
-            )
-            postInvalidate()
-            return
+        val duration = if (!smoothScale) {
+            0L
+        } else {
+            SCALING_DURATION
         }
 
-        if (focusOnViewX != null && focusOnViewY != null) {
-            animator =
-                Animator().scale(
-                    viewContext,
-                    currentPageLayout,
-                    scale,
-                    focusOnViewX,
-                    focusOnViewY,
-                    durationMillis = SCALING_DURATION
-                )
-            startAnimation()
-        }
+        animator = Animator().scale(
+            viewContext,
+            currentPageLayout,
+            scale,
+            focusOnViewX,
+            focusOnViewY,
+            durationMillis = duration
+        )
+        startAnimation()
     }
 
     override fun onDoubleTap(e: MotionEvent?): Boolean {
