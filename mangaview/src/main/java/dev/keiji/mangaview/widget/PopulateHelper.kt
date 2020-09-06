@@ -14,24 +14,20 @@ abstract class PopulateHelper {
 
     internal var pagingTouchSlop: Float = 0.0F
 
-    internal var resetScaleOnPageChanged = true
-
     private var duration: Long = 0
 
-    val tmp = Rectangle()
+    private val tmp = Rectangle()
 
     fun init(
         viewContext: ViewContext,
         layoutManager: LayoutManager,
         pagingTouchSlop: Float,
         duration: Long,
-        resetScaleOnPageChanged: Boolean = false
     ): PopulateHelper {
         this.viewContext = viewContext
         this.layoutManager = layoutManager
         this.pagingTouchSlop = pagingTouchSlop
         this.duration = duration
-        this.resetScaleOnPageChanged = resetScaleOnPageChanged
         return this
     }
 
@@ -39,7 +35,7 @@ abstract class PopulateHelper {
         from: PageLayout?,
         to: PageLayout?,
         shouldPopulate: (Rectangle?) -> Boolean,
-        calcDestRectangle: (ViewContext, PageLayout, Float, Rectangle) -> Rectangle,
+        calcDestRectangle: (ViewContext, ViewContext, Rectangle, Rectangle) -> Rectangle,
         scale: Float = viewContext.currentScale
     ): Animator? {
         from ?: return null
@@ -55,12 +51,22 @@ abstract class PopulateHelper {
             return null
         }
 
-        val destRectangle = calcDestRectangle(viewContext, to, scale, tmp)
+        val scaledViewContext = if (viewContext.currentScale == scale) {
+            viewContext
+        } else {
+            viewContext.copy().also {
+                it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
+            }
+        }
+
+        val scrollableArea = to.getScaledScrollArea(scaledViewContext)
+
+        val destRectangle = calcDestRectangle(viewContext, scaledViewContext, scrollableArea, tmp)
 
         return animator.populateTo(
             viewContext,
             to,
-            scale,
+            scrollableArea,
             destRectangle,
             durationMillis = duration
         )
@@ -69,7 +75,13 @@ abstract class PopulateHelper {
     private val animator = Animator()
 
     fun populateToCurrent(pageLayout: PageLayout?): Animator? {
-        return animator.populateTo(viewContext, pageLayout)
+        pageLayout ?: return null
+
+        return animator.populateTo(
+            viewContext,
+            pageLayout,
+            pageLayout.getScaledScrollArea(viewContext)
+        )
     }
 
     open fun populateToLeft(

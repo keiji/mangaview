@@ -15,32 +15,58 @@ class VerticalPopulateHelper : PopulateHelper() {
         return diff > (pagingTouchSlop / viewContext.currentScale)
     }
 
-    private val calcDiffXToTop =
-        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
-            return pageLayout.getScaledScrollArea(viewContext).top - viewContext.viewport.top
+    private val calcDestRectangleToTop =
+        fun(
+            viewContext: ViewContext,
+            scaledViewContext: ViewContext,
+            scrollableArea: Rectangle,
+            tmp: Rectangle
+        ): Rectangle {
+            val offsetY = scrollableArea.bottom - viewContext.viewport.bottom
+
+            tmp.copyFrom(scaledViewContext.viewport)
+                .offset(0.0F, offsetY)
+
+            return tmp
         }
 
-    private val calcDiffXToBottom =
-        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
-            return pageLayout.getScaledScrollArea(viewContext).bottom - viewContext.viewport.bottom
-        }
+    private val calcDestRectangleToBottom =
+        fun(
+            viewContext: ViewContext,
+            scaledViewContext: ViewContext,
+            scrollableArea: Rectangle,
+            tmp: Rectangle
+        ): Rectangle {
+            val offsetY = scrollableArea.top - viewContext.viewport.top
 
-    private val calcDiffYToGlobalTop =
-        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
-            return pageLayout.globalPosition.top - viewContext.viewport.top
-        }
+            tmp.copyFrom(scaledViewContext.viewport)
+                .offset(0.0F, offsetY)
 
-    private val calcDiffYToGlobalBottom =
-        fun(viewContext: ViewContext, pageLayout: PageLayout): Float {
-            return pageLayout.globalPosition.top - viewContext.viewport.top
+            return tmp
         }
 
     override fun populateToTop(topRect: PageLayout, scale: Float): Animator? {
-        return null
+        val layoutManagerSnapshot = layoutManager ?: return null
+
+        return populateTo(
+            layoutManagerSnapshot.currentPageLayout(viewContext),
+            topRect,
+            shouldPopulateVertical,
+            calcDestRectangleToTop,
+            scale
+        )
     }
 
     override fun populateToBottom(bottomRect: PageLayout, scale: Float): Animator? {
-        return null
+        val layoutManagerSnapshot = layoutManager ?: return null
+
+        return populateTo(
+            layoutManagerSnapshot.currentPageLayout(viewContext),
+            bottomRect,
+            shouldPopulateVertical,
+            calcDestRectangleToBottom,
+            scale
+        )
     }
 
 }

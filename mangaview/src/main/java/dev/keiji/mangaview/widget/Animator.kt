@@ -11,27 +11,19 @@ class Animator {
 
         private const val DEFAULT_SCALE_DURATION = 230L
 
-        private fun correction(viewport: Rectangle, scrollableArea: Rectangle) {
-            Log.d(TAG, "scrollableArea", scrollableArea)
-
+        fun correction(viewport: Rectangle, scrollableArea: Rectangle) {
             if (viewport.left < scrollableArea.left) {
-                Log.d(TAG, "left correction: ${viewport.left}, ${scrollableArea.left}")
                 viewport.offset(scrollableArea.left - viewport.left, 0.0F)
-            } else if (viewport.right > scrollableArea.right) {
-                Log.d(TAG, "right correction: ${viewport.right}, ${scrollableArea.right}")
+            }
+            if (viewport.right > scrollableArea.right) {
                 viewport.offset(scrollableArea.right - viewport.right, 0.0F)
             }
             if (viewport.top < scrollableArea.top) {
-                Log.d(TAG, "top correction: ${viewport.top}, ${scrollableArea.top}")
                 viewport.offset(0.0F, scrollableArea.top - viewport.top)
-                Log.d(TAG, "top corrected: ${viewport.top}")
-            } else if (viewport.bottom > scrollableArea.bottom) {
-                Log.d(TAG, "bottom correction: ${viewport.bottom}, ${scrollableArea.bottom}")
-                viewport.offset(0.0F, scrollableArea.bottom - viewport.bottom)
-                Log.d(TAG, "bottom corrected: ${viewport.bottom}")
             }
-
-            Log.d(TAG, "viewport", viewport)
+            if (viewport.bottom > scrollableArea.bottom) {
+                viewport.offset(0.0F, scrollableArea.bottom - viewport.bottom)
+            }
         }
     }
 
@@ -46,7 +38,7 @@ class Animator {
     fun populateTo(
         viewContext: ViewContext,
         pageLayout: PageLayout?,
-        scale: Float = viewContext.currentScale,
+        scrollableArea: Rectangle,
         destRectangle: Rectangle = viewContext.viewport,
         durationMillis: Long = DEFAULT_SCALE_DURATION
     ): Animator? {
@@ -55,15 +47,7 @@ class Animator {
         fromViewport.copyFrom(viewContext.viewport)
         toViewport.copyFrom(destRectangle)
 
-        val vc = if (viewContext.currentScale == scale) {
-            viewContext
-        } else {
-            viewContext.copy().also {
-                it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
-            }
-        }
-
-        correction(toViewport, pageLayout.getScaledScrollArea(vc))
+        correction(toViewport, scrollableArea)
 
         startTimeInMills = System.currentTimeMillis()
         duration = durationMillis

@@ -7,26 +7,24 @@ class HorizontalPopulateHelper : PopulateHelper() {
         private val TAG = HorizontalPopulateHelper::class.java.simpleName
     }
 
+    private val shouldPopulateHorizontal = fun(rect: Rectangle?): Boolean {
+        rect ?: return false
+
+        val diff = viewContext.viewport.width - rect.width
+        return diff > (pagingTouchSlop / viewContext.currentScale)
+    }
+
     private val calcDestRectangleToLeft =
         fun(
             viewContext: ViewContext,
-            destPageLayout: PageLayout,
-            scale: Float,
+            scaledViewContext: ViewContext,
+            scrollableArea: Rectangle,
             tmp: Rectangle
         ): Rectangle {
-            val vc = if (viewContext.currentScale == scale) {
-                viewContext
-            } else {
-                viewContext.copy().also {
-                    it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
-                }
-            }
+            val offsetX = scrollableArea.right - viewContext.viewport.right
 
-            val scrollableArea = destPageLayout.getScaledScrollArea(vc)
-            val offsetX = scrollableArea.right - vc.viewport.right
-
-            tmp.copyFrom(vc.viewport)
-            tmp.offset(offsetX, 0.0F)
+            tmp.copyFrom(scaledViewContext.viewport)
+                .offset(offsetX, 0.0F)
 
             return tmp
         }
@@ -34,32 +32,17 @@ class HorizontalPopulateHelper : PopulateHelper() {
     private val calcDestRectangleToRight =
         fun(
             viewContext: ViewContext,
-            destPageLayout: PageLayout,
-            scale: Float,
+            scaledViewContext: ViewContext,
+            scrollableArea: Rectangle,
             tmp: Rectangle
         ): Rectangle {
-            val vc = if (viewContext.currentScale == scale) {
-                viewContext
-            } else {
-                viewContext.copy().also {
-                    it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
-                }
-            }
+            val offsetX = scrollableArea.left - viewContext.viewport.left
 
-            val scrollableArea = destPageLayout.getScaledScrollArea(vc)
-            val offsetX = scrollableArea.left - vc.viewport.left
-
-            tmp.copyFrom(vc.viewport)
-            tmp.offset(offsetX, 0.0F)
+            tmp.copyFrom(scaledViewContext.viewport)
+                .offset(offsetX, 0.0F)
 
             return tmp
         }
-
-    private val shouldPopulateHorizontal = fun(rect: Rectangle?): Boolean {
-        rect ?: return false
-        val diff = viewContext.viewport.width - rect.width
-        return diff > (pagingTouchSlop / viewContext.currentScale)
-    }
 
     override fun populateToLeft(leftRect: PageLayout, scale: Float): Animator? {
         val layoutManagerSnapshot = layoutManager ?: return null

@@ -398,8 +398,7 @@ class MangaView(
                 viewContext,
                 layoutManagerSnapshot,
                 pagingTouchSlop,
-                SCROLLING_DURATION,
-                resetScaleOnPageChanged = config.resetScaleOnPageChanged
+                SCROLLING_DURATION
             )
             .populateToCurrent(currentPageLayout)
 
@@ -613,11 +612,16 @@ class MangaView(
                 viewContext,
                 layoutManagerSnapshot,
                 pagingTouchSlop,
-                SCROLLING_DURATION,
-                resetScaleOnPageChanged = config.resetScaleOnPageChanged
+                SCROLLING_DURATION
             )
 
         val horizontal = (abs(scaledVelocityX) > abs(scaledVelocityY))
+
+        val scale = if (config.resetScaleOnPageChanged) {
+            1.0F
+        } else {
+            viewContext.currentScale
+        }
 
         val populateAnimation = if (horizontal) {
             val leftPageLayout =
@@ -628,11 +632,11 @@ class MangaView(
             if (scaledVelocityX > 0.0F && leftPageLayout != null
                 && !viewContext.canScrollLeft(currentScrollAreaSnapshot)
             ) {
-                populateHelper.populateToLeft(leftPageLayout, 1.0F)
+                populateHelper.populateToLeft(leftPageLayout, scale)
             } else if (scaledVelocityX < 0.0F && rightPageLayout != null
                 && !viewContext.canScrollRight(currentScrollAreaSnapshot)
             ) {
-                populateHelper.populateToRight(rightPageLayout, 1.0F)
+                populateHelper.populateToRight(rightPageLayout, scale)
             } else {
                 null
             }
@@ -644,11 +648,11 @@ class MangaView(
             if (scaledVelocityY > 0.0F && topPageLayout != null
                 && !viewContext.canScrollTop(currentScrollAreaSnapshot)
             ) {
-                populateHelper.populateToTop(topPageLayout)
+                populateHelper.populateToTop(topPageLayout, scale)
             } else if (scaledVelocityY < 0.0F && bottomPageLayout != null
                 && !viewContext.canScrollBottom(currentScrollAreaSnapshot)
             ) {
-                populateHelper.populateToBottom(bottomPageLayout)
+                populateHelper.populateToBottom(bottomPageLayout, scale)
             } else {
                 null
             }
