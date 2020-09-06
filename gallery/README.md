@@ -1,7 +1,14 @@
-MangaView Gallery
+MangaView
 ========
 
 An ImageView for reading manga(comics) for Android.
+
+Sample App
+========
+You can download the sample app via [deploygate](https://dply.me/1dakl4).
+
+Gallery
+========
 
 ### Swipe, scale and scroll
 ![scale_and_swipe](https://user-images.githubusercontent.com/932136/91121347-8b21f300-e6d2-11ea-895c-a74f6095ebfc.gif)
