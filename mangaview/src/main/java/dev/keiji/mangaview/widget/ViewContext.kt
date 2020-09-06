@@ -187,7 +187,7 @@ data class ViewContext(
         scrollPolicyVertical = vertical
     }
 
-    fun setViewport(left: Float, top: Float, right: Float, bottom: Float) {
+    fun applyViewport(left: Float, top: Float, right: Float, bottom: Float) {
         viewport.set(left, top, right, bottom)
         currentScale = viewWidth / viewport.width
         currentX = viewport.left

@@ -96,10 +96,10 @@ class Animator {
             it.bottom -= diffBottom
         }
 
-        val vc = viewContext.copy().also {
+        val scaledViewport = viewContext.copy().also {
             it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
         }
-        val scrollableArea = pageLayout.getScaledScrollArea(vc)
+        val scrollableArea = pageLayout.getScaledScrollArea(scaledViewport)
 
         correction(toViewport, scrollableArea)
 
@@ -141,10 +141,10 @@ class Animator {
 
         toViewport.set(left, top, right, bottom)
 
-        val vc = viewContext.copy().also {
+        val scaledViewport = viewContext.copy().also {
             it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
         }
-        val scrollableArea = pageLayout.getScaledScrollArea(vc)
+        val scrollableArea = pageLayout.getScaledScrollArea(scaledViewport)
 
         correction(toViewport, scrollableArea)
 
@@ -159,7 +159,7 @@ class Animator {
         val input = elapsed.toFloat() / duration
 
         if (input >= 1.0F) {
-            viewContext.setViewport(
+            viewContext.applyViewport(
                 toViewport.left,
                 toViewport.top,
                 toViewport.right,
@@ -175,7 +175,7 @@ class Animator {
         val diffRight = toViewport.right - fromViewport.right
         val diffBottom = toViewport.bottom - fromViewport.bottom
 
-        viewContext.setViewport(
+        viewContext.applyViewport(
             fromViewport.left + diffLeft * factor,
             fromViewport.top + diffTop * factor,
             fromViewport.right + diffRight * factor,
