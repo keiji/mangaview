@@ -19,6 +19,9 @@ MangaView supports various page layout orientation.
  
 ![mangaview3](https://user-images.githubusercontent.com/932136/91523666-4bf4db80-e938-11ea-9b71-d46ec06f5ab7.gif)
 
+#### Gallery
+And you'll look other functions [here](./gallery.md).
+
 Installation
 ========
 To add MangaView to your project, include the following in your app module build.gradle file:
