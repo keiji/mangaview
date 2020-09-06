@@ -35,48 +35,12 @@ class VerticalPopulateHelper : PopulateHelper() {
             return pageLayout.globalPosition.top - viewContext.viewport.top
         }
 
-    override fun populateToTop(topRect: PageLayout): Animation? {
-        val layoutManagerSnapshot = layoutManager ?: return null
-
-        val dx = if (resetScaleOnPageChanged) {
-            calcDiffX
-        } else {
-            calcDiffHorizontal
-        }
-        val dy = if (resetScaleOnPageChanged) {
-            calcDiffYToGlobalTop
-        } else {
-            calcDiffXToTop
-        }
-
-        return populateTo(
-            layoutManagerSnapshot.currentPageLayout(viewContext),
-            topRect,
-            shouldPopulateVertical,
-            dx, dy,
-        )
+    override fun populateToTop(topRect: PageLayout, scale: Float): Animator? {
+        return null
     }
 
-    override fun populateToBottom(bottomRect: PageLayout): Animation? {
-        val layoutManagerSnapshot = layoutManager ?: return null
-
-        val dx = if (resetScaleOnPageChanged) {
-            calcDiffX
-        } else {
-            calcDiffHorizontal
-        }
-        val dy = if (resetScaleOnPageChanged) {
-            calcDiffYToGlobalBottom
-        } else {
-            calcDiffXToBottom
-        }
-
-        return populateTo(
-            layoutManagerSnapshot.currentPageLayout(viewContext),
-            bottomRect,
-            shouldPopulateVertical,
-            dx, dy,
-        )
+    override fun populateToBottom(bottomRect: PageLayout, scale: Float): Animator? {
+        return null
     }
 
 }

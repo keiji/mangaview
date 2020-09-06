@@ -12,18 +12,26 @@ class Animator {
         private const val DEFAULT_SCALE_DURATION = 230L
 
         private fun correction(viewport: Rectangle, scrollableArea: Rectangle) {
+            Log.d(TAG, "scrollableArea", scrollableArea)
+
             if (viewport.left < scrollableArea.left) {
+                Log.d(TAG, "left correction: ${viewport.left}, ${scrollableArea.left}")
                 viewport.offset(scrollableArea.left - viewport.left, 0.0F)
-            }
-            if (viewport.right > scrollableArea.right) {
+            } else if (viewport.right > scrollableArea.right) {
+                Log.d(TAG, "right correction: ${viewport.right}, ${scrollableArea.right}")
                 viewport.offset(scrollableArea.right - viewport.right, 0.0F)
             }
             if (viewport.top < scrollableArea.top) {
+                Log.d(TAG, "top correction: ${viewport.top}, ${scrollableArea.top}")
                 viewport.offset(0.0F, scrollableArea.top - viewport.top)
-            }
-            if (viewport.bottom > scrollableArea.bottom) {
+                Log.d(TAG, "top corrected: ${viewport.top}")
+            } else if (viewport.bottom > scrollableArea.bottom) {
+                Log.d(TAG, "bottom correction: ${viewport.bottom}, ${scrollableArea.bottom}")
                 viewport.offset(0.0F, scrollableArea.bottom - viewport.bottom)
+                Log.d(TAG, "bottom corrected: ${viewport.bottom}")
             }
+
+            Log.d(TAG, "viewport", viewport)
         }
     }
 
@@ -35,13 +43,41 @@ class Animator {
     private val fromViewport = Rectangle()
     private val toViewport = Rectangle()
 
+    fun populateTo(
+        viewContext: ViewContext,
+        pageLayout: PageLayout?,
+        scale: Float = viewContext.currentScale,
+        destRectangle: Rectangle = viewContext.viewport,
+        durationMillis: Long = DEFAULT_SCALE_DURATION
+    ): Animator? {
+        pageLayout ?: return null
+
+        fromViewport.copyFrom(viewContext.viewport)
+        toViewport.copyFrom(destRectangle)
+
+        val vc = if (viewContext.currentScale == scale) {
+            viewContext
+        } else {
+            viewContext.copy().also {
+                it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
+            }
+        }
+
+        correction(toViewport, pageLayout.getScaledScrollArea(vc))
+
+        startTimeInMills = System.currentTimeMillis()
+        duration = durationMillis
+
+        return this
+    }
+
     fun scale(
         viewContext: ViewContext,
         pageLayout: PageLayout?,
         scale: Float,
         focusOnViewX: Float,
         focusOnViewY: Float,
-        duration: Long = DEFAULT_SCALE_DURATION
+        durationMillis: Long = DEFAULT_SCALE_DURATION
     ): Animator? {
         pageLayout ?: return null
 
@@ -76,7 +112,7 @@ class Animator {
         correction(toViewport, scrollableArea)
 
         startTimeInMills = System.currentTimeMillis()
-        this.duration = duration
+        duration = durationMillis
 
         return this
     }
@@ -85,7 +121,7 @@ class Animator {
         viewContext: ViewContext,
         pageLayout: PageLayout?,
         focusRect: Rectangle,
-        duration: Long = DEFAULT_SCALE_DURATION
+        durationMillis: Long = DEFAULT_SCALE_DURATION
     ): Animator? {
         pageLayout ?: return null
         fromViewport.copyFrom(viewContext.viewport)
@@ -121,7 +157,7 @@ class Animator {
         correction(toViewport, scrollableArea)
 
         startTimeInMills = System.currentTimeMillis()
-        this.duration = duration
+        duration = durationMillis
 
         return this
     }
@@ -130,7 +166,7 @@ class Animator {
         val elapsed = System.currentTimeMillis() - startTimeInMills
         val input = elapsed.toFloat() / duration
 
-        if (input > 1.0F) {
+        if (input >= 1.0F) {
             viewContext.setViewport(
                 toViewport.left,
                 toViewport.top,

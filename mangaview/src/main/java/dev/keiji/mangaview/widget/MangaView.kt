@@ -221,28 +221,6 @@ class MangaView(
             field = value
         }
 
-    private var translateInterpolator = DecelerateInterpolator()
-    private var scaleInterpolator = DecelerateInterpolator()
-
-    private var animation: Animation? = null
-        set(value) {
-            if (value == null) {
-                field = null
-                return
-            }
-
-            if (field == null) {
-                field = value
-                return
-            }
-
-            val anim = field ?: return
-
-            if (anim.isFinished || anim.priority <= value.priority) {
-                field = value
-            }
-        }
-
     var currentPageIndex: Int = 0
 
     private val tmpCurrentScrollArea = Rectangle()
@@ -415,7 +393,7 @@ class MangaView(
             handleReadCompleteEvent()
         }
 
-        val populateAnimation = layoutManagerSnapshot.populateHelper
+        animator = layoutManagerSnapshot.populateHelper
             .init(
                 viewContext,
                 layoutManagerSnapshot,
@@ -425,11 +403,7 @@ class MangaView(
             )
             .populateToCurrent(currentPageLayout)
 
-        if (populateAnimation != null) {
-            animation = populateAnimation
-            scrollState = SCROLL_STATE_SETTLING
-            startAnimation()
-        }
+        startAnimation()
 
         scalingState = ScalingState.Finish
     }
@@ -492,6 +466,7 @@ class MangaView(
     private fun abortAnimation() {
         scroller.abortAnimation()
         animation = null
+        animator = null
     }
 
     override fun computeScroll() {
@@ -501,23 +476,28 @@ class MangaView(
             return
         }
 
-        animator?.also {
-            if (it.computeAnimation(viewContext)) {
-                postInvalidate()
-                return
-            } else {
-                animator = null
-            }
-        }
-
+        val animatorSnapshot = animator
         // Scroller first
-        val needPostInvalidate = if (scroller.isFinished) {
-            operateAnimation(animation)
+        val needPostInvalidate = if (scroller.isFinished && animatorSnapshot != null) {
+            animatorSnapshot.let {
+                Log.d(TAG, "1currX ${viewContext.currentX}, currY ${viewContext.currentY}")
+                scrollState = SCROLL_STATE_SETTLING
+                if (it.computeAnimation(viewContext)) {
+                    Log.d(TAG, "2currX ${viewContext.currentX}, currY ${viewContext.currentY}")
+                    return@let true
+                } else {
+                    Log.d(TAG, "4currX ${viewContext.currentX}, currY ${viewContext.currentY}")
+                    animator = null
+                    scrollState = SCROLL_STATE_IDLE
+                    return@let false
+                }
+            }
         } else {
             false
         }
 
         if (!scroller.isFinished && scroller.computeScrollOffset()) {
+            Log.d(TAG, "3currX ${scroller.currX.toFloat()}, currY ${scroller.currY.toFloat()}")
             viewContext.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
         }
 
@@ -530,85 +510,6 @@ class MangaView(
         if (needPostInvalidate || needPostInvalidateScroll) {
             ViewCompat.postInvalidateOnAnimation(this)
         }
-    }
-
-    private fun operateAnimation(animation: Animation?): Boolean {
-        animation ?: return false
-        if (animation.scale == null && animation.translate == null) {
-            return false
-        }
-
-        val input = animation.elapsed.toFloat() / animation.durationMillis
-
-        animation.scale?.also { scaleOperation ->
-            val focusX: Float
-            val focusY: Float
-
-            if (scaleOperation.focusX != null && scaleOperation.focusY != null) {
-                focusX = scaleOperation.focusX
-                focusY = scaleOperation.focusY
-
-            } else {
-                viewContext.projectToScreenPosition(
-                    viewContext.viewport.centerX,
-                    viewContext.viewport.centerY,
-                    tmpEventPoint
-                )
-                focusX = tmpEventPoint.left
-                focusY = tmpEventPoint.top
-            }
-
-            if (input >= 1.0F) {
-                viewContext.scaleTo(
-                    scaleOperation.to,
-                    focusX,
-                    focusY,
-                    currentScrollableArea,
-                    applyImmediately = false
-                )
-                animation.scale = null
-            } else {
-                val factor = scaleInterpolator.getInterpolation(input)
-                val newScale = scaleOperation.from + scaleOperation.diff * factor
-                viewContext.scaleTo(
-                    newScale,
-                    focusX,
-                    focusY,
-                    currentScrollableArea,
-                    applyImmediately = false
-                )
-            }
-        }
-
-        animation.translate?.also { translateOperation ->
-            if (input >= 1.0F) {
-                viewContext.offsetTo(
-                    translateOperation.destX,
-                    translateOperation.destY,
-                    currentScrollableArea,
-                    applyImmediately = false
-                )
-                animation.translate = null
-            } else {
-                val factor = translateInterpolator.getInterpolation(input)
-                val newX = translateOperation.startX + translateOperation.diffX * factor
-                val newY = translateOperation.startY + translateOperation.diffY * factor
-                viewContext.offsetTo(
-                    newX,
-                    newY,
-                    currentScrollableArea,
-                    applyImmediately = false
-                )
-            }
-        }
-
-        viewContext.applyViewport()
-
-        if (animation.isFinished) {
-            animation.onAnimationEnd()
-        }
-
-        return !animation.isFinished
     }
 
     override fun onShowPress(e: MotionEvent?) {
@@ -727,11 +628,11 @@ class MangaView(
             if (scaledVelocityX > 0.0F && leftPageLayout != null
                 && !viewContext.canScrollLeft(currentScrollAreaSnapshot)
             ) {
-                populateHelper.populateToLeft(leftPageLayout)
+                populateHelper.populateToLeft(leftPageLayout, 1.0F)
             } else if (scaledVelocityX < 0.0F && rightPageLayout != null
                 && !viewContext.canScrollRight(currentScrollAreaSnapshot)
             ) {
-                populateHelper.populateToRight(rightPageLayout)
+                populateHelper.populateToRight(rightPageLayout, 1.0F)
             } else {
                 null
             }
@@ -754,7 +655,7 @@ class MangaView(
         }
 
         if (populateAnimation != null) {
-            animation = populateAnimation
+//            animation = populateAnimation
             scrollState = SCROLL_STATE_SETTLING
             startAnimation()
             return true
@@ -918,7 +819,8 @@ class MangaView(
         }
 
         if (focusOnViewX != null && focusOnViewY != null) {
-            animator = Animator().scale(viewContext, currentPageLayout, scale, focusOnViewX, focusOnViewY)
+            animator =
+                Animator().scale(viewContext, currentPageLayout, scale, focusOnViewX, focusOnViewY)
             startAnimation()
         }
     }
