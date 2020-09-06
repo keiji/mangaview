@@ -2,6 +2,7 @@ MangaView
 ========
 
 An ImageView for reading manga(comics) for Android.
+
 You'll look all features [here](./gallery/README.md).
 
 ![mangaview1](https://user-images.githubusercontent.com/932136/91121347-8b21f300-e6d2-11ea-895c-a74f6095ebfc.gif)
