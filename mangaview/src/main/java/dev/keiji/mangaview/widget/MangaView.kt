@@ -356,28 +356,26 @@ class MangaView(
         val currentLeft = viewContext.viewport.left
         val currentTop = viewContext.viewport.top
 
-        val translateOperation = Animation.Translate(
-            currentLeft,
-            currentTop,
-            position.left,
-            position.top
-        )
-        animation = Animation(
-            translate = translateOperation,
-            scale = Animation.Scale(
-                viewContext.currentScale,
-                viewContext.minScale,
-                null,
-                null
-            ),
-            startTimeMillis = System.currentTimeMillis(),
-            durationMillis = SCROLLING_DURATION
-        )
+//        val translateOperation = Animation.Translate(
+//            currentLeft,
+//            currentTop,
+//            position.left,
+//            position.top
+//        )
+//        animation = Animation(
+//            translate = translateOperation,
+//            scale = Animation.Scale(
+//                viewContext.currentScale,
+//                viewContext.minScale,
+//                null,
+//                null
+//            ),
+//            startTimeMillis = System.currentTimeMillis(),
+//            durationMillis = SCROLLING_DURATION
+//        )
         scrollState = SCROLL_STATE_SETTLING
         startAnimation()
     }
-
-    private val focusHelper = FocusHelper()
 
     fun focus(globalRegion: Rectangle, duration: Long = FOCUS_DURATION) {
         animator = Animator().focus(viewContext, currentPageLayout, globalRegion)
