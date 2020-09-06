@@ -80,7 +80,8 @@ abstract class PopulateHelper {
         return animator.populateTo(
             viewContext,
             pageLayout,
-            pageLayout.getScaledScrollArea(viewContext)
+            pageLayout.getScaledScrollArea(viewContext),
+            durationMillis = duration
         )
     }
 

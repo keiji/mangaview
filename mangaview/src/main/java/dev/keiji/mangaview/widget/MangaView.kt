@@ -331,32 +331,18 @@ class MangaView(
             return
         }
 
-        val currentLeft = viewContext.viewport.left
-        val currentTop = viewContext.viewport.top
-
-//        val translateOperation = Animation.Translate(
-//            currentLeft,
-//            currentTop,
-//            position.left,
-//            position.top
-//        )
-//        animation = Animation(
-//            translate = translateOperation,
-//            scale = Animation.Scale(
-//                viewContext.currentScale,
-//                viewContext.minScale,
-//                null,
-//                null
-//            ),
-//            startTimeMillis = System.currentTimeMillis(),
-//            durationMillis = SCROLLING_DURATION
-//        )
+        animator = Animator().populateTo(
+            viewContext,
+            pageLayout,
+            viewContext.minScale,
+            durationMillis = SCROLLING_DURATION
+        )
         scrollState = SCROLL_STATE_SETTLING
         startAnimation()
     }
 
     fun focus(globalRegion: Rectangle, duration: Long = FOCUS_DURATION) {
-        animator = Animator().focus(viewContext, currentPageLayout, globalRegion)
+        animator = Animator().focus(viewContext, currentPageLayout, globalRegion, duration)
         postInvalidate()
     }
 
@@ -618,7 +604,7 @@ class MangaView(
         val horizontal = (abs(scaledVelocityX) > abs(scaledVelocityY))
 
         val scale = if (config.resetScaleOnPageChanged) {
-            1.0F
+            viewContext.minScale
         } else {
             viewContext.currentScale
         }
@@ -824,7 +810,14 @@ class MangaView(
 
         if (focusOnViewX != null && focusOnViewY != null) {
             animator =
-                Animator().scale(viewContext, currentPageLayout, scale, focusOnViewX, focusOnViewY)
+                Animator().scale(
+                    viewContext,
+                    currentPageLayout,
+                    scale,
+                    focusOnViewX,
+                    focusOnViewY,
+                    durationMillis = SCALING_DURATION
+                )
             startAnimation()
         }
     }

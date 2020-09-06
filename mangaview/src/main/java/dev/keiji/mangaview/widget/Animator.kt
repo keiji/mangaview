@@ -1,15 +1,12 @@
 package dev.keiji.mangaview.widget
 
 import android.view.animation.DecelerateInterpolator
-import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.min
 
 class Animator {
     companion object {
         private val TAG = Animator::class.java.simpleName
-
-        private const val DEFAULT_SCALE_DURATION = 230L
 
         fun correction(viewport: Rectangle, scrollableArea: Rectangle) {
             if (viewport.left < scrollableArea.left) {
@@ -38,9 +35,20 @@ class Animator {
     fun populateTo(
         viewContext: ViewContext,
         pageLayout: PageLayout?,
+        scale: Float,
+        durationMillis: Long
+    ): Animator? {
+        pageLayout ?: return null
+
+        return null
+    }
+
+    fun populateTo(
+        viewContext: ViewContext,
+        pageLayout: PageLayout?,
         scrollableArea: Rectangle,
         destRectangle: Rectangle = viewContext.viewport,
-        durationMillis: Long = DEFAULT_SCALE_DURATION
+        durationMillis: Long
     ): Animator? {
         pageLayout ?: return null
 
@@ -61,7 +69,7 @@ class Animator {
         scale: Float,
         focusOnViewX: Float,
         focusOnViewY: Float,
-        durationMillis: Long = DEFAULT_SCALE_DURATION
+        durationMillis: Long
     ): Animator? {
         pageLayout ?: return null
 
@@ -105,7 +113,7 @@ class Animator {
         viewContext: ViewContext,
         pageLayout: PageLayout?,
         focusRect: Rectangle,
-        durationMillis: Long = DEFAULT_SCALE_DURATION
+        durationMillis: Long
     ): Animator? {
         pageLayout ?: return null
         fromViewport.copyFrom(viewContext.viewport)
