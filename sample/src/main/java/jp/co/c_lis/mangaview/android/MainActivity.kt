@@ -97,6 +97,8 @@ class MainActivity : AppCompatActivity() {
         private const val PAGE_WIDTH = 859
         private const val PAGE_HEIGHT = 1214
 
+        private const val DOUBLE_TAP_SCALE = 3.0F
+
         private const val KEY_CURRENT_PAGE_INDEX = "state_key_page_index"
     }
 
@@ -190,7 +192,7 @@ class MainActivity : AppCompatActivity() {
             it.addOnDoubleTapListener(onDoubleTapListener)
             it.addOnReadCompleteListener(onReadCompleteListener)
 
-            DoubleTapZoomHelper().setup(it)
+            DoubleTapZoomHelper(maxScale = DOUBLE_TAP_SCALE).setup(it)
             EdgeNavigationHelper().setup(it)
         }
     }
