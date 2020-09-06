@@ -3,7 +3,7 @@ MangaView Gallery
 
 An ImageView for reading manga(comics) for Android.
 
-### Scale and swipe
+### Swipe, scale and scroll
 ![scale_and_swipe](https://user-images.githubusercontent.com/932136/91121347-8b21f300-e6d2-11ea-895c-a74f6095ebfc.gif)
 
 ### Double-page spread
@@ -23,8 +23,8 @@ MangaView supports various page layout orientation.
 
 ### Display tiled images for High-resolution.
 
-![high_resolution_tiled_images]()
+![high_resolution_tiled_images](https://github.com/keiji/mangaview/blob/master/gallery/high_resolution_tiled_images.gif)
 
 ### Select a preset region(Path).
 
-![select_region]()
+![select_region](https://github.com/keiji/mangaview/blob/master/gallery/select_region.gif)
