@@ -21,6 +21,13 @@ MangaView supports various page layout orientation.
  
 ![vertical](https://user-images.githubusercontent.com/932136/91523666-4bf4db80-e938-11ea-9b71-d46ec06f5ab7.gif)
 
+### Double-tap zoom
+![double_tap_zoom](https://github.com/keiji/mangaview/blob/master/gallery/double_tap_zoom.gif)
+
+### Tap-edge page transition
+
+![page_transition_screen_edge](https://github.com/keiji/mangaview/blob/master/gallery/page_transition_screen_edge.gif)
+
 ### Display tiled images for High-resolution.
 
 ![high_resolution_tiled_images](https://github.com/keiji/mangaview/blob/master/gallery/high_resolution_tiled_images.gif)
