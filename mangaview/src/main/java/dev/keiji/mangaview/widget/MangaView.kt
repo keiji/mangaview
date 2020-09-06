@@ -257,7 +257,7 @@ class MangaView(
 
         if (!isInitialized) {
             init()
-            showPage(currentPageIndex)
+            showInitialPage(currentPageIndex)
             return
         }
 
@@ -303,8 +303,7 @@ class MangaView(
         // TODO
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    fun showPage(pageIndex: Int, smoothScroll: Boolean = false) {
+    private fun showInitialPage(pageIndex: Int) {
         val pageLayoutIndex = pageLayoutManager.calcPageLayoutIndex(pageIndex)
         val pageLayout = layoutManager?.getPageLayout(pageLayoutIndex, viewContext)
 
@@ -313,28 +312,41 @@ class MangaView(
             return
         }
 
+        scale(
+            viewContext.minScale,
+            viewContext.viewport.centerY,
+            viewContext.viewport.centerY,
+            smoothScale = false
+        )
+
         val position = pageLayout.globalPosition
+        viewContext.offsetTo(position.left, position.top)
+        layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
 
-        if (!smoothScroll) {
-            scale(
-                viewContext.minScale,
-                viewContext.viewport.centerY,
-                viewContext.viewport.centerY,
-                smoothScale = false
-            )
-            viewContext.offsetTo(position.left, position.top)
-            layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
+        postInvalidate()
+    }
 
-            postInvalidate()
-            scrollState = SCROLL_STATE_IDLE
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun showPage(pageIndex: Int, smoothScroll: Boolean) {
 
+        val pageLayoutIndex = pageLayoutManager.calcPageLayoutIndex(pageIndex)
+        val pageLayout = layoutManager?.getPageLayout(pageLayoutIndex, viewContext)
+
+        if (pageLayout == null) {
+            Log.d(TAG, "pageIndex: ${pageIndex} -> pageLayoutIndex ${pageLayoutIndex} not found.")
             return
+        }
+
+        val duration = if (!smoothScroll) {
+            0L
+        } else {
+            SCROLLING_DURATION
         }
 
         animator = Animator().populateTo(
             viewContext,
             pageLayout,
-            durationMillis = SCROLLING_DURATION
+            durationMillis = duration
         )
         scrollState = SCROLL_STATE_SETTLING
         startAnimation()
@@ -641,7 +653,6 @@ class MangaView(
         }
 
         if (populateAnimation != null) {
-//            animation = populateAnimation
             scrollState = SCROLL_STATE_SETTLING
             startAnimation()
             return true
