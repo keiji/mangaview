@@ -36,7 +36,7 @@ class RegionLayer(
         viewContext: ViewContext,
         paint: Paint
     ): Boolean {
-        if (BuildConfig.DEBUG) {
+        if (!BuildConfig.DEBUG) {
             return true
         }
 
