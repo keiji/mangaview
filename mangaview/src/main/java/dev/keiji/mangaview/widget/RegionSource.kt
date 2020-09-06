@@ -7,11 +7,18 @@ abstract class RegionSource : ContentSource() {
 
     abstract val regionList: ArrayList<Region>
 
-    val pathList: ArrayList<Path> by lazy {
-        val list = ArrayList<Path>()
-        regionList.forEach { region ->
-            list.add(region.toPath(contentWidth, contentHeight))
+    private val cachedPathList = ArrayList<Path>()
+
+    val pathList: ArrayList<Path>
+        get() {
+            if (regionList.size == cachedPathList.size) {
+                return cachedPathList
+            }
+
+            cachedPathList.clear()
+            regionList.forEach { region ->
+                cachedPathList.add(region.toPath(contentWidth, contentHeight))
+            }
+            return cachedPathList
         }
-        list
-    }
 }
