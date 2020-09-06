@@ -475,7 +475,7 @@ class MangaView(
         val animatorSnapshot = animator
 
         // Scroller first
-        val needPostInvalidate = if (scroller.isFinished && animatorSnapshot != null) {
+        val needPostInvalidate = if (animatorSnapshot != null) {
             animatorSnapshot.let {
                 scrollState = SCROLL_STATE_SETTLING
                 if (it.computeAnimation(viewContext)) {
@@ -492,6 +492,9 @@ class MangaView(
 
         if (!scroller.isFinished && scroller.computeScrollOffset()) {
             viewContext.offsetTo(scroller.currX.toFloat(), scroller.currY.toFloat())
+            if (scroller.isFinished) {
+                populateToCurrent()
+            }
         }
 
         val needPostInvalidateScroll = !scroller.isFinished || needPostInvalidate
@@ -500,7 +503,7 @@ class MangaView(
             scrollState = SCROLL_STATE_IDLE
         }
 
-        if (needPostInvalidate || needPostInvalidateScroll) {
+        if (needPostInvalidateScroll) {
             ViewCompat.postInvalidateOnAnimation(this)
         }
     }
@@ -788,10 +791,21 @@ class MangaView(
         detector ?: return
 
         scalingState = ScalingState.End
-        populateToCurrent()
     }
 
     private var animator: Animator? = null
+        set(value) {
+            if (value == null) {
+                field = null
+            }
+
+            // scroller first
+            if (!scroller.isFinished) {
+                return
+            }
+
+            field = value
+        }
 
     internal fun scale(
         scale: Float,
