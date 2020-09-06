@@ -138,7 +138,7 @@ abstract class PopulateHelper {
         return operation
     }
 
-    fun populateTo(pageLayout: PageLayout?): Animation? {
+    fun populateToCurrent(pageLayout: PageLayout?): Animation? {
         pageLayout ?: return null
 
         val startX = viewContext.viewport.left

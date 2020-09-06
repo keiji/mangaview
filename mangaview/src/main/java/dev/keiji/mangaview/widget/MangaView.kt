@@ -425,7 +425,7 @@ class MangaView(
                 SCROLLING_DURATION,
                 resetScaleOnPageChanged = config.resetScaleOnPageChanged
             )
-            .populateTo(currentPageLayout)
+            .populateToCurrent(currentPageLayout)
 
         if (populateAnimation != null) {
             animation = populateAnimation
