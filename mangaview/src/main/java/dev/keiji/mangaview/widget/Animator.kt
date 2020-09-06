@@ -3,12 +3,28 @@ package dev.keiji.mangaview.widget
 import android.view.animation.DecelerateInterpolator
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
+import kotlin.math.min
 
 class Animator {
     companion object {
         private val TAG = Animator::class.java.simpleName
 
         private const val DEFAULT_SCALE_DURATION = 230L
+
+        private fun correction(viewport: Rectangle, scrollableArea: Rectangle) {
+            if (viewport.left < scrollableArea.left) {
+                viewport.offset(scrollableArea.left - viewport.left, 0.0F)
+            }
+            if (viewport.right > scrollableArea.right) {
+                viewport.offset(scrollableArea.right - viewport.right, 0.0F)
+            }
+            if (viewport.top < scrollableArea.top) {
+                viewport.offset(0.0F, scrollableArea.top - viewport.top)
+            }
+            if (viewport.bottom > scrollableArea.bottom) {
+                viewport.offset(0.0F, scrollableArea.bottom - viewport.bottom)
+            }
+        }
     }
 
     private val interpolator = DecelerateInterpolator()
@@ -65,28 +81,55 @@ class Animator {
         return this
     }
 
-    private fun correction(viewport: Rectangle, scrollableArea: Rectangle) {
-        if (viewport.left < scrollableArea.left) {
-            viewport.offset(scrollableArea.left - viewport.left, 0.0F)
+    fun focus(
+        viewContext: ViewContext,
+        pageLayout: PageLayout?,
+        focusRect: Rectangle,
+        duration: Long = DEFAULT_SCALE_DURATION
+    ): Animator? {
+        pageLayout ?: return null
+        fromViewport.copyFrom(viewContext.viewport)
+
+        val scale = min(
+            viewContext.viewWidth / focusRect.width,
+            viewContext.viewHeight / focusRect.height
+        )
+
+        val scaledWidth = focusRect.width * scale
+        val scaledHeight = focusRect.height * scale
+
+        val scaledPaddingHorizontal = (viewContext.viewWidth - scaledWidth) / scale
+        val scaledPaddingVertical = (viewContext.viewHeight - scaledHeight) / scale
+
+        val paddingLeft = scaledPaddingHorizontal / 2
+        val paddingTop = scaledPaddingVertical / 2
+        val paddingRight = scaledPaddingHorizontal - paddingLeft
+        val paddingBottom = scaledPaddingVertical - paddingTop
+
+        val left = focusRect.left - paddingLeft
+        val top = focusRect.top - paddingTop
+        val right = focusRect.right + paddingRight
+        val bottom = focusRect.bottom + paddingBottom
+
+        toViewport.set(left, top, right, bottom)
+
+        val vc = viewContext.copy().also {
+            it.scaleTo(scale, viewContext.currentX, viewContext.currentY)
         }
-        if (viewport.right > scrollableArea.right) {
-            viewport.offset(scrollableArea.right - viewport.right, 0.0F)
-        }
-        if (viewport.top < scrollableArea.top) {
-            viewport.offset(0.0F, scrollableArea.top - viewport.top)
-        }
-        if (viewport.bottom > scrollableArea.bottom) {
-            viewport.offset(0.0F, scrollableArea.bottom - viewport.bottom)
-        }
+        val scrollableArea = pageLayout.getScaledScrollArea(vc)
+
+        correction(toViewport, scrollableArea)
+
+        startTimeInMills = System.currentTimeMillis()
+        this.duration = duration
+
+        return this
     }
 
     fun computeAnimation(viewContext: ViewContext): Boolean {
         val elapsed = System.currentTimeMillis() - startTimeInMills
         val input = elapsed.toFloat() / duration
-        Log.d(
-            TAG,
-            "startTimeInMills ${startTimeInMills}, elapsed $elapsed, duration $duration, input $input"
-        )
+
         if (input > 1.0F) {
             viewContext.setViewport(
                 toViewport.left,
@@ -111,7 +154,6 @@ class Animator {
             fromViewport.bottom + diffBottom * factor
         )
 
-        Log.d(TAG, "viewContext.viewport", viewContext.viewport)
         return true
     }
 

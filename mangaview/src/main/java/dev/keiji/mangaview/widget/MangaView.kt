@@ -380,10 +380,7 @@ class MangaView(
     private val focusHelper = FocusHelper()
 
     fun focus(globalRegion: Rectangle, duration: Long = FOCUS_DURATION) {
-        val currentPageLayoutSnapshot = currentPageLayout ?: return
-        animation = focusHelper
-            .init(duration)
-            .focus(viewContext, currentPageLayoutSnapshot, globalRegion)
+        animator = Animator().focus(viewContext, currentPageLayout, globalRegion)
         postInvalidate()
     }
 
