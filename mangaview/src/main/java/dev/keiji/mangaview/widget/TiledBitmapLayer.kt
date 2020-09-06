@@ -88,6 +88,9 @@ class TiledBitmapLayer(
         for (x in (1..centerX)) {
             val baseX = centerX - x
             val index = centerY * tiledSource.colCount + baseX
+            if (index >= tileList.size) {
+                break
+            }
 
             if (tileList[index].position.intersect(contentSrc)) {
                 leftX = baseX
@@ -99,6 +102,9 @@ class TiledBitmapLayer(
         // search visible area to right
         for (x in (centerX + 1 until tiledSource.colCount)) {
             val index = centerY * tiledSource.colCount + x
+            if (index >= tileList.size) {
+                break
+            }
 
             if (tileList[index].position.intersect(contentSrc)) {
                 rightX = x
@@ -111,6 +117,9 @@ class TiledBitmapLayer(
         for (y in (1..centerY)) {
             val baseY = centerY - y
             val index = baseY * tiledSource.colCount + centerX
+            if (index >= tileList.size) {
+                break
+            }
 
             if (tileList[index].position.intersect(contentSrc)) {
                 topY = baseY
@@ -122,6 +131,9 @@ class TiledBitmapLayer(
         // search visible area to bottom
         for (y in (centerY + 1 until tiledSource.rowCount)) {
             val index = y * tiledSource.colCount + centerX
+            if (index >= tileList.size) {
+                break
+            }
 
             if (tileList[index].position.intersect(contentSrc)) {
                 bottomY = y
