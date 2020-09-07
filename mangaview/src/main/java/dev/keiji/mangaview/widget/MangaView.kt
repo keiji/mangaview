@@ -21,37 +21,6 @@ import dev.keiji.mangaview.Rectangle
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-interface OnTapListener {
-    fun onTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
-    fun onTap(page: Page, x: Float, y: Float): Boolean = false
-    fun onTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
-}
-
-interface OnDoubleTapListener {
-    fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
-    fun onDoubleTap(page: Page, x: Float, y: Float): Boolean = false
-    fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
-}
-
-interface OnLongTapListener {
-    fun onLongTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
-    fun onLongTap(page: Page, x: Float, y: Float): Boolean = false
-    fun onLongTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
-}
-
-interface OnPageChangeListener {
-    fun onScrollStateChanged(mangaView: MangaView, scrollState: Int) {}
-    fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {}
-}
-
-interface OnReadCompleteListener {
-    fun onReadCompleted(mangaView: MangaView)
-}
-
-interface OnContentViewportChangeListener {
-    fun onViewportChanged(mangaView: MangaView, layer: ContentLayer, viewport: RectF) = false
-}
-
 class MangaView(
     context: Context,
     attrs: AttributeSet?,
@@ -904,5 +873,36 @@ class MangaView(
         postInvalidate()
 
         return true
+    }
+
+    interface OnTapListener {
+        fun onTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
+        fun onTap(page: Page, x: Float, y: Float): Boolean = false
+        fun onTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
+    }
+
+    interface OnDoubleTapListener {
+        fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
+        fun onDoubleTap(page: Page, x: Float, y: Float): Boolean = false
+        fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
+    }
+
+    interface OnLongTapListener {
+        fun onLongTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
+        fun onLongTap(page: Page, x: Float, y: Float): Boolean = false
+        fun onLongTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
+    }
+
+    interface OnPageChangeListener {
+        fun onScrollStateChanged(mangaView: MangaView, scrollState: Int) {}
+        fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {}
+    }
+
+    interface OnReadCompleteListener {
+        fun onReadCompleted(mangaView: MangaView)
+    }
+
+    interface OnContentViewportChangeListener {
+        fun onViewportChanged(mangaView: MangaView, layer: ContentLayer, viewport: RectF) = false
     }
 }

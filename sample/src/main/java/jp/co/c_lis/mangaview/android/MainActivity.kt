@@ -16,9 +16,6 @@ import dev.keiji.mangaview.widget.DoubleTapZoomHelper
 import dev.keiji.mangaview.widget.EdgeNavigationHelper
 import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
-import dev.keiji.mangaview.widget.OnDoubleTapListener
-import dev.keiji.mangaview.widget.OnPageChangeListener
-import dev.keiji.mangaview.widget.OnReadCompleteListener
 import dev.keiji.mangaview.widget.Page
 import dev.keiji.mangaview.widget.PageLayout
 import dev.keiji.mangaview.widget.RegionLayer
@@ -109,7 +106,7 @@ class MainActivity : AppCompatActivity() {
 
     var currentToast: Toast? = null
 
-    private val onPageChangeListener = object : OnPageChangeListener {
+    private val onPageChangeListener = object : MangaView.OnPageChangeListener {
         override fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {
             val page = pageLayout.keyPage ?: return
 
@@ -126,13 +123,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val onDoubleTapListener = object : OnDoubleTapListener {
+    private val onDoubleTapListener = object : MangaView.OnDoubleTapListener {
         override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
             return true
         }
     }
 
-    private val onReadCompleteListener = object : OnReadCompleteListener {
+    private val onReadCompleteListener = object : MangaView.OnReadCompleteListener {
         override fun onReadCompleted(mangaView: MangaView) {
             currentToast?.cancel()
 
