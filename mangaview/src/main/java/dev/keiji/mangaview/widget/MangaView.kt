@@ -713,10 +713,10 @@ class MangaView(
     override fun onLongPress(e: MotionEvent?) {
         e ?: return
 
-        // mapping global point
-        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
+        // Global coordinate projection
+        val globalPoint = viewContext.projectionGlobalPoint(e.x, e.y, tmpEventPoint)
 
-        handleOnLongTap(e.x, e.y, globalPosition, onLongTapListenerList)
+        handleOnLongTap(e.x, e.y, globalPoint, onLongTapListenerList)
 
         postInvalidate()
     }
@@ -882,10 +882,10 @@ class MangaView(
         e ?: return false
 
         if (e.action == MotionEvent.ACTION_UP) {
-            // mapping global point
-            val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
+            // Global coordinate projection
+            val globalPoint = viewContext.projectionGlobalPoint(e.x, e.y, tmpEventPoint)
 
-            handleOnDoubleTapListener(e.x, e.y, globalPosition, onDoubleTapListenerList)
+            handleOnDoubleTapListener(e.x, e.y, globalPoint, onDoubleTapListenerList)
         }
 
         postInvalidate()
@@ -896,10 +896,10 @@ class MangaView(
     override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
         e ?: return false
 
-        // mapping global point
-        val globalPosition = viewContext.projectToGlobalPosition(e.x, e.y, tmpEventPoint)
+        // Global coordinate projection
+        val globalPoint = viewContext.projectionGlobalPoint(e.x, e.y, tmpEventPoint)
 
-        handleOnTapListener(e.x, e.y, globalPosition, onTapListenerList)
+        handleOnTapListener(e.x, e.y, globalPoint, onTapListenerList)
 
         postInvalidate()
 

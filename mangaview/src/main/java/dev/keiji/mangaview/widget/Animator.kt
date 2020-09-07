@@ -94,8 +94,8 @@ class Animator {
         val newViewportWidth = viewContext.viewWidth / scale
         val newViewportHeight = viewContext.viewHeight / scale
 
-        val diffWidth = viewContext.viewportWidth - newViewportWidth
-        val diffHeight = viewContext.viewportHeight - newViewportHeight
+        val diffWidth = viewContext.viewport.width - newViewportWidth
+        val diffHeight = viewContext.viewport.height - newViewportHeight
 
         val diffLeft = diffWidth * focusXRatio
         val diffRight = diffWidth - diffLeft

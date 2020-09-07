@@ -120,8 +120,8 @@ data class ViewContext(
 
     fun scaleTo(
         scale: Float,
-        focusX: Float = currentX,
-        focusY: Float = currentY,
+        focusViewX: Float = currentX,
+        focusViewY: Float = currentY,
         scrollArea: Rectangle? = null,
         applyImmediately: Boolean = true
     ) {
@@ -130,8 +130,8 @@ data class ViewContext(
             return
         }
 
-        val focusXRatio = focusX / viewWidth
-        val focusYRatio = focusY / viewHeight
+        val focusXRatio = focusViewX / viewWidth
+        val focusYRatio = focusViewY / viewHeight
 
         val newViewportWidth = viewWidth / newScale
         val newViewportHeight = viewHeight / newScale
@@ -160,9 +160,9 @@ data class ViewContext(
         return (rectangle.bottom + delta) > viewport.bottom
     }
 
-    fun projectToGlobalPosition(screenX: Float, screenY: Float, result: Rectangle): Rectangle {
-        val horizontalRatio = screenX / viewWidth
-        val verticalRatio = screenY / viewHeight
+    fun projectionGlobalPoint(viewX: Float, viewY: Float, result: Rectangle): Rectangle {
+        val horizontalRatio = viewX / viewWidth
+        val verticalRatio = viewY / viewHeight
 
         val globalX = viewport.left + viewport.width * horizontalRatio
         val globalY = viewport.top + viewport.height * verticalRatio
@@ -171,15 +171,15 @@ data class ViewContext(
             .set(globalX, globalY, globalX, globalY)
     }
 
-    fun projectToScreenPosition(globalX: Float, globalY: Float, result: Rectangle): Rectangle {
-        val horizontalRatio = (globalX - viewport.left) / viewport.width
-        val verticalRatio = (globalY - viewport.top) / viewport.height
+    fun projectionViewPoint(globalX: Float, globalY: Float, result: Rectangle): Rectangle {
+        val horizontalRatio = (globalX - viewport.left) / viewportWidth
+        val verticalRatio = (globalY - viewport.top) / viewportHeight
 
-        val screenX = viewWidth * horizontalRatio
-        val screenY = viewHeight * verticalRatio
+        val viewX = viewWidth * horizontalRatio
+        val viewY = viewHeight * verticalRatio
 
         return result
-            .set(screenX, screenY, screenX, screenY)
+            .set(viewX, viewY, viewX, viewY)
     }
 
     fun setScrollableAxis(horizontal: Int, vertical: Int) {
