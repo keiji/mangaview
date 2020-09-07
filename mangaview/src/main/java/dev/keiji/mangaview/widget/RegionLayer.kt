@@ -3,7 +3,6 @@ package dev.keiji.mangaview.widget
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.RectF
 import dev.keiji.mangaview.BuildConfig
 import dev.keiji.mangaview.Rectangle
@@ -73,37 +72,99 @@ class RegionLayer(
     private val tmpSelectedRegionContent = Rectangle()
     private val tmpSelectedRegionGlobal = Rectangle()
 
-    override fun onLongTap(mangaView: MangaView, x: Float, y: Float): Boolean {
-        val pageSnapshot = page ?: return false
-        super.onLongTap(mangaView, x, y)
+    private fun projectRegionToContentAndGlobal(
+        intersectBounds: RectF,
+        selectedRegionContent: Rectangle,
+        selectedRegionGlobal: Rectangle
+    ) {
+        selectedRegionContent.copyFrom(intersectBounds)
+        selectedRegionGlobal.copyFrom(intersectBounds)
 
-        regionSource.regionList.forEachIndexed { index, region ->
-            val path = regionSource.pathList[index]
-            path.computeBounds(tmpIntersectBounds, true)
-
-            if (tmpIntersectBounds.contains(x, y)) {
-                fireSelectedRegionEvent(pageSnapshot, region, tmpIntersectBounds, path)
-            }
-        }
-
-        return false
-    }
-
-    private fun fireSelectedRegionEvent(page: Page, region: Region, selectedBounds: RectF, path: Path) {
-        tmpSelectedRegionContent.copyFrom(selectedBounds)
-        tmpSelectedRegionGlobal.copyFrom(selectedBounds)
-
-        tmpSelectedRegionGlobal.also {
+        selectedRegionGlobal.also {
             it.left = it.left * baseScale
             it.top = it.top * baseScale
             it.right = it.right * baseScale
             it.bottom = it.bottom * baseScale
         }
-        tmpSelectedRegionGlobal
+        selectedRegionGlobal
             .offset(globalPosition.left, globalPosition.top)
+    }
 
-        onSelectedRegionListenerList.forEach {
-            it.onSelectedRegion(page, this, region, tmpSelectedRegionContent, tmpSelectedRegionGlobal)
+    override fun onTap(x: Float, y: Float): Boolean {
+        super.onTap(x, y)
+
+        val pageSnapshot = page ?: return false
+
+        handleOnSelectedRegionEvent(x, y) { onSelectedRegionListener, region ->
+            return@handleOnSelectedRegionEvent onSelectedRegionListener.onTapRegion(
+                pageSnapshot,
+                this,
+                region,
+                tmpSelectedRegionContent,
+                tmpSelectedRegionGlobal
+            )
+        }
+
+        return false
+    }
+
+    override fun onDoubleTap(x: Float, y: Float): Boolean {
+        super.onDoubleTap(x, y)
+
+        val pageSnapshot = page ?: return false
+
+        handleOnSelectedRegionEvent(x, y) { onSelectedRegionListener, region ->
+            return@handleOnSelectedRegionEvent onSelectedRegionListener.onDoubleTapRegion(
+                pageSnapshot,
+                this,
+                region,
+                tmpSelectedRegionContent,
+                tmpSelectedRegionGlobal
+            )
+        }
+
+        return false
+    }
+
+    override fun onLongTap(mangaView: MangaView, x: Float, y: Float): Boolean {
+        super.onLongTap(mangaView, x, y)
+
+        val pageSnapshot = page ?: return false
+
+        handleOnSelectedRegionEvent(x, y) { onSelectedRegionListener, region ->
+            return@handleOnSelectedRegionEvent onSelectedRegionListener.onLongTapRegion(
+                pageSnapshot,
+                this,
+                region,
+                tmpSelectedRegionContent,
+                tmpSelectedRegionGlobal
+            )
+        }
+
+        return false
+    }
+
+    private fun handleOnSelectedRegionEvent(
+        x: Float, y: Float,
+        fireEvent: (OnSelectedRegionListener, Region) -> Boolean
+    ) {
+        regionSource.regionList.forEachIndexed { index, region ->
+            val path = regionSource.pathList[index]
+            path.computeBounds(tmpIntersectBounds, true)
+
+            if (tmpIntersectBounds.contains(x, y)) {
+                projectRegionToContentAndGlobal(
+                    tmpIntersectBounds,
+                    tmpSelectedRegionContent,
+                    tmpSelectedRegionGlobal
+                )
+
+                onSelectedRegionListenerList.forEach {
+                    if (fireEvent(it, region)) {
+                        return@forEach
+                    }
+                }
+            }
         }
     }
 
@@ -114,12 +175,28 @@ class RegionLayer(
     }
 
     interface OnSelectedRegionListener {
-        fun onSelectedRegion(
+        fun onTapRegion(
             page: Page,
             layer: RegionLayer,
             region: Region,
             selectedRegionContent: Rectangle,
             selectedRegionGlobal: Rectangle
-        )
+        ): Boolean = false
+
+        fun onDoubleTapRegion(
+            page: Page,
+            layer: RegionLayer,
+            region: Region,
+            selectedRegionContent: Rectangle,
+            selectedRegionGlobal: Rectangle
+        ): Boolean = false
+
+        fun onLongTapRegion(
+            page: Page,
+            layer: RegionLayer,
+            region: Region,
+            selectedRegionContent: Rectangle,
+            selectedRegionGlobal: Rectangle
+        ): Boolean = false
     }
 }

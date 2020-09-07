@@ -147,14 +147,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val onSelectedRegionListener = object : RegionLayer.OnSelectedRegionListener {
-        override fun onSelectedRegion(
+        override fun onLongTapRegion(
             page: Page,
             layer: RegionLayer,
             region: Region,
             selectedRegionContent: Rectangle,
-            selectedRegionGlobal: Rectangle,
-        ) {
+            selectedRegionGlobal: Rectangle
+        ): Boolean {
             mangaView?.focus(selectedRegionGlobal)
+            return true
         }
     }
 
