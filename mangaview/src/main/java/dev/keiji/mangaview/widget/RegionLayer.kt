@@ -126,8 +126,8 @@ class RegionLayer(
         return false
     }
 
-    override fun onLongTap(mangaView: MangaView, x: Float, y: Float): Boolean {
-        super.onLongTap(mangaView, x, y)
+    override fun onLongTap(x: Float, y: Float): Boolean {
+        super.onLongTap(x, y)
 
         val pageSnapshot = page ?: return false
 

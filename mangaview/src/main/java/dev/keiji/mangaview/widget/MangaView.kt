@@ -753,7 +753,6 @@ class MangaView(
 
                 page.layers.forEach { layer ->
                     consumed = layer.requestHandleOnLongTapEvent(
-                        this,
                         globalPosition.centerX,
                         globalPosition.centerY,
                         onLongTapListenerList

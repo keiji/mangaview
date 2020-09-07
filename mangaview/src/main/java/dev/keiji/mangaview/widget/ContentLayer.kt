@@ -211,7 +211,6 @@ abstract class ContentLayer(
     open fun onDoubleTap(x: Float, y: Float): Boolean = false
 
     fun requestHandleOnLongTapEvent(
-        mangaView: MangaView,
         globalX: Float,
         globalY: Float,
         onLongTapListenerList: List<OnLongTapListener>
@@ -228,7 +227,7 @@ abstract class ContentLayer(
             return false
         }
 
-        var consumed = onLongTap(mangaView, localPoint.centerX, localPoint.centerY)
+        var consumed = onLongTap(localPoint.centerX, localPoint.centerY)
 
         onLongTapListenerList.forEach {
             if (it.onLongTap(this, localPoint.centerX, localPoint.centerY)) {
@@ -240,7 +239,7 @@ abstract class ContentLayer(
         return consumed
     }
 
-    open fun onLongTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
+    open fun onLongTap(x: Float, y: Float): Boolean = false
 
     private fun convertToLocal(): Rectangle {
         return tmpLocalPoint
