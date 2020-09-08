@@ -42,7 +42,7 @@ class SampleBitmapAdapter(
         page.addLayer(BitmapLayer(AssetBitmapSource(assetManager, fileName, coroutineScope)))
 
         if (index == 0) {
-            val tiledImageSource = HttpServerTiledBitmapSource(
+            val tiledImageSource = NetworkTiledBitmapSource(
                 tiledSource,
                 urlList,
                 tmpDir,

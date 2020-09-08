@@ -17,7 +17,7 @@ import java.io.FileOutputStream
 import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 
-class HttpServerTiledBitmapSource(
+class NetworkTiledBitmapSource(
     tiledSource: TiledSource,
     private val urlList: List<String>,
     private val tmpDir: File,
@@ -25,7 +25,7 @@ class HttpServerTiledBitmapSource(
 ) : TiledBitmapSource(tiledSource) {
 
     companion object {
-        private val TAG = HttpServerTiledBitmapSource::class.java.simpleName
+        private val TAG = NetworkTiledBitmapSource::class.java.simpleName
     }
 
     @Volatile
