@@ -21,4 +21,6 @@ abstract class RegionSource : ContentSource() {
             }
             return cachedPathList
         }
+
+    fun getPath(region: Region) = pathList[regionList.indexOf(region)]
 }

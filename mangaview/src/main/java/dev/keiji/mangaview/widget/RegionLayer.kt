@@ -5,9 +5,11 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
 import dev.keiji.mangaview.BuildConfig
+import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import dev.keiji.mangaview.Region
 import kotlin.math.min
+import kotlin.math.sqrt
 
 class RegionLayer(
     private val regionSource: RegionSource
@@ -43,6 +45,7 @@ class RegionLayer(
 
         val sc = canvas.save()
 
+        // Projection view coordinate
         val left = min(globalPosition.left - viewContext.currentX, page.displayProjection.left)
         val top = min(globalPosition.top - viewContext.currentY, page.displayProjection.top)
 
@@ -69,10 +72,8 @@ class RegionLayer(
     }
 
     private val tmpIntersectBounds = RectF()
-    private val tmpSelectedRegionContent = Rectangle()
-    private val tmpSelectedRegionGlobal = Rectangle()
 
-    private fun projectRegionToContentAndGlobal(
+    fun projectionContentAndGlobal(
         intersectBounds: RectF,
         selectedRegionContent: Rectangle,
         selectedRegionGlobal: Rectangle
@@ -95,17 +96,14 @@ class RegionLayer(
 
         val pageSnapshot = page ?: return false
 
-        handleOnSelectedRegionEvent(x, y) { onSelectedRegionListener, region ->
+        return handleOnSelectedRegionEvent(x, y) { onSelectedRegionListener, region, bounds ->
             return@handleOnSelectedRegionEvent onSelectedRegionListener.onTapRegion(
                 pageSnapshot,
                 this,
                 region,
-                tmpSelectedRegionContent,
-                tmpSelectedRegionGlobal
+                bounds
             )
         }
-
-        return false
     }
 
     override fun onDoubleTap(x: Float, y: Float): Boolean {
@@ -113,17 +111,14 @@ class RegionLayer(
 
         val pageSnapshot = page ?: return false
 
-        handleOnSelectedRegionEvent(x, y) { onSelectedRegionListener, region ->
+        return handleOnSelectedRegionEvent(x, y) { onSelectedRegionListener, region, bounds ->
             return@handleOnSelectedRegionEvent onSelectedRegionListener.onDoubleTapRegion(
                 pageSnapshot,
                 this,
                 region,
-                tmpSelectedRegionContent,
-                tmpSelectedRegionGlobal
+                bounds
             )
         }
-
-        return false
     }
 
     override fun onLongTap(x: Float, y: Float): Boolean {
@@ -131,41 +126,70 @@ class RegionLayer(
 
         val pageSnapshot = page ?: return false
 
-        handleOnSelectedRegionEvent(x, y) { onSelectedRegionListener, region ->
+        return handleOnSelectedRegionEvent(x, y) { onSelectedRegionListener, region, bounds ->
             return@handleOnSelectedRegionEvent onSelectedRegionListener.onLongTapRegion(
                 pageSnapshot,
                 this,
                 region,
-                tmpSelectedRegionContent,
-                tmpSelectedRegionGlobal
+                bounds
             )
         }
-
-        return false
     }
+
+    private val tmpIntersectRegionList = ArrayList<Region>()
 
     private fun handleOnSelectedRegionEvent(
         x: Float, y: Float,
-        fireEvent: (OnSelectedRegionListener, Region) -> Boolean
-    ) {
+        fireEvent: (OnSelectedRegionListener, Region, RectF) -> Boolean
+    ): Boolean {
+        tmpIntersectRegionList.clear()
+
         regionSource.regionList.forEachIndexed { index, region ->
             val path = regionSource.pathList[index]
             path.computeBounds(tmpIntersectBounds, true)
 
             if (tmpIntersectBounds.contains(x, y)) {
-                projectRegionToContentAndGlobal(
-                    tmpIntersectBounds,
-                    tmpSelectedRegionContent,
-                    tmpSelectedRegionGlobal
-                )
-
-                onSelectedRegionListenerList.forEach {
-                    if (fireEvent(it, region)) {
-                        return@forEach
-                    }
-                }
+                tmpIntersectRegionList.add(region)
             }
         }
+
+        val topIntersectRegion = selectNearestRegion(tmpIntersectRegionList, x, y) ?: return false
+        regionSource.getPath(topIntersectRegion).computeBounds(tmpIntersectBounds, true)
+
+        var consumed = false
+
+        onSelectedRegionListenerList.forEach {
+            if (fireEvent(it, topIntersectRegion, tmpIntersectBounds)) {
+                consumed = true
+                return@forEach
+            }
+        }
+
+        return consumed
+    }
+
+    private fun selectNearestRegion(
+        intersectRegionList: ArrayList<Region>,
+        x: Float,
+        y: Float,
+    ): Region? {
+        if (intersectRegionList.isEmpty()) {
+            return null
+        }
+        if (intersectRegionList.size == 1) {
+            return intersectRegionList.first()
+        }
+
+        intersectRegionList.sortBy { calcScore(it, x, y) }
+
+        return intersectRegionList.first()
+    }
+
+    private fun calcScore(region: Region, x: Float, y: Float): Float {
+        val diffHorizontal = tmpIntersectBounds.centerX() - x
+        val diffVertical = tmpIntersectBounds.centerY() - y
+
+        return sqrt((diffHorizontal * diffHorizontal) + (diffVertical * diffVertical))
     }
 
     override fun onRecycled() {
@@ -179,24 +203,21 @@ class RegionLayer(
             page: Page,
             layer: RegionLayer,
             region: Region,
-            selectedRegionContent: Rectangle,
-            selectedRegionGlobal: Rectangle
+            bounds: RectF
         ): Boolean = false
 
         fun onDoubleTapRegion(
             page: Page,
             layer: RegionLayer,
             region: Region,
-            selectedRegionContent: Rectangle,
-            selectedRegionGlobal: Rectangle
+            bounds: RectF
         ): Boolean = false
 
         fun onLongTapRegion(
             page: Page,
             layer: RegionLayer,
             region: Region,
-            selectedRegionContent: Rectangle,
-            selectedRegionGlobal: Rectangle
+            bounds: RectF
         ): Boolean = false
     }
 }

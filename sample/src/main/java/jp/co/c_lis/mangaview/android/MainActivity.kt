@@ -2,6 +2,7 @@ package jp.co.c_lis.mangaview.android
 
 import android.content.res.Configuration
 import android.graphics.PointF
+import android.graphics.RectF
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Window
@@ -125,7 +126,7 @@ class MainActivity : AppCompatActivity() {
 
     private val onDoubleTapListener = object : MangaView.OnDoubleTapListener {
         override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
-            return true
+            return false
         }
     }
 
@@ -145,14 +146,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val onSelectedRegionListener = object : RegionLayer.OnSelectedRegionListener {
-        override fun onLongTapRegion(
+        private val tmpSelectedRegionContent = Rectangle()
+        private val tmpSelectedRegionGlobal = Rectangle()
+
+        override fun onDoubleTapRegion(
             page: Page,
             layer: RegionLayer,
             region: Region,
-            selectedRegionContent: Rectangle,
-            selectedRegionGlobal: Rectangle
+            bounds: RectF
         ): Boolean {
-            mangaView?.focus(selectedRegionGlobal)
+            layer.projectionContentAndGlobal(
+                bounds,
+                tmpSelectedRegionContent,
+                tmpSelectedRegionGlobal
+            )
+            mangaView?.focus(tmpSelectedRegionGlobal)
             return true
         }
     }
