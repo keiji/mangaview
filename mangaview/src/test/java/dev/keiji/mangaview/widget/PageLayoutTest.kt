@@ -4,6 +4,10 @@ import android.graphics.Paint
 import android.graphics.RectF
 import dev.keiji.mangaview.Rectangle
 import dev.keiji.mangaview.layer.ContentLayer
+import dev.keiji.mangaview.layout.HorizontalRtlLayoutManager
+import dev.keiji.mangaview.layout.LayoutManager
+import dev.keiji.mangaview.layout.PageLayoutManager
+import dev.keiji.mangaview.layout.SinglePageLayoutManager
 import org.junit.Test
 
 import org.junit.Assert.*

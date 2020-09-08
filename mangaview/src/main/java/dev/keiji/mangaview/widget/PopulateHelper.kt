@@ -1,7 +1,8 @@
 package dev.keiji.mangaview.widget
 
 import dev.keiji.mangaview.Rectangle
-import kotlin.math.sign
+import dev.keiji.mangaview.layout.LayoutManager
+import dev.keiji.mangaview.layout.PageLayout
 
 abstract class PopulateHelper {
 

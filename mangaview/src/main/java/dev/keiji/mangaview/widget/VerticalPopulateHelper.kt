@@ -1,6 +1,7 @@
 package dev.keiji.mangaview.widget
 
 import dev.keiji.mangaview.Rectangle
+import dev.keiji.mangaview.layout.PageLayout
 
 
 class VerticalPopulateHelper : PopulateHelper() {

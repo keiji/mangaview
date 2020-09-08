@@ -1,8 +1,7 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview.layout
 
 import dev.keiji.mangaview.Log
-import dev.keiji.mangaview.Rectangle
-import kotlin.math.max
+import dev.keiji.mangaview.widget.Page
 import kotlin.math.min
 
 class SinglePageLayout(index: Int) : PageLayout(index) {

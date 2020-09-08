@@ -1,4 +1,6 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview
+
+import dev.keiji.mangaview.widget.MangaView
 
 class DoubleTapZoomHelper(
     private val maxScale: Float = DEFAULT_DOUBLE_TAP_SCALE

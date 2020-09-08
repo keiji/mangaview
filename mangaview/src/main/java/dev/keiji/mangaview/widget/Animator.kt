@@ -2,6 +2,7 @@ package dev.keiji.mangaview.widget
 
 import android.view.animation.DecelerateInterpolator
 import dev.keiji.mangaview.Rectangle
+import dev.keiji.mangaview.layout.PageLayout
 import kotlin.math.min
 
 class Animator {

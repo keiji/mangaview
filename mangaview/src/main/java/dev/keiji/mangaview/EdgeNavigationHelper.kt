@@ -1,4 +1,6 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview
+
+import dev.keiji.mangaview.widget.MangaView
 
 class EdgeNavigationHelper : MangaView.OnTapListener {
 

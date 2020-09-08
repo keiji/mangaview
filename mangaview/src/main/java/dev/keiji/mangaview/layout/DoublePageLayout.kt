@@ -1,6 +1,8 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview.layout
 
 import dev.keiji.mangaview.Rectangle
+import dev.keiji.mangaview.widget.Page
+import dev.keiji.mangaview.widget.PageHorizontalAlign
 import kotlin.math.max
 import kotlin.math.min
 

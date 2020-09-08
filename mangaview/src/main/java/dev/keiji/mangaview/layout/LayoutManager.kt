@@ -1,7 +1,10 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview.layout
 
 import androidx.collection.SparseArrayCompat
 import dev.keiji.mangaview.Log
+import dev.keiji.mangaview.widget.PageAdapter
+import dev.keiji.mangaview.widget.PopulateHelper
+import dev.keiji.mangaview.widget.ViewContext
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
