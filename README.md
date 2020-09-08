@@ -9,10 +9,10 @@ Gallery
 ========
 
 ### Swipe, scale and scroll
-![scale_and_swipe](https://user-images.githubusercontent.com/932136/91121347-8b21f300-e6d2-11ea-895c-a74f6095ebfc.gif)
+![scale_and_swipe](https://github.com/keiji/mangaview/blob/gallery/scale_and_swipe.gif)
 
 ### Double-page spread
-![double_spread_page](https://user-images.githubusercontent.com/932136/91121378-9b39d280-e6d2-11ea-9914-c390ae3000ba.gif)
+![double_spread_page](https://github.com/keiji/mangaview/blob/gallery/double_spread_page.gif)
 
 ### Page Layout Orientation
 MangaView supports various page layout orientation.
@@ -27,16 +27,16 @@ MangaView supports various page layout orientation.
 ![vertical](https://user-images.githubusercontent.com/932136/91523666-4bf4db80-e938-11ea-9b71-d46ec06f5ab7.gif)
 
 ### Double-tap zoom
-![double_tap_zoom](https://github.com/keiji/mangaview/blob/master/gallery/double_tap_zoom.gif)
+![double_tap_zoom](https://github.com/keiji/mangaview/blob/gallery/double_tap_zoom.gif)
 
 ### Tap-edge page transition
 
-![page_transition_screen_edge](https://github.com/keiji/mangaview/blob/master/gallery/page_transition_screen_edge.gif)
+![page_transition_screen_edge](https://github.com/keiji/mangaview/blob/gallery/page_transition_screen_edge.gif)
 
 ### Display tiled images for High-resolution.
 
-![high_resolution_tiled_images](https://github.com/keiji/mangaview/blob/master/gallery/high_resolution_tiled_images.gif)
+![high_resolution_tiled_images](https://github.com/keiji/mangaview/blob/gallery/high_resolution_tiled_images.gif)
 
 ### Select a preset region(Path).
 
-![select_region](https://github.com/keiji/mangaview/blob/master/gallery/select_region.gif)
+![select_region](https://github.com/keiji/mangaview/blob/gallery/select_region.gif)
