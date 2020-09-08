@@ -5,11 +5,10 @@ An ImageView for reading manga(comics) for Android.
 
 You can download the sample app via [deploygate](https://dply.me/1dakl4).
 
-And you'll look all features [here](./gallery/README.md).
+And you'll look all features [here](https://github.com/keiji/mangaview/blob/gallery/README.md).
 
-![mangaview1](https://user-images.githubusercontent.com/932136/91121347-8b21f300-e6d2-11ea-895c-a74f6095ebfc.gif)
-![mangaview2](https://user-images.githubusercontent.com/932136/91121378-9b39d280-e6d2-11ea-9914-c390ae3000ba.gif)
-
+![scale_and_swipe](https://github.com/keiji/mangaview/blob/gallery/scale_and_swipe.gif)
+![double_spread_page](https://github.com/keiji/mangaview/blob/gallery/double_spread_page.gif)
 Installation
 ========
 To add MangaView to your project, include the following in your app module build.gradle file:
