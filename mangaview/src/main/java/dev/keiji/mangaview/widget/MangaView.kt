@@ -494,41 +494,36 @@ class MangaView(
         globalPosition: Rectangle,
         onTapListenerList: List<OnTapListener>
     ) {
-        var consumed = false
-
-        onTapListenerList.forEach {
-            if (it.onTap(this, x, y)) {
-                consumed = true
-                return@forEach
-            }
-        }
-        if (consumed) {
-            return
-        }
-
         visiblePageLayoutList
             .flatMap { it.pages }
             .forEach pageLoop@{ page ->
-                consumed = page.requestHandleOnTapEvent(
-                    globalPosition.centerX,
-                    globalPosition.centerY,
-                    onTapListenerList
-                )
-                if (consumed) {
-                    return@pageLoop
+                page.layers.forEach { layer ->
+                    if (layer.requestHandleOnTapEvent(
+                            globalPosition.centerX,
+                            globalPosition.centerY,
+                            onTapListenerList
+                        )
+                    ) {
+                        return
+                    }
                 }
 
-                page.layers.forEach { layer ->
-                    consumed = layer.requestHandleOnTapEvent(
+                if (page.requestHandleOnTapEvent(
                         globalPosition.centerX,
                         globalPosition.centerY,
                         onTapListenerList
                     )
-                    if (consumed) {
-                        return@pageLoop
-                    }
+                ) {
+                    return
                 }
+
             }
+
+        onTapListenerList.forEach {
+            if (it.onTap(this, x, y)) {
+                return
+            }
+        }
     }
 
     override fun onDown(e: MotionEvent?): Boolean = true
@@ -696,41 +691,36 @@ class MangaView(
         globalPosition: Rectangle,
         onLongTapListenerList: List<OnLongTapListener>
     ) {
-        var consumed = false
-
-        onLongTapListenerList.forEach {
-            if (it.onLongTap(this, x, y)) {
-                consumed = true
-                return@forEach
-            }
-        }
-        if (consumed) {
-            return
-        }
-
         visiblePageLayoutList
             .flatMap { it.pages }
             .forEach pageLoop@{ page ->
-                consumed = page.requestHandleOnLongTapEvent(
-                    globalPosition.centerX,
-                    globalPosition.centerY,
-                    onLongTapListenerList
-                )
-                if (consumed) {
-                    return@pageLoop
+                page.layers.forEach { layer ->
+                    if (layer.requestHandleOnLongTapEvent(
+                            globalPosition.centerX,
+                            globalPosition.centerY,
+                            onLongTapListenerList
+                        )
+                    ) {
+                        return
+                    }
                 }
 
-                page.layers.forEach { layer ->
-                    consumed = layer.requestHandleOnLongTapEvent(
+                if (page.requestHandleOnLongTapEvent(
                         globalPosition.centerX,
                         globalPosition.centerY,
                         onLongTapListenerList
                     )
-                    if (consumed) {
-                        return@pageLoop
-                    }
+                ) {
+                    return
                 }
+
             }
+
+        onLongTapListenerList.forEach {
+            if (it.onLongTap(this, x, y)) {
+                return
+            }
+        }
     }
 
     override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
@@ -810,41 +800,35 @@ class MangaView(
         globalPosition: Rectangle,
         onDoubleTapListenerList: List<OnDoubleTapListener>
     ) {
-        var consumed = false
-
-        onDoubleTapListenerList.forEach {
-            if (it.onDoubleTap(this, x, y)) {
-                consumed = true
-                return@forEach
-            }
-        }
-        if (consumed) {
-            return
-        }
-
         visiblePageLayoutList
             .flatMap { it.pages }
-            .forEach pageLoop@{ page ->
-                consumed = page.requestHandleOnDoubleTapEvent(
-                    globalPosition.centerX,
-                    globalPosition.centerY,
-                    onDoubleTapListenerList
-                )
-                if (consumed) {
-                    return@pageLoop
+            .forEach { page ->
+                page.layers.forEach { layer ->
+                    if (layer.requestHandleOnDoubleTapEvent(
+                            globalPosition.centerX,
+                            globalPosition.centerY,
+                            onDoubleTapListenerList
+                        )
+                    ) {
+                        return
+                    }
                 }
 
-                page.layers.forEach { layer ->
-                    consumed = layer.requestHandleOnDoubleTapEvent(
+                if (page.requestHandleOnDoubleTapEvent(
                         globalPosition.centerX,
                         globalPosition.centerY,
                         onDoubleTapListenerList
                     )
-                    if (consumed) {
-                        return@pageLoop
-                    }
+                ) {
+                    return
                 }
             }
+
+        onDoubleTapListenerList.forEach {
+            if (it.onDoubleTap(this, x, y)) {
+                return
+            }
+        }
     }
 
     override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
