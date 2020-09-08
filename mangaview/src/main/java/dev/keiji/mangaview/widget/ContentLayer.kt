@@ -147,7 +147,7 @@ abstract class ContentLayer(
     fun requestHandleOnTapEvent(
         globalX: Float,
         globalY: Float,
-        onTapListenerList: List<OnTapListener>
+        onTapListenerList: List<MangaView.OnTapListener>
     ): Boolean {
         tmpLocalPoint.set(globalX, globalY, globalX, globalY)
 
@@ -180,7 +180,7 @@ abstract class ContentLayer(
     fun requestHandleOnDoubleTapEvent(
         globalX: Float,
         globalY: Float,
-        onDoubleTapListenerList: List<OnDoubleTapListener>
+        onDoubleTapListenerList: List<MangaView.OnDoubleTapListener>
     ): Boolean {
         tmpLocalPoint.set(globalX, globalY, globalX, globalY)
 
@@ -213,7 +213,7 @@ abstract class ContentLayer(
     fun requestHandleOnLongTapEvent(
         globalX: Float,
         globalY: Float,
-        onLongTapListenerList: List<OnLongTapListener>
+        onLongTapListenerList: List<MangaView.OnLongTapListener>
     ): Boolean {
         tmpLocalPoint.set(globalX, globalY, globalX, globalY)
 

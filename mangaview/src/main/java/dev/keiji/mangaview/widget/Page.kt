@@ -111,7 +111,7 @@ class Page(
     fun requestHandleOnTapEvent(
         globalX: Float,
         globalY: Float,
-        onTapListenerList: List<OnTapListener>
+        onTapListenerList: List<MangaView.OnTapListener>
     ): Boolean {
         localPointTmp.set(globalX, globalY, globalX, globalY)
 
@@ -135,7 +135,7 @@ class Page(
     fun requestHandleOnDoubleTapEvent(
         globalX: Float,
         globalY: Float,
-        onDoubleTapListenerList: List<OnDoubleTapListener>
+        onDoubleTapListenerList: List<MangaView.OnDoubleTapListener>
     ): Boolean {
         localPointTmp.set(globalX, globalY, globalX, globalY)
 
@@ -161,7 +161,7 @@ class Page(
     fun requestHandleOnLongTapEvent(
         globalX: Float,
         globalY: Float,
-        onLongTapListenerList: List<OnLongTapListener>
+        onLongTapListenerList: List<MangaView.OnLongTapListener>
     ): Boolean {
         localPointTmp.set(globalX, globalY, globalX, globalY)
 

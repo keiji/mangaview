@@ -2,7 +2,7 @@ package dev.keiji.mangaview.widget
 
 class DoubleTapZoomHelper(
     private val maxScale: Float = DEFAULT_DOUBLE_TAP_SCALE
-) : OnDoubleTapListener {
+) : MangaView.OnDoubleTapListener {
 
     companion object {
         private val TAG = DoubleTapZoomHelper::class.java.simpleName

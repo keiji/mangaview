@@ -1,6 +1,6 @@
 package dev.keiji.mangaview.widget
 
-class EdgeNavigationHelper : OnTapListener {
+class EdgeNavigationHelper : MangaView.OnTapListener {
 
     companion object {
         private const val DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_HORIZONTAL = 0.2F
