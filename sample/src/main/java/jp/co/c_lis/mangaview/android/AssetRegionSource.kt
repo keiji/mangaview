@@ -2,9 +2,8 @@ package jp.co.c_lis.mangaview.android
 
 import android.content.res.AssetManager
 import android.graphics.BitmapFactory
-import android.graphics.Path
 import dev.keiji.mangaview.Region
-import dev.keiji.mangaview.widget.RegionSource
+import dev.keiji.mangaview.source.RegionSource
 import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

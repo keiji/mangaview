@@ -11,7 +11,7 @@ import android.widget.Toast
 import dev.keiji.mangaview.Rectangle
 import dev.keiji.mangaview.Region
 import dev.keiji.mangaview.TiledSource
-import dev.keiji.mangaview.widget.Config
+import dev.keiji.mangaview.Config
 import dev.keiji.mangaview.widget.DoublePageLayoutManager
 import dev.keiji.mangaview.widget.DoubleTapZoomHelper
 import dev.keiji.mangaview.widget.EdgeNavigationHelper
@@ -19,7 +19,7 @@ import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
 import dev.keiji.mangaview.widget.Page
 import dev.keiji.mangaview.widget.PageLayout
-import dev.keiji.mangaview.widget.RegionLayer
+import dev.keiji.mangaview.layer.RegionLayer
 import dev.keiji.mangaview.widget.SinglePageLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

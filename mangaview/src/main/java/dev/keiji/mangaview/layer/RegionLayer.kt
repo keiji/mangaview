@@ -1,4 +1,4 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview.layer
 
 import android.graphics.Canvas
 import android.graphics.Matrix
@@ -7,6 +7,9 @@ import android.graphics.RectF
 import dev.keiji.mangaview.BuildConfig
 import dev.keiji.mangaview.Rectangle
 import dev.keiji.mangaview.Region
+import dev.keiji.mangaview.source.RegionSource
+import dev.keiji.mangaview.widget.Page
+import dev.keiji.mangaview.widget.ViewContext
 import kotlin.math.min
 import kotlin.math.sqrt
 

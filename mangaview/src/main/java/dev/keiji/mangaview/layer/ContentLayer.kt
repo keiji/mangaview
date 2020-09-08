@@ -1,10 +1,16 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview.layer
 
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import androidx.annotation.VisibleForTesting
 import dev.keiji.mangaview.Rectangle
+import dev.keiji.mangaview.source.ContentSource
+import dev.keiji.mangaview.widget.MangaView
+import dev.keiji.mangaview.widget.Page
+import dev.keiji.mangaview.widget.PageHorizontalAlign
+import dev.keiji.mangaview.widget.PageVerticalAlign
+import dev.keiji.mangaview.widget.ViewContext
 import kotlin.math.min
 
 abstract class ContentLayer(

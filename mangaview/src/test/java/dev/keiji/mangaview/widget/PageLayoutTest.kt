@@ -3,6 +3,7 @@ package dev.keiji.mangaview.widget
 import android.graphics.Paint
 import android.graphics.RectF
 import dev.keiji.mangaview.Rectangle
+import dev.keiji.mangaview.layer.ContentLayer
 import org.junit.Test
 
 import org.junit.Assert.*

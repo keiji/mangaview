@@ -16,8 +16,10 @@ import android.widget.OverScroller
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ScaleGestureDetectorCompat
 import androidx.core.view.ViewCompat
+import dev.keiji.mangaview.Config
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
+import dev.keiji.mangaview.layer.ContentLayer
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

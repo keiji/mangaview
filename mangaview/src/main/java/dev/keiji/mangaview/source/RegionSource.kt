@@ -1,4 +1,4 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview.source
 
 import android.graphics.Path
 import dev.keiji.mangaview.Region

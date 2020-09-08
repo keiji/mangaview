@@ -7,6 +7,7 @@ import android.graphics.RectF
 import dev.keiji.mangaview.BuildConfig
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
+import dev.keiji.mangaview.layer.ContentLayer
 
 class Page(
     val index: Int,

@@ -1,10 +1,13 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview.layer
 
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import androidx.annotation.VisibleForTesting
+import dev.keiji.mangaview.source.BitmapSource
+import dev.keiji.mangaview.widget.Page
+import dev.keiji.mangaview.widget.ViewContext
 
 class BitmapLayer(
     private val bitmapSource: BitmapSource

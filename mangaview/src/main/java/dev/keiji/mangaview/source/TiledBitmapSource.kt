@@ -1,4 +1,4 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview.source
 
 import android.graphics.Bitmap
 import dev.keiji.mangaview.TiledSource

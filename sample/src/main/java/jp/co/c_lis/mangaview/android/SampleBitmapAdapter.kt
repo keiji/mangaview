@@ -3,11 +3,11 @@ package jp.co.c_lis.mangaview.android
 import android.content.res.AssetManager
 import dev.keiji.mangaview.Region
 import dev.keiji.mangaview.TiledSource
-import dev.keiji.mangaview.widget.BitmapLayer
+import dev.keiji.mangaview.layer.BitmapLayer
 import dev.keiji.mangaview.widget.Page
 import dev.keiji.mangaview.widget.PageAdapter
-import dev.keiji.mangaview.widget.RegionLayer
-import dev.keiji.mangaview.widget.TiledBitmapLayer
+import dev.keiji.mangaview.layer.RegionLayer
+import dev.keiji.mangaview.layer.TiledBitmapLayer
 import kotlinx.coroutines.CoroutineScope
 import java.io.File
 

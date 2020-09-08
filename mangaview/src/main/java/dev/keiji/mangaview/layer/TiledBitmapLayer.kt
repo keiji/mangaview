@@ -1,4 +1,4 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview.layer
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -8,6 +8,9 @@ import androidx.annotation.VisibleForTesting
 import dev.keiji.mangaview.BuildConfig
 import dev.keiji.mangaview.Rectangle
 import dev.keiji.mangaview.TiledSource
+import dev.keiji.mangaview.source.TiledBitmapSource
+import dev.keiji.mangaview.widget.Page
+import dev.keiji.mangaview.widget.ViewContext
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt

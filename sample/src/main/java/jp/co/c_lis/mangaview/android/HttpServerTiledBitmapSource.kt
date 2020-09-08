@@ -5,7 +5,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import dev.keiji.mangaview.TiledSource
-import dev.keiji.mangaview.widget.TiledBitmapSource
+import dev.keiji.mangaview.source.TiledBitmapSource
 import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

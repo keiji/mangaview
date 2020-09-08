@@ -1,4 +1,6 @@
-package dev.keiji.mangaview.widget
+package dev.keiji.mangaview.source
+
+import dev.keiji.mangaview.widget.ViewContext
 
 abstract class ContentSource {
 

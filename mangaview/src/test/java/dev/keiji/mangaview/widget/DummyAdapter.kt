@@ -2,8 +2,8 @@ package dev.keiji.mangaview.widget
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.RectF
+import dev.keiji.mangaview.layer.ContentLayer
+import dev.keiji.mangaview.source.ContentSource
 
 class DummyAdapter(private val pageWidth: Int, private val pageHeight: Int) : PageAdapter() {
     override val pageCount: Int
