@@ -1,22 +1,19 @@
-package dev.keiji.mangaview.layout
+package dev.keiji.mangaview.widget
 
-import dev.keiji.mangaview.widget.HorizontalPopulateHelper
-import dev.keiji.mangaview.widget.PopulateHelper
-import dev.keiji.mangaview.widget.ViewContext
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 
-class HorizontalRtlLayoutManager : LayoutManager() {
+class HorizontalLtrLayoutManager : LayoutManager() {
 
     companion object {
-        private val TAG = HorizontalRtlLayoutManager::class.java.simpleName
+        private val TAG = HorizontalLtrLayoutManager::class.java.simpleName
     }
 
     override val populateHelper: PopulateHelper = HorizontalPopulateHelper()
 
     override val initialScrollX: Float
-        get() = -viewWidth.toFloat()
+        get() = 0.0F
 
     override val initialScrollY: Float
         get() = 0.0F
@@ -25,27 +22,33 @@ class HorizontalRtlLayoutManager : LayoutManager() {
         viewContext: ViewContext
     ): Int = abs(viewContext.viewport.centerX / viewContext.viewWidth).toInt()
 
-    override fun leftPageLayout(viewContext: ViewContext, basePageLayout: PageLayout?): PageLayout? {
+    override fun leftPageLayout(
+        viewContext: ViewContext,
+        basePageLayout: PageLayout?
+    ): PageLayout? {
         val currentIndex = (basePageLayout?.index ?: currentPageLayoutIndex(viewContext))
-        val leftIndex = currentIndex + 1
-        if (leftIndex >= pageLayoutManager.getCount()) {
+        val leftIndex = currentIndex - 1
+        if (leftIndex < 0) {
             return null
         }
         return getPageLayout(leftIndex, viewContext)
 
     }
 
-    override fun rightPageLayout(viewContext: ViewContext, basePageLayout: PageLayout?): PageLayout? {
+    override fun rightPageLayout(
+        viewContext: ViewContext,
+        basePageLayout: PageLayout?
+    ): PageLayout? {
         val currentIndex = (basePageLayout?.index ?: currentPageLayoutIndex(viewContext))
-        val rightIndex = currentIndex - 1
-        if (rightIndex < 0) {
+        val rightIndex = currentIndex + 1
+        if (rightIndex >= pageLayoutManager.getCount()) {
             return null
         }
         return getPageLayout(rightIndex, viewContext)
     }
 
     override fun layout(index: Int, pageLayout: PageLayout, viewContext: ViewContext): PageLayout {
-        val positionLeft = viewContext.viewWidth * -(index + 1)
+        val positionLeft = viewContext.viewWidth * index
 
         pageLayout.globalPosition.also {
             it.left = positionLeft
@@ -54,15 +57,15 @@ class HorizontalRtlLayoutManager : LayoutManager() {
             it.bottom = viewContext.viewHeight
         }
 
-        return pageLayout.flip()
-    }
-
-    override fun calcLastVisiblePageLayoutIndex(viewContext: ViewContext): Int {
-        return abs(floor(viewContext.viewport.right / viewContext.viewWidth)).toInt()
+        return pageLayout
     }
 
     override fun calcFirstVisiblePageLayoutIndex(viewContext: ViewContext): Int {
-        return abs(ceil(viewContext.viewport.right / viewContext.viewWidth)).toInt() - 1
+        return abs(floor(viewContext.viewport.left / viewContext.viewWidth)).toInt()
+    }
+
+    override fun calcLastVisiblePageLayoutIndex(viewContext: ViewContext): Int {
+        return abs(ceil(viewContext.viewport.left / viewContext.viewWidth)).toInt()
     }
 
     override fun initWith(viewContext: ViewContext) {

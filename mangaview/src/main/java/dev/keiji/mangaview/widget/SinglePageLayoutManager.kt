@@ -1,4 +1,4 @@
-package dev.keiji.mangaview.layout
+package dev.keiji.mangaview.widget
 
 class SinglePageLayoutManager : PageLayoutManager() {
 

@@ -1,7 +1,6 @@
-package dev.keiji.mangaview.layout
+package dev.keiji.mangaview.widget
 
 import dev.keiji.mangaview.Log
-import dev.keiji.mangaview.widget.Page
 import kotlin.math.min
 
 class SinglePageLayout(index: Int) : PageLayout(index) {

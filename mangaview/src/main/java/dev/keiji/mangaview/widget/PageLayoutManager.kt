@@ -1,7 +1,4 @@
-package dev.keiji.mangaview.layout
-
-import dev.keiji.mangaview.widget.PageAdapter
-import dev.keiji.mangaview.widget.ViewContext
+package dev.keiji.mangaview.widget
 
 abstract class PageLayoutManager {
 

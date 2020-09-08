@@ -1,8 +1,5 @@
-package dev.keiji.mangaview.layout
+package dev.keiji.mangaview.widget
 
-import dev.keiji.mangaview.widget.PopulateHelper
-import dev.keiji.mangaview.widget.VerticalPopulateHelper
-import dev.keiji.mangaview.widget.ViewContext
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor

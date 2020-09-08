@@ -1,4 +1,4 @@
-package dev.keiji.mangaview.layout
+package dev.keiji.mangaview.widget
 
 import kotlin.math.floor
 import kotlin.math.min

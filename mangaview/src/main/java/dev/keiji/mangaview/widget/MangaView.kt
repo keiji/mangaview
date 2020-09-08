@@ -20,10 +20,6 @@ import dev.keiji.mangaview.Config
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import dev.keiji.mangaview.layer.ContentLayer
-import dev.keiji.mangaview.layout.DoublePageLayoutManager
-import dev.keiji.mangaview.layout.LayoutManager
-import dev.keiji.mangaview.layout.PageLayout
-import dev.keiji.mangaview.layout.PageLayoutManager
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
