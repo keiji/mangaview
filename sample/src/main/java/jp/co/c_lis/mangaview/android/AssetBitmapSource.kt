@@ -22,6 +22,9 @@ class AssetBitmapSource(
     private var assetBitmap: Bitmap? = null
 
     override fun recycle() {
+        job?.cancel()
+        job = null
+
         assetBitmap?.recycle()
         assetBitmap = null
     }
