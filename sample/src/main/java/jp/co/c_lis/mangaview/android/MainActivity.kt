@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val onDoubleTapListener = object : MangaView.OnDoubleTapListener {
-        override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
+        override fun onDoubleTap(mangaView: MangaView, viewX: Float, viewY: Float): Boolean {
             return false
         }
     }

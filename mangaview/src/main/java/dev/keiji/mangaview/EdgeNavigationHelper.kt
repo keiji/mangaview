@@ -18,7 +18,7 @@ class EdgeNavigationHelper : MangaView.OnTapListener {
         mangaView.addOnTapListener(this)
     }
 
-    override fun onTap(mangaView: MangaView, x: Float, y: Float): Boolean {
+    override fun onTap(mangaView: MangaView, viewX: Float, viewY: Float): Boolean {
         val viewContext = mangaView.viewContext
 
         val tapEdgeLeft = viewContext.viewWidth * tapEdgeScrollThresholdLeft
@@ -31,25 +31,25 @@ class EdgeNavigationHelper : MangaView.OnTapListener {
             return false
         }
 
-        if (x < tapEdgeLeft
+        if (viewX < tapEdgeLeft
             && (toLeftPage(mangaView) || handleReadCompleteEvent(mangaView))
         ) {
             return true
         }
 
-        if (x > tapEdgeRight
+        if (viewX > tapEdgeRight
             && (toRightPage(mangaView) || handleReadCompleteEvent(mangaView))
         ) {
             return true
         }
 
-        if (y < tapEdgeTop
+        if (viewY < tapEdgeTop
             && (toTopPage(mangaView)) || handleReadCompleteEvent(mangaView)
         ) {
             return true
         }
 
-        if (y > tapEdgeBottom
+        if (viewY > tapEdgeBottom
             && (toBottomPage(mangaView) || handleReadCompleteEvent(mangaView))
         ) {
             return true

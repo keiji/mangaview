@@ -865,34 +865,164 @@ class MangaView(
         return true
     }
 
+    /**
+     * Interface definition for a callback to be invoked when a MangaView is tapped.
+     */
     interface OnTapListener {
-        fun onTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
-        fun onTap(page: Page, x: Float, y: Float): Boolean = false
-        fun onTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
+        /**
+         * Handle a tap event by the MangaView.
+         *
+         * @param mangaView  The MangaView that handled event
+         * @param viewX The point X on View
+         * @param viewY The point Y on View
+         *
+         * @return True if the event was consumed by the view, false otherwise.
+         */
+        fun onTap(mangaView: MangaView, viewX: Float, viewY: Float): Boolean = false
+
+        /**
+         * Handle a tap event by the Page.
+         *
+         * @param page The Page that handled event
+         * @param pageX The point X on Page
+         * @param pageY The point Y on Page
+         *
+         * @return True if the event was consumed by the page, false otherwise.
+         */
+        fun onTap(page: Page, pageX: Float, pageY: Float): Boolean = false
+
+        /**
+         * Handle a tap event by the ContentLayer.
+         *
+         * @param layer The ContentLayer that handled event
+         * @param contentX The point X on Content
+         * @param contentY The point Y on Content
+         *
+         * @return True if the event was consumed by the contentLayer, false otherwise.
+         */
+        fun onTap(layer: ContentLayer, contentX: Float, contentY: Float): Boolean = false
     }
 
+    /**
+     * Interface definition for a callback to be invoked when a MangaView is double tapped.
+     */
     interface OnDoubleTapListener {
-        fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
-        fun onDoubleTap(page: Page, x: Float, y: Float): Boolean = false
-        fun onDoubleTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
+        /**
+         * Handle a double tap event by the MangaView
+         *
+         * @param mangaView The MangaView that handled event.
+         * @param viewX The point X on View
+         * @param viewY The point Y on View
+         *
+         * @return True if the event was consumed by the view, false otherwise.
+         */
+        fun onDoubleTap(mangaView: MangaView, viewX: Float, viewY: Float): Boolean = false
+
+        /**
+         * Handle a double tap event by the Page.
+         *
+         * @param page The Page that handled event
+         * @param pageX The point X on Page
+         * @param pageY The point Y on Page
+         *
+         * @return True if the event was consumed by the page, false otherwise.
+         */
+        fun onDoubleTap(page: Page, pageX: Float, pageY: Float): Boolean = false
+
+        /**
+         * Handle a double tap event by the ContentLayer.
+         *
+         * @param layer The ContentLayer that handled event.
+         * @param contentX The point X on Content
+         * @param contentY The point Y on Content
+         *
+         * @return True if the event was consumed by the contentLayer, false otherwise.
+         */
+        fun onDoubleTap(layer: ContentLayer, contentX: Float, contentY: Float): Boolean = false
     }
 
+    /**
+     * Interface definition for a callback to be invoked when a MangaView is long tapped.
+     */
     interface OnLongTapListener {
-        fun onLongTap(mangaView: MangaView, x: Float, y: Float): Boolean = false
-        fun onLongTap(page: Page, x: Float, y: Float): Boolean = false
-        fun onLongTap(layer: ContentLayer, x: Float, y: Float): Boolean = false
+        /**
+         * Handle a long tap event by the MangaView.
+         *
+         * @param mangaView The MangaView that handled event
+         * @param viewX The point X on View
+         * @param viewY The point Y on View
+         *
+         * @return True if the event was consumed by the view, false otherwise.
+         */
+        fun onLongTap(mangaView: MangaView, viewX: Float, viewY: Float): Boolean = false
+
+        /**
+         * Handle a long tap event by the Page.
+         *
+         * @param page The Page that handled event.
+         * @param pageX The point X on Page
+         * @param pageY The point Y on Page
+         *
+         * @return True if the event was consumed by the page, false otherwise.
+         */
+        fun onLongTap(page: Page, pageX: Float, pageY: Float): Boolean = false
+
+        /**
+         * Handle a long tap event by the ContentLayer.
+         *
+         * @param layer The ContentLayer that handled event.
+         * @param contentX The point X on Content
+         * @param contentY The point Y on Content
+         *
+         * @return True if the event was consumed by the contentLayer, false otherwise.
+         */
+        fun onLongTap(layer: ContentLayer, contentX: Float, contentY: Float): Boolean = false
     }
 
+    /**
+     * Interface definition for a callback to be invoked when a page state is changed.
+     */
     interface OnPageChangeListener {
+        /**
+         * Called when a scroll state has been changed.
+         *
+         * @param mangaView The MangaView that handled event
+         * @param scrollState Constant MangaView.SCROLL_STATE_*
+         */
         fun onScrollStateChanged(mangaView: MangaView, scrollState: Int) {}
+
+        /**
+         * Called when a PageLayout has been selected.
+         *
+         * @param mangaView The MangaView that handled event
+         * @param pageLayout The selected PageLayout.
+         */
         fun onPageLayoutSelected(mangaView: MangaView, pageLayout: PageLayout) {}
     }
 
+    /**
+     * Interface definition for a callback to be invoked when reading is completed.
+     */
     interface OnReadCompleteListener {
+        /**
+         * Called when reading has been completed.
+         *
+         * @param mangaView The MangaView that handled event
+         */
         fun onReadCompleted(mangaView: MangaView)
     }
 
+    /**
+     * Interface definition for a callback to be invoked when a viewport is changed.
+     */
     interface OnContentViewportChangeListener {
+        /**
+         * Called when a viewport has been changed by contentLayer.
+         *
+         * @param mangaView The MangaView that handled event
+         * @param layer
+         * @param viewport
+         */
         fun onViewportChanged(mangaView: MangaView, layer: ContentLayer, viewport: RectF) = false
     }
 }

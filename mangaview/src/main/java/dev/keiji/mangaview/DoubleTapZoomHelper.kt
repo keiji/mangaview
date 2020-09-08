@@ -16,8 +16,8 @@ class DoubleTapZoomHelper(
         mangaView.addOnDoubleTapListener(this)
     }
 
-    override fun onDoubleTap(mangaView: MangaView, x: Float, y: Float): Boolean {
-        return doubleTapZoom(mangaView, x, y)
+    override fun onDoubleTap(mangaView: MangaView, viewX: Float, viewY: Float): Boolean {
+        return doubleTapZoom(mangaView, viewX, viewY)
     }
 
     private fun doubleTapZoom(mangaView: MangaView, x: Float, y: Float): Boolean {
