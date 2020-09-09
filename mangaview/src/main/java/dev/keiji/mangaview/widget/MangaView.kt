@@ -35,8 +35,19 @@ class MangaView(
     companion object {
         private val TAG = MangaView::class.java.simpleName
 
+        /**
+         * The view is not scrolling.
+         */
         const val SCROLL_STATE_IDLE = 0
+
+        /**
+         * The user is touching view and scrolling.
+         */
         const val SCROLL_STATE_DRAGGING = 1
+
+        /**
+         * The view is moving between pages.
+         */
         const val SCROLL_STATE_SETTLING = 2
 
         private const val SCROLLING_DURATION = 280L
@@ -72,60 +83,99 @@ class MangaView(
 
     private val onTapListenerList = ArrayList<OnTapListener>()
 
+    /**
+     * Adds the listener to the list of listeners who will be notified when the user tap on view.
+     */
     fun addOnTapListener(onTapListener: OnTapListener) {
         onTapListenerList.add(onTapListener)
     }
 
+    /**
+     * Remove the listener to the list of listeners.
+     */
     fun removeOnTapListener(onTapListener: OnTapListener) {
         onTapListenerList.remove(onTapListener)
     }
 
     private val onPageChangeListenerList = ArrayList<OnPageChangeListener>()
 
+    /**
+     * Adds the listener to the list of listeners who will be notified when
+     * page transition has been occurred.
+     */
     fun addOnPageChangeListener(onPageChangeListener: OnPageChangeListener) {
         onPageChangeListenerList.add(onPageChangeListener)
     }
 
+    /**
+     * Remove the listener to the list of listeners.
+     */
     fun removeOnPageChangeListener(onPageChangeListener: OnPageChangeListener) {
         onPageChangeListenerList.add(onPageChangeListener)
     }
 
     private val onReadCompleteListenerList = ArrayList<OnReadCompleteListener>()
 
+    /**
+     * Adds the listener to the list of listeners who will be notified when
+     * page transition to next have been occurred on last page by the user.
+     */
     fun addOnReadCompleteListener(onReadCompleteListener: OnReadCompleteListener) {
         onReadCompleteListenerList.add(onReadCompleteListener)
     }
 
+    /**
+     * Remove the listener to the list of listeners.
+     */
     fun removeOnReadCompleteListener(onReadCompleteListener: OnReadCompleteListener) {
         onReadCompleteListenerList.remove(onReadCompleteListener)
     }
 
     private val onDoubleTapListenerList = ArrayList<OnDoubleTapListener>()
 
+    /**
+     * Adds the listener to the list of listeners who will be notified when the user double tap on view.
+     */
     fun addOnDoubleTapListener(onDoubleTapListener: OnDoubleTapListener) {
         onDoubleTapListenerList.add(onDoubleTapListener)
     }
 
+    /**
+     * Remove the listener to the list of listeners.
+     */
     fun removeOnDoubleTapListener(onDoubleTapListener: OnDoubleTapListener) {
         onDoubleTapListenerList.remove(onDoubleTapListener)
     }
 
     private val onLongTapListenerList = ArrayList<OnLongTapListener>()
 
-    fun addOnDoubleTapListener(onLongTapListener: OnLongTapListener) {
+    /**
+     * Adds the listener to the list of listeners who will be notified when the user long tap on view.
+     */
+    fun addOnLongTapListener(onLongTapListener: OnLongTapListener) {
         onLongTapListenerList.add(onLongTapListener)
     }
 
-    fun removeOnDoubleTapListener(onLongTapListener: OnLongTapListener) {
+    /**
+     * Remove the listener to the list of listeners.
+     */
+    fun removeOnLongTapListener(onLongTapListener: OnLongTapListener) {
         onLongTapListenerList.remove(onLongTapListener)
     }
 
     private var onContentViewportChangeListenerList = ArrayList<OnContentViewportChangeListener>()
 
+    /**
+     * Adds the listener to the list of listeners who will be notified when
+     * the viewport has been changed on content by the user.
+     */
     fun addOnContentViewportChangeListener(onContentViewportChangeListener: OnContentViewportChangeListener) {
         onContentViewportChangeListenerList.add(onContentViewportChangeListener)
     }
 
+    /**
+     * Remove the listener to the list of listeners.
+     */
     fun removeOnContentViewportChangeListener(onContentViewportChangeListener: OnContentViewportChangeListener) {
         onContentViewportChangeListenerList.remove(onContentViewportChangeListener)
     }
