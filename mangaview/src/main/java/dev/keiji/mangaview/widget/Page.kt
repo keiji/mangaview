@@ -11,8 +11,8 @@ import dev.keiji.mangaview.layer.ContentLayer
 
 class Page(
     val index: Int,
-    var width: Int,
-    var height: Int
+    val width: Int,
+    val height: Int
 ) {
     companion object {
         private val TAG = Page::class.java.simpleName
