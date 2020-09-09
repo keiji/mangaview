@@ -105,6 +105,9 @@ class MainActivity : AppCompatActivity() {
 
     private var mangaView: MangaView? = null
 
+    private var doubleTapZoomHelper: DoubleTapZoomHelper? = null
+    private var edgeNavigationHelper: EdgeNavigationHelper? = null
+
     var currentToast: Toast? = null
 
     private val onPageChangeListener = object : MangaView.OnPageChangeListener {
@@ -180,13 +183,13 @@ class MainActivity : AppCompatActivity() {
                 DoublePageLayoutManager(isSpread = true, startOneSide = true)
             }
 
-        mangaView = findViewById<MangaView>(R.id.manga_view).also {
-            it.config = Config(
+        mangaView = findViewById<MangaView>(R.id.manga_view).also { mangaView ->
+            mangaView.config = Config(
                 resetScaleOnPageChanged = true
             )
-            it.layoutManager = HorizontalRtlLayoutManager()
-            it.pageLayoutManager = pageLayoutManager
-            it.adapter = SampleBitmapAdapter(
+            mangaView.layoutManager = HorizontalRtlLayoutManager()
+            mangaView.pageLayoutManager = pageLayoutManager
+            mangaView.adapter = SampleBitmapAdapter(
                 assets, FILE_NAMES,
                 TILED_SOURCE, TILED_IMAGE_URL_LIST,
                 cacheDir,
@@ -195,12 +198,16 @@ class MainActivity : AppCompatActivity() {
                 coroutineScope,
                 PAGE_WIDTH, PAGE_HEIGHT
             )
-            it.addOnPageChangeListener(onPageChangeListener)
-            it.addOnDoubleTapListener(onDoubleTapListener)
-            it.addOnReadCompleteListener(onReadCompleteListener)
+            mangaView.addOnPageChangeListener(onPageChangeListener)
+            mangaView.addOnDoubleTapListener(onDoubleTapListener)
+            mangaView.addOnReadCompleteListener(onReadCompleteListener)
 
-            DoubleTapZoomHelper(maxScale = DOUBLE_TAP_SCALE).setup(it)
-            EdgeNavigationHelper().setup(it)
+            doubleTapZoomHelper = DoubleTapZoomHelper(maxScale = DOUBLE_TAP_SCALE).also {
+                it.attachToMangaView(mangaView)
+            }
+            edgeNavigationHelper = EdgeNavigationHelper().also {
+                it.attachToMangaView(mangaView)
+            }
         }
     }
 
@@ -223,5 +230,10 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
 
         coroutineScope.cancel()
+
+        mangaView?.also { mangaView ->
+            doubleTapZoomHelper?.detachToMangaView(mangaView)
+            edgeNavigationHelper?.detachToMangaView(mangaView)
+        }
     }
 }

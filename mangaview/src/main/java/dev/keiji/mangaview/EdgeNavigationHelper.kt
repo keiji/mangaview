@@ -2,6 +2,11 @@ package dev.keiji.mangaview
 
 import dev.keiji.mangaview.widget.MangaView
 
+/**
+ * Helper class that behavior when the user touched edge on the view.
+ *
+ * Implementation of the MangaView.OnTapListener supporting page transition in either vertical or horizontal orientation.
+ */
 class EdgeNavigationHelper : MangaView.OnTapListener {
 
     companion object {
@@ -14,8 +19,22 @@ class EdgeNavigationHelper : MangaView.OnTapListener {
     private val tapEdgeScrollThresholdTop = DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL
     private val tapEdgeScrollThresholdBottom = 1.0F - DEFAULT_TAP_EDGE_SCROLL_THRESHOLD_VERTICAL
 
-    fun setup(mangaView: MangaView) {
+    /**
+     * Attaches the EdgeNavigationHelper to the provided MangaView.
+     *
+     * @param mangaView The MangaView instance to which you want to add this helper.
+     */
+    fun attachToMangaView(mangaView: MangaView) {
         mangaView.addOnTapListener(this)
+    }
+
+    /**
+     * Detaches the EdgeNavigationHelper from the provided MangaView.
+     *
+     * @param mangaView The MangaView instance to which you want to remove this helper.
+     */
+    fun detachToMangaView(mangaView: MangaView) {
+        mangaView.removeOnTapListener(this)
     }
 
     override fun onTap(mangaView: MangaView, viewX: Float, viewY: Float): Boolean {
