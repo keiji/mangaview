@@ -11,7 +11,7 @@ abstract class PageLayoutManager {
 
     abstract fun getCount(pageCount: Int = pageAdapter.pageCount): Int
 
-    open fun layout(pageLayout: PageLayout, index: Int): PageLayout {
+    internal open fun layout(pageLayout: PageLayout, index: Int): PageLayout {
         val firstPageIndex = calcFirstPageIndex(index)
         val lastPageIndex = calcLastPageIndex(index)
 
@@ -27,5 +27,5 @@ abstract class PageLayoutManager {
     abstract fun calcFirstPageIndex(pageLayoutIndex: Int): Int
     abstract fun calcLastPageIndex(pageLayoutIndex: Int): Int
 
-    abstract fun createPageLayout(index: Int): PageLayout
+    internal abstract fun createPageLayout(index: Int): PageLayout
 }

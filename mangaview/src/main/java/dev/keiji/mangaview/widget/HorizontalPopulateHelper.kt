@@ -2,7 +2,7 @@ package dev.keiji.mangaview.widget
 
 import dev.keiji.mangaview.Rectangle
 
-class HorizontalPopulateHelper : PopulateHelper() {
+internal class HorizontalPopulateHelper : PopulateHelper() {
     companion object {
         private val TAG = HorizontalPopulateHelper::class.java.simpleName
     }

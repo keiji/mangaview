@@ -4,7 +4,7 @@ import android.view.animation.DecelerateInterpolator
 import dev.keiji.mangaview.Rectangle
 import kotlin.math.min
 
-class Animator {
+internal class Animator {
     companion object {
         private val TAG = Animator::class.java.simpleName
 
