@@ -36,7 +36,7 @@ data class ViewContext(
     val viewportHeight: Float
         get() = viewHeight / currentScale
 
-    fun setViewSize(w: Int, h: Int) {
+    internal fun setViewSize(w: Int, h: Int) {
         viewWidth = w.toFloat()
         viewHeight = h.toFloat()
 
@@ -72,21 +72,21 @@ data class ViewContext(
         }
     }
 
-    fun scroll(
+    internal fun scroll(
         distanceX: Float,
         distanceY: Float,
         scrollArea: Rectangle? = null,
         applyImmediately: Boolean = true
     ) = offset(distanceX, distanceY, scrollArea, applyImmediately)
 
-    fun offset(
+    internal fun offset(
         offsetX: Float,
         offsetY: Float,
         scrollArea: Rectangle? = null,
         applyImmediately: Boolean = true
     ) = offsetTo(currentX + offsetX, currentY + offsetY, scrollArea, applyImmediately)
 
-    fun offsetTo(
+    internal fun offsetTo(
         x: Float,
         y: Float,
         scrollArea: Rectangle? = null,
@@ -100,7 +100,7 @@ data class ViewContext(
         }
     }
 
-    fun scale(
+    internal fun scale(
         factor: Float,
         focusX: Float,
         focusY: Float,
@@ -118,7 +118,7 @@ data class ViewContext(
         )
     }
 
-    fun scaleTo(
+    internal fun scaleTo(
         scale: Float,
         focusViewX: Float = currentX,
         focusViewY: Float = currentY,
@@ -144,23 +144,23 @@ data class ViewContext(
         offset(diffX * focusXRatio, diffY * focusYRatio, scrollArea, applyImmediately)
     }
 
-    fun canScrollLeft(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
+    internal fun canScrollLeft(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
         return (rectangle.left - delta) < viewport.left
     }
 
-    fun canScrollRight(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
+    internal fun canScrollRight(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
         return (rectangle.right + delta) > viewport.right
     }
 
-    fun canScrollTop(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
+    internal fun canScrollTop(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
         return (rectangle.top - delta) < viewport.top
     }
 
-    fun canScrollBottom(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
+    internal fun canScrollBottom(rectangle: Rectangle, delta: Float = 0.0F): Boolean {
         return (rectangle.bottom + delta) > viewport.bottom
     }
 
-    fun projectionGlobalPoint(viewX: Float, viewY: Float, result: Rectangle): Rectangle {
+    internal fun projectionGlobalPoint(viewX: Float, viewY: Float, result: Rectangle): Rectangle {
         val horizontalRatio = viewX / viewWidth
         val verticalRatio = viewY / viewHeight
 
@@ -171,7 +171,7 @@ data class ViewContext(
             .set(globalX, globalY, globalX, globalY)
     }
 
-    fun projectionViewPoint(globalX: Float, globalY: Float, result: Rectangle): Rectangle {
+    internal fun projectionViewPoint(globalX: Float, globalY: Float, result: Rectangle): Rectangle {
         val horizontalRatio = (globalX - viewport.left) / viewportWidth
         val verticalRatio = (globalY - viewport.top) / viewportHeight
 
@@ -182,12 +182,12 @@ data class ViewContext(
             .set(viewX, viewY, viewX, viewY)
     }
 
-    fun setScrollableAxis(horizontal: Int, vertical: Int) {
+    internal fun setScrollableAxis(horizontal: Int, vertical: Int) {
         scrollPolicyHorizontal = horizontal
         scrollPolicyVertical = vertical
     }
 
-    fun applyViewport(left: Float, top: Float, right: Float, bottom: Float) {
+    internal fun applyViewport(left: Float, top: Float, right: Float, bottom: Float) {
         viewport.set(left, top, right, bottom)
         currentScale = viewWidth / viewport.width
         currentX = viewport.left
