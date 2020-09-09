@@ -87,6 +87,9 @@ class MangaView(
      * Adds the listener to the list of listeners who will be notified when the user tap on view.
      */
     fun addOnTapListener(onTapListener: OnTapListener) {
+        if (onTapListenerList.contains(onTapListener)) {
+            return
+        }
         onTapListenerList.add(onTapListener)
     }
 
@@ -104,6 +107,9 @@ class MangaView(
      * page transition has been occurred.
      */
     fun addOnPageChangeListener(onPageChangeListener: OnPageChangeListener) {
+        if (onPageChangeListenerList.contains(onPageChangeListener)) {
+            return
+        }
         onPageChangeListenerList.add(onPageChangeListener)
     }
 
@@ -121,6 +127,9 @@ class MangaView(
      * page transition to next have been occurred on last page by the user.
      */
     fun addOnReadCompleteListener(onReadCompleteListener: OnReadCompleteListener) {
+        if (onReadCompleteListenerList.contains(onReadCompleteListener)) {
+            return
+        }
         onReadCompleteListenerList.add(onReadCompleteListener)
     }
 
@@ -137,6 +146,9 @@ class MangaView(
      * Adds the listener to the list of listeners who will be notified when the user double tap on view.
      */
     fun addOnDoubleTapListener(onDoubleTapListener: OnDoubleTapListener) {
+        if (onDoubleTapListenerList.contains(onDoubleTapListener)) {
+            return
+        }
         onDoubleTapListenerList.add(onDoubleTapListener)
     }
 
@@ -153,6 +165,9 @@ class MangaView(
      * Adds the listener to the list of listeners who will be notified when the user long tap on view.
      */
     fun addOnLongTapListener(onLongTapListener: OnLongTapListener) {
+        if (onLongTapListenerList.contains(onLongTapListener)) {
+            return
+        }
         onLongTapListenerList.add(onLongTapListener)
     }
 
@@ -170,6 +185,9 @@ class MangaView(
      * the viewport has been changed on content by the user.
      */
     fun addOnContentViewportChangeListener(onContentViewportChangeListener: OnContentViewportChangeListener) {
+        if (onContentViewportChangeListenerList.contains(onContentViewportChangeListener)) {
+            return
+        }
         onContentViewportChangeListenerList.add(onContentViewportChangeListener)
     }
 
