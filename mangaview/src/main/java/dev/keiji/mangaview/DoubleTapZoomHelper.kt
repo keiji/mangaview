@@ -16,6 +16,7 @@ class DoubleTapZoomHelper(
     companion object {
         private val TAG = DoubleTapZoomHelper::class.java.simpleName
 
+        private const val DELTA = 0.001F
         private const val DEFAULT_DOUBLE_TAP_SCALE = 4.0F
     }
 
@@ -44,7 +45,7 @@ class DoubleTapZoomHelper(
     private fun doubleTapZoom(mangaView: MangaView, x: Float, y: Float): Boolean {
         val viewContext = mangaView.viewContext
 
-        if (viewContext.currentScale >= maxScale) {
+        if ((maxScale - viewContext.currentScale) < DELTA) {
             mangaView.scale(viewContext.minScale, x, y, smoothScale = true)
         } else {
             mangaView.scale(maxScale, x, y, smoothScale = true)
