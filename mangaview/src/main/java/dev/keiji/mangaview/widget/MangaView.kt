@@ -20,6 +20,7 @@ import dev.keiji.mangaview.Config
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import dev.keiji.mangaview.layer.ContentLayer
+import kotlinx.android.parcel.Parcelize
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -287,8 +288,45 @@ class MangaView(
         layoutManagerSnapshot.initWith(viewContext)
 
         pageLayoutManager.pageAdapter = adapterSnapshot
+    }
 
-        isInitialized = true
+    private fun initWith(saveState: SaveState): Boolean {
+
+        if (viewContext.viewWidth == 0.0F || viewContext.viewHeight == 0.0F) {
+            return false
+        }
+
+        val layoutSignature =
+            SaveState.layoutSignature(layoutManager, pageLayoutManager) ?: return false
+        val restoredLayoutSignature = saveState.layoutSignature
+
+        if (layoutSignature != restoredLayoutSignature) {
+            // dispose SavedState
+            savedState = null
+            return false
+        }
+
+        val restoredViewContext = saveState.viewContext
+
+        if (viewContext.viewWidth != restoredViewContext.viewWidth
+            || viewContext.viewHeight != restoredViewContext.viewHeight
+        ) {
+            // dispose SavedState
+            savedState = null
+            return false
+        }
+
+        viewContext.apply {
+            minScale = restoredViewContext.minScale
+            maxScale = restoredViewContext.maxScale
+            currentScale = restoredViewContext.currentScale
+            currentX = restoredViewContext.currentX
+            currentY = restoredViewContext.currentY
+        }.applyViewport()
+
+        savedState = null
+
+        return true
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -296,7 +334,15 @@ class MangaView(
 
         if (!isInitialized) {
             init()
-            showInitialPage(currentPageIndex)
+
+            savedState?.also { savedState ->
+                if (!initWith(savedState)) {
+                    initInitialPage(savedState)
+                }
+            }
+
+            isInitialized = true
+            postInvalidate()
             return
         }
 
@@ -332,22 +378,36 @@ class MangaView(
         }
     }
 
+
     override fun onSaveInstanceState(): Parcelable? {
-        return super.onSaveInstanceState()
-        // TODO
+        val baseState = super.onSaveInstanceState()
+        val layoutSignature =
+            SaveState.layoutSignature(layoutManager, pageLayoutManager) ?: return baseState
+        Log.d(TAG, "layoutSignature: ${layoutSignature}")
+        Log.d(TAG, "viewContext.viewport ${viewContext.viewport}")
+
+        return SaveState(layoutSignature, viewContext, currentPageIndex, baseState)
     }
+
+    private var savedState: SaveState? = null
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         super.onRestoreInstanceState(state)
-        // TODO
+        state ?: return
+
+        savedState = state as SaveState
     }
 
-    private fun showInitialPage(pageIndex: Int) {
-        val pageLayoutIndex = pageLayoutManager.calcPageLayoutIndex(pageIndex)
+    private fun initInitialPage(savedState: SaveState) {
+        currentPageIndex = savedState.currentPageIndex
+        val pageLayoutIndex = pageLayoutManager.calcPageLayoutIndex(currentPageIndex)
         val pageLayout = layoutManager?.getPageLayout(pageLayoutIndex, viewContext)
 
         if (pageLayout == null) {
-            Log.d(TAG, "pageIndex: ${pageIndex} -> pageLayoutIndex ${pageLayoutIndex} not found.")
+            Log.d(
+                TAG,
+                "pageIndex: ${currentPageIndex} -> pageLayoutIndex ${pageLayoutIndex} not found."
+            )
             return
         }
 
@@ -360,9 +420,6 @@ class MangaView(
 
         val position = pageLayout.globalPosition
         viewContext.offsetTo(position.left, position.top)
-        layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
-
-        postInvalidate()
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
@@ -1088,5 +1145,29 @@ class MangaView(
          * @param viewport
          */
         fun onViewportChanged(mangaView: MangaView, layer: ContentLayer, viewport: RectF) = false
+    }
+
+    @Parcelize
+    private class SaveState(
+        val layoutSignature: String,
+        val viewContext: ViewContext,
+        val currentPageIndex: Int,
+        private val baseState: Parcelable?,
+    ) : BaseSavedState(baseState) {
+
+        companion object {
+            fun layoutSignature(
+                layoutManager: LayoutManager?,
+                pageLayoutManager: PageLayoutManager?,
+            ): String? {
+                layoutManager ?: return null
+                pageLayoutManager ?: return null
+
+                return "%s-%s".format(
+                    layoutManager::class.java.canonicalName,
+                    pageLayoutManager::class.java.canonicalName
+                )
+            }
+        }
     }
 }

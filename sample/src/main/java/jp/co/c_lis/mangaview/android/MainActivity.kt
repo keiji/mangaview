@@ -211,21 +211,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        mangaView?.also {
-            outState.putInt(KEY_CURRENT_PAGE_INDEX, it.currentPageIndex)
-        }
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-
-        val currentPageIndex = savedInstanceState.getInt(KEY_CURRENT_PAGE_INDEX)
-        mangaView?.currentPageIndex = currentPageIndex
-    }
-
     override fun onDestroy() {
         super.onDestroy()
 

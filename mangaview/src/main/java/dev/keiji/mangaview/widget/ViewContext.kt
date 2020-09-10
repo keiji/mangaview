@@ -1,10 +1,14 @@
 package dev.keiji.mangaview.widget
 
+import android.os.Parcelable
 import androidx.annotation.VisibleForTesting
 import dev.keiji.mangaview.Rectangle
+import kotlinx.android.parcel.IgnoredOnParcel
+import kotlinx.android.parcel.Parcelize
 import kotlin.math.max
 import kotlin.math.min
 
+@Parcelize
 data class ViewContext(
     internal var viewWidth: Float = 0.0F,
     internal var viewHeight: Float = 0.0F,
@@ -16,7 +20,7 @@ data class ViewContext(
 
     private var scrollPolicyHorizontal: Int = SCROLL_POLICY_UNLIMITED,
     private var scrollPolicyVertical: Int = SCROLL_POLICY_UNLIMITED
-) {
+): Parcelable {
 
     companion object {
         private val TAG = ViewContext::class.java.simpleName
@@ -26,6 +30,7 @@ data class ViewContext(
     }
 
     // Global Viewport
+    @IgnoredOnParcel
     internal val viewport: Rectangle = Rectangle(0.0F, 0.0F, viewWidth, viewHeight)
 
     @VisibleForTesting
