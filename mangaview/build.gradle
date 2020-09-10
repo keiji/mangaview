@@ -86,10 +86,31 @@ bintray {
     }
 }
 
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier.set('sources')
+}
+
+tasks.withType(Javadoc).all {
+    enabled = false
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier.set('javadoc')
+    from javadoc.destinationDir
+    // options.encoding = 'UTF-8'
+}
 publishing {
     publications {
         bintray(MavenPublication) {
             artifact(outputPath)
+            artifact sourcesJar
+            artifact javadocJar
 
             groupId groupIdValue
             artifactId libraryName
