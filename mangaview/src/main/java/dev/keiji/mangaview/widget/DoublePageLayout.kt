@@ -30,9 +30,9 @@ class DoublePageLayout(
             }
 
             return if (isFlip) {
-                leftPage
-            } else {
                 rightPage
+            } else {
+                leftPage
             }
         }
 
