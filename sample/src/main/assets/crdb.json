@@ -1,0 +1,90 @@
+{
+  "comic_001bj_2.jpg": {
+    "image_ids": {
+      "dhash8": "c49690b2ccc8c88c",
+      "dhash12": "d04c8ccc4c84d84d84ca0e34e30c50db4cf0",
+      "dhash16": "f808ed58e258d308e410ca0cce0ccb4cde88e220e0a8f0e0e344ea48c6d4c368"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/c49690b2ccc8c88c"
+  },
+  "comic_001bj_3.jpg": {
+    "image_ids": {
+      "dhash8": "5cd2ba989d918002",
+      "dhash12": "93977cec48d65e4ce9c93ad3ed3cd2892054",
+      "dhash16": "007289f13b3df32c8324a7246598e7d1e667b366b326b267e1048440006701ac"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/5cd2ba989d918002"
+  },
+  "comic_001bj_4.jpg": {
+    "image_ids": {
+      "dhash8": "080a3d9d3636974e",
+      "dhash12": "024a253255504dbdd5c941981ceccf27d26c",
+      "dhash16": "000092c892d52b5b49422b624b73c549426c4e640f3c0fb6c73eb3ab53bb01ac"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/080a3d9d3636974e"
+  },
+  "comic_001bj_5.jpg": {
+    "image_ids": {
+      "dhash8": "e4e4e6c8e8e4a6c4",
+      "dhash12": "d10d90f90d2cca4f20f20fd4d94d9cc98c58",
+      "dhash16": "e840cc60ee48f068d850e4d8e4c4d8c0d8c0db48dd68fa6cee2ce634e634eb34"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/e4e4e6c8e8e4a6c4"
+  },
+  "comic_001bj_6.jpg": {
+    "image_ids": {
+      "dhash8": "670b6b7767333b4d",
+      "dhash12": "29729f16737334b1cd38b30b1e70d503b03f",
+      "dhash16": "104f525348ff094f392719273b1b8f1b1e3799379dbd0c0d0729067700fb096b"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/670b6b7767333b4d"
+  },
+  "comic_001bj_7.jpg": {
+    "image_ids": {
+      "dhash8": "47117432236b0c1d",
+      "dhash12": "31d2ad2ab2a93691c615731e3a62920ba0ab",
+      "dhash16": "287b38a912b7149706a31ab2091b0b0e0a2d18250c2c24c53566267202da2593"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/47117432236b0c1d"
+  },
+  "comic_001bj_8.jpg": {
+    "image_ids": {
+      "dhash8": "bd67a31f4f35775b",
+      "dhash12": "cd359d78f88f98f4b327759358d38d3ef667",
+      "dhash16": "e763ed672f1bba1fa62f86374f4f2467334b395726e34e2b5e1b1e9f93cf73b7"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/bd67a31f4f35775b"
+  },
+  "comic_001bj_9.jpg": {
+    "image_ids": {
+      "dhash8": "4f471b36642b2b23",
+      "dhash12": "33331f20e2370da3dc3981601375b31971ad",
+      "dhash16": "2bc22c7f343d341c146f230c13761c2c35642da20cab24cd6cd5046d254e2c93"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/4f471b36642b2b23"
+  },
+  "comic_001bj_10.jpg": {
+    "image_ids": {
+      "dhash8": "2b071b333feb111d",
+      "dhash12": "21b0cb21b0771131af1af3bb92714b2eb16b",
+      "dhash16": "0027218f233f207f29cf2e4f196f269b2e9b0e03fcf34ccf0d2735b323930b97"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/2b071b333feb111d"
+  },
+  "comic_001bj_11.jpg": {
+    "image_ids": {
+      "dhash8": "37191127471b5b4b",
+      "dhash12": "3af08d2f326304733731f2274e74eb2f7153",
+      "dhash16": "104b249b063b13c35383231f094f1acf343b145b13db271f259336ce1b472856"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/37191127471b5b4b"
+  },
+  "comic_001bj_12.jpg": {
+    "image_ids": {
+      "dhash8": "8d456d7d39379989",
+      "dhash12": "6594db3192333312b90e10ebb9b873923c6b",
+      "dhash16": "6961333722b3196914d724d318d136d125e127c9ceb39a338bc7c9a7c9b7e193"
+    },
+    "url": "https://crdb.keiji.dev/api/v1/page/8d456d7d39379989"
+  }
+}

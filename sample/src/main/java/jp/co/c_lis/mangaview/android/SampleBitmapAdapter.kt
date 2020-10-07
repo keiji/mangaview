@@ -41,6 +41,16 @@ class SampleBitmapAdapter(
         val fileName = fileNames[index]
         page.addLayer(BitmapLayer(AssetBitmapSource(assetManager, fileName, coroutineScope)))
 
+        val pathSource = CrdbRegionSource(
+            assetManager, "crdb.json", fileName,
+            tmpDir,
+            coroutineScope
+        )
+        val pathLayer = RegionLayer(pathSource).also {
+            it.addOnSelectRegionListener(onSelectedRegionListener)
+        }
+        page.addLayer(pathLayer)
+
         if (index == 0) {
             val tiledImageSource = NetworkTiledBitmapSource(
                 tiledSource,
@@ -49,17 +59,6 @@ class SampleBitmapAdapter(
                 coroutineScope
             )
             page.addLayer(TiledBitmapLayer(tiledImageSource))
-        } else if (index == 4) {
-            val pathSource = AssetRegionSource(
-                assetManager, fileName,
-                regionList,
-                coroutineScope
-            )
-            val pathLayer = RegionLayer(pathSource).also {
-                it.addOnSelectRegionListener(onSelectedRegionListener)
-            }
-            page.addLayer(pathLayer)
         }
-
     }
 }

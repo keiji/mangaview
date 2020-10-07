@@ -4,6 +4,7 @@ import android.graphics.Path
 import android.graphics.PointF
 
 data class Region(
+    val categoryId: Int = 0,
     val label: Int = 0,
     val isNormalized: Boolean = true,
     val pointList: ArrayList<PointF> = ArrayList()
