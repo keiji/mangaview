@@ -95,28 +95,20 @@ class CrdbRegionSource(
         val regionArray = JSONObject(regionsStr)
             .getJSONArray("regions")
 
+        Log.d(TAG, regionsStr)
+
         for (index in (0 until regionArray.length())) {
             val regionObj = regionArray.getJSONObject(index)
             val categoryId = regionObj.getInt("category_id")
             val label = regionObj.getInt("label")
-            val lineArray = regionObj.getJSONArray("lines")
+            val pointJsonArray = regionObj.getJSONArray("points")
 
             val pointArray = ArrayList<PointF>()
-            var point: PointF? = null
-
-            for (j in (0 until lineArray.length())) {
-                val lineObj = lineArray.getJSONObject(j)
-                if (point == null) {
-                    point = PointF(
-                        lineObj.getDouble("from_x").toFloat(),
-                        lineObj.getDouble("from_y").toFloat()
-                    )
-                    pointArray.add(point)
-                }
-
-                point = PointF(
-                    lineObj.getDouble("to_x").toFloat(),
-                    lineObj.getDouble("to_y").toFloat()
+            for (j in (0 until pointJsonArray.length())) {
+                val pointObj = pointJsonArray.getJSONObject(j)
+                val point = PointF(
+                    pointObj.getDouble("x").toFloat(),
+                    pointObj.getDouble("y").toFloat()
                 )
                 pointArray.add(point)
             }
