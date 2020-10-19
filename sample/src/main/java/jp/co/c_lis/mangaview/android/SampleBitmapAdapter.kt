@@ -17,7 +17,6 @@ class SampleBitmapAdapter(
     private val tiledSource: TiledSource,
     private val urlList: List<String>,
     private val tmpDir: File,
-    private val regionList: ArrayList<Region>,
     private val onSelectedRegionListener: RegionLayer.OnSelectedRegionListener,
     private val coroutineScope: CoroutineScope,
     private val pageWidth: Int,

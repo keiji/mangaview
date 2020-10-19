@@ -49,45 +49,6 @@ private val TILED_IMAGE_URL_LIST = (0 until TILED_SOURCE.colCount * TILED_SOURCE
     "$URL_PREFIX/comic_001bj_2/comic_001bj_2-%04d.jpg".format(it)
 }
 
-private val PAGE5_REGION_LIST = arrayListOf(
-
-    // base image = "comic_001bj_6.jpg"
-    // base image width = 859
-    // base image height = 1214
-
-    // 1
-    Region(isNormalized = true).also { region ->
-        region.addPoint(PointF(0.42142025F, 0.0F)) // 0.42142025F <- (362.0F / 859)
-        region.addPoint(PointF(0.42142025F, 0.46952224F)) // 0.46952224F <- (570.0F / 1214)
-        region.addPoint(PointF(0.89173457F, 0.46952224F)) // 0.89173457F <- (766.0F / 859)
-        region.addPoint(PointF(0.89173457F, 0.0F))
-    },
-
-    // 2
-    Region(isNormalized = true).also { region ->
-        region.addPoint(PointF(0.0F, 0.0F))
-        region.addPoint(PointF(0.42142025F, 0.0F)) // 0.42142025F <- (362.0F / 859)
-        region.addPoint(PointF(0.42142025F, 0.28830313F)) // 0.28830313F <- (350.0F / 1214)
-        region.addPoint(PointF(0.0F, 0.28830313F))
-    },
-
-    // 3
-    Region(isNormalized = true).also { region ->
-        region.addPoint(PointF(0.0F, 0.29159802F)) // 0.29159802F <- (354.0F / 1214)
-        region.addPoint(PointF(0.42142025F, 0.29159802F)) // 0.42142025F <- (362.0F / 859)
-        region.addPoint(PointF(0.42142025F, 0.47364085F)) // 0.47364085F <- (575.0F / 1214)
-        region.addPoint(PointF(0.0F, 0.47364085F))
-    },
-
-    // 4
-    Region(isNormalized = true).also { region ->
-        region.addPoint(PointF(0.0F, 0.47775947F)) // 0.47775947F <- (580.0F / 1214)
-        region.addPoint(PointF(0.89173457F, 0.47775947F)) // 0.89173457F <- (766.0F / 859)
-        region.addPoint(PointF(0.89173457F, 1.0F))
-        region.addPoint(PointF(0.0F, 1.0F))
-    }
-)
-
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -193,7 +154,6 @@ class MainActivity : AppCompatActivity() {
                 assets, FILE_NAMES,
                 TILED_SOURCE, TILED_IMAGE_URL_LIST,
                 cacheDir,
-                PAGE5_REGION_LIST,
                 onSelectedRegionListener,
                 coroutineScope,
                 PAGE_WIDTH, PAGE_HEIGHT
