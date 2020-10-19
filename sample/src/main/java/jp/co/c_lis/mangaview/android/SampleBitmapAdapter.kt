@@ -1,7 +1,6 @@
 package jp.co.c_lis.mangaview.android
 
 import android.content.res.AssetManager
-import dev.keiji.mangaview.Region
 import dev.keiji.mangaview.TiledSource
 import dev.keiji.mangaview.layer.BitmapLayer
 import dev.keiji.mangaview.widget.Page
@@ -40,7 +39,7 @@ class SampleBitmapAdapter(
         val fileName = fileNames[index]
         page.addLayer(BitmapLayer(AssetBitmapSource(assetManager, fileName, coroutineScope)))
 
-        val pathSource = CrdbRegionSource(
+        val pathSource = MrdbRegionSource(
             assetManager, "crdb.json", fileName,
             tmpDir,
             coroutineScope

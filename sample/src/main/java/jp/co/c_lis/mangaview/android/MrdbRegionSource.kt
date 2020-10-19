@@ -3,8 +3,6 @@ package jp.co.c_lis.mangaview.android
 import android.content.res.AssetManager
 import android.graphics.BitmapFactory
 import android.graphics.PointF
-import android.net.Uri
-import android.util.JsonReader
 import android.util.Log
 import dev.keiji.mangaview.Region
 import dev.keiji.mangaview.source.RegionSource
@@ -18,13 +16,12 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
-import java.io.InputStreamReader
 import java.net.URL
 
 /**
- * CRDB(Comic Region Database).
+ * MRDB(Manga Region Database).
  */
-class CrdbRegionSource(
+class MrdbRegionSource(
     private val assetManager: AssetManager,
     private val catalogFileName: String,
     private val fileName: String,
@@ -32,7 +29,7 @@ class CrdbRegionSource(
     private val coroutineScope: CoroutineScope
 ) : RegionSource() {
     companion object {
-        val TAG = CrdbRegionSource::class.java.simpleName
+        val TAG = MrdbRegionSource::class.java.simpleName
     }
 
     override val regionList = ArrayList<Region>();
@@ -79,14 +76,18 @@ class CrdbRegionSource(
         val tmpFilePath = File(tmpDir, imageId)
 
         if (!tmpFilePath.exists() || tmpFilePath.length() == 0L) {
-            FileOutputStream(tmpFilePath).use { outputStream ->
-                val conn = url.openConnection().also {
-                    it.connect()
+            try {
+                FileOutputStream(tmpFilePath).use { outputStream ->
+                    val conn = url.openConnection().also {
+                        it.connect()
+                    }
+                    conn.getInputStream().use { inputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                    outputStream.flush()
                 }
-                conn.getInputStream().use { inputStream ->
-                    inputStream.copyTo(outputStream)
-                }
-                outputStream.flush()
+            } catch (e: FileNotFoundException) {
+                Log.d(TAG, "FileNotFoundException", e);
             }
         }
 
