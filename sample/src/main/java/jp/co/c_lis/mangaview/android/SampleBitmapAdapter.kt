@@ -13,6 +13,7 @@ import java.io.File
 class SampleBitmapAdapter(
     private val assetManager: AssetManager,
     private val fileNames: Array<String>,
+    private val catalogFileName: String,
     private val tiledSource: TiledSource,
     private val urlList: List<String>,
     private val tmpDir: File,
@@ -39,8 +40,8 @@ class SampleBitmapAdapter(
         val fileName = fileNames[index]
         page.addLayer(BitmapLayer(AssetBitmapSource(assetManager, fileName, coroutineScope)))
 
-        val pathSource = MrdbRegionSource(
-            assetManager, "crdb.json", fileName,
+        val pathSource = MrdbFrameRegionSource(
+            assetManager, catalogFileName, fileName,
             tmpDir,
             coroutineScope
         )

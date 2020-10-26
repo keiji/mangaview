@@ -49,6 +49,8 @@ private val TILED_IMAGE_URL_LIST = (0 until TILED_SOURCE.colCount * TILED_SOURCE
     "$URL_PREFIX/comic_001bj_2/comic_001bj_2-%04d.jpg".format(it)
 }
 
+private const val CATALOG_FILE_NAME = "mrdb.json"
+
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -113,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         private val tmpSelectedRegionContent = Rectangle()
         private val tmpSelectedRegionGlobal = Rectangle()
 
-        override fun onDoubleTapRegion(
+        override fun onLongTapRegion(
             page: Page,
             layer: RegionLayer,
             region: Region,
@@ -152,6 +154,7 @@ class MainActivity : AppCompatActivity() {
             mangaView.pageLayoutManager = pageLayoutManager
             mangaView.adapter = SampleBitmapAdapter(
                 assets, FILE_NAMES,
+                CATALOG_FILE_NAME,
                 TILED_SOURCE, TILED_IMAGE_URL_LIST,
                 cacheDir,
                 onSelectedRegionListener,

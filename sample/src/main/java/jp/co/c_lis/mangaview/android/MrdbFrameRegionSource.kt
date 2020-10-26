@@ -16,12 +16,13 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.net.URI
 import java.net.URL
 
 /**
  * MRDB(Manga Region Database).
  */
-class MrdbRegionSource(
+class MrdbFrameRegionSource(
     private val assetManager: AssetManager,
     private val catalogFileName: String,
     private val fileName: String,
@@ -29,7 +30,10 @@ class MrdbRegionSource(
     private val coroutineScope: CoroutineScope
 ) : RegionSource() {
     companion object {
-        val TAG = MrdbRegionSource::class.java.simpleName
+        val TAG = MrdbFrameRegionSource::class.java.simpleName
+
+        private const val CATEGORY_COMIC = 1
+        private const val LABEL_FRAME = 0
     }
 
     override val regionList = ArrayList<Region>();
@@ -58,7 +62,7 @@ class MrdbRegionSource(
 
     private fun getRegionList() {
 
-        // All CrdbRegionSource will read whole file every loading.
+        // All MrdbFrameRegionSource will read whole file every loading.
         // This implementation is completely for test use.
         val jsonStr = assetManager.open(catalogFileName)
             .bufferedReader()
@@ -70,15 +74,18 @@ class MrdbRegionSource(
         }
 
         val fileObj = jsonObj.getJSONObject(fileName)
-        val url = URL(fileObj.getString("url"))
+        val urlStr = fileObj.getString("url")
+        val uri = URI.create(urlStr)
 
-        val imageId = url.file.split("/").last()
+        val imageId = uri.path
+            .split("/")
+            .last { item -> item.isNotEmpty() }
         val tmpFilePath = File(tmpDir, imageId)
 
         if (!tmpFilePath.exists() || tmpFilePath.length() == 0L) {
             try {
                 FileOutputStream(tmpFilePath).use { outputStream ->
-                    val conn = url.openConnection().also {
+                    val conn = URL(urlStr).openConnection().also {
                         it.connect()
                     }
                     conn.getInputStream().use { inputStream ->
@@ -115,7 +122,9 @@ class MrdbRegionSource(
                 pointArray.add(point)
             }
 
-            regionList.add(Region(categoryId, label, pointList = pointArray))
+            if (categoryId == CATEGORY_COMIC && label == LABEL_FRAME) {
+                regionList.add(Region(categoryId, label, pointList = pointArray))
+            }
         }
     }
 
@@ -133,7 +142,7 @@ class MrdbRegionSource(
                     bitmapHeight = options.outHeight.toFloat()
                 }
 
-                getRegionList();
+                getRegionList()
 
                 job = null
             }
