@@ -23,7 +23,7 @@ repositories {
 dependencies {
     ...
 
-    implementation 'dev.keiji.mangaview:mangaview:0.8.3-rc2'
+    implementation 'dev.keiji.mangaview:mangaview:0.9.9-rc3'
 }
 ```
 
