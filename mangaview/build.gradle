@@ -80,7 +80,6 @@ bintray {
     pkg {
         repo = 'maven'
         name = libraryName
-        userOrg = 'c-lis'
         licenses = ['Apache-2.0']
         version version_name
         vcsUrl = 'https://github.com/keiji/mangaview'

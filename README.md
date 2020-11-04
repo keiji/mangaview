@@ -14,12 +14,6 @@ Installation
 To add MangaView to your project, include the following in your app module build.gradle file:
 
 ```
-repositories {
-    maven {
-        url "https://c-lis.bintray.com/maven"
-    }
-}
-
 dependencies {
     ...
 

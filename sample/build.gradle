@@ -4,12 +4,6 @@ plugins {
     id 'deploygate'
 }
 
-repositories {
-    maven {
-        url "https://c-lis.bintray.com/maven"
-    }
-}
-
 android {
     compileSdkVersion compile_sdk_version
     buildToolsVersion "29.0.3"
