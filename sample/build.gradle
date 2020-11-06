@@ -6,7 +6,7 @@ plugins {
 
 android {
     compileSdkVersion compile_sdk_version
-    buildToolsVersion "29.0.3"
+    buildToolsVersion build_tools_version
 
     signingConfigs {
         def propFile = project.rootProject.file('release.properties')
