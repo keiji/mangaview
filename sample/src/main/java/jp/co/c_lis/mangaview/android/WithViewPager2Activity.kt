@@ -72,6 +72,8 @@ class WithViewPager2Activity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        @Suppress("DEPRECATION")
         this.window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         setContentView(R.layout.activity_with_viewpager2)
