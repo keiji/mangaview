@@ -76,5 +76,16 @@ class HorizontalLtrLayoutManager : LayoutManager() {
             vertical = ViewContext.SCROLL_POLICY_STRICT_SCROLL_AREA
         )
     }
+
+    override fun isOverScrolled(viewContext: ViewContext, dx: Float, dy: Float): Boolean {
+        val firstPagePosition = firstPageLayout(viewContext)
+        val lastPagePosition = lastPageLayout(viewContext)
+
+        return when {
+            dx < 0 && firstPagePosition != null && viewContext.viewport.left < firstPagePosition.globalPosition.left -> true
+            dx > 0 && lastPagePosition != null && viewContext.viewport.right > lastPagePosition.globalPosition.right -> true
+            else -> false
+        }
+    }
 }
 

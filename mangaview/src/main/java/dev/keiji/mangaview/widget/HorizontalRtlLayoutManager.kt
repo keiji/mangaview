@@ -22,7 +22,10 @@ class HorizontalRtlLayoutManager : LayoutManager() {
         viewContext: ViewContext
     ): Int = abs(viewContext.viewport.centerX / viewContext.viewWidth).toInt()
 
-    override fun leftPageLayout(viewContext: ViewContext, basePageLayout: PageLayout?): PageLayout? {
+    override fun leftPageLayout(
+        viewContext: ViewContext,
+        basePageLayout: PageLayout?
+    ): PageLayout? {
         val currentIndex = (basePageLayout?.index ?: currentPageLayoutIndex(viewContext))
         val leftIndex = currentIndex + 1
         if (leftIndex >= pageLayoutManager.getCount()) {
@@ -32,7 +35,10 @@ class HorizontalRtlLayoutManager : LayoutManager() {
 
     }
 
-    override fun rightPageLayout(viewContext: ViewContext, basePageLayout: PageLayout?): PageLayout? {
+    override fun rightPageLayout(
+        viewContext: ViewContext,
+        basePageLayout: PageLayout?
+    ): PageLayout? {
         val currentIndex = (basePageLayout?.index ?: currentPageLayoutIndex(viewContext))
         val rightIndex = currentIndex - 1
         if (rightIndex < 0) {
@@ -69,6 +75,17 @@ class HorizontalRtlLayoutManager : LayoutManager() {
             horizontal = ViewContext.SCROLL_POLICY_UNLIMITED,
             vertical = ViewContext.SCROLL_POLICY_STRICT_SCROLL_AREA
         )
+    }
+
+    override fun isOverScrolled(viewContext: ViewContext, dx: Float, dy: Float): Boolean {
+        val firstPagePosition = firstPageLayout(viewContext)
+        val lastPagePosition = lastPageLayout(viewContext)
+
+        return when {
+            dx > 0 && firstPagePosition != null && viewContext.viewport.right > firstPagePosition.globalPosition.right -> true
+            dx < 0 && lastPagePosition != null && viewContext.viewport.left < lastPagePosition.globalPosition.left -> true
+            else -> false
+        }
     }
 }
 

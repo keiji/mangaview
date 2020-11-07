@@ -458,6 +458,8 @@ class MangaView(
 
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
+                parent?.requestDisallowInterceptTouchEvent(true)
+
                 abortAnimation()
                 scrollState = SCROLL_STATE_IDLE
             }
@@ -797,6 +799,12 @@ class MangaView(
         )
 
         scrollState = SCROLL_STATE_DRAGGING
+
+        val layoutManagerSnapshot = layoutManager ?: return true
+        if (layoutManagerSnapshot.isOverScrolled(viewContext, distanceX, distanceY)) {
+            parent?.requestDisallowInterceptTouchEvent(false)
+            populateToCurrent()
+        }
 
         return true
     }

@@ -126,4 +126,6 @@ abstract class LayoutManager {
 
     fun lastPageLayout(viewContext: ViewContext) =
         getPageLayout(pageLayoutManager.getCount() - 1, viewContext)
+
+    abstract fun isOverScrolled(viewContext: ViewContext, dx: Float, dy: Float): Boolean
 }

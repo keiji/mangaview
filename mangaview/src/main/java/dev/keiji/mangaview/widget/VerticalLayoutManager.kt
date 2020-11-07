@@ -76,5 +76,16 @@ class VerticalLayoutManager : LayoutManager() {
             vertical = ViewContext.SCROLL_POLICY_UNLIMITED
         )
     }
+
+    override fun isOverScrolled(viewContext: ViewContext, dx: Float, dy: Float): Boolean {
+        val firstPagePosition = firstPageLayout(viewContext)
+        val lastPagePosition = lastPageLayout(viewContext)
+
+        return when {
+            dy < 0 && firstPagePosition != null && viewContext.viewport.top < firstPagePosition.globalPosition.top -> true
+            dy > 0 && lastPagePosition != null && viewContext.viewport.bottom > lastPagePosition.globalPosition.bottom -> true
+            else -> false
+        }
+    }
 }
 
