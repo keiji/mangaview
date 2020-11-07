@@ -1,7 +1,6 @@
 package jp.co.c_lis.mangaview.android
 
 import android.content.res.AssetManager
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
@@ -12,30 +11,23 @@ import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import dev.keiji.mangaview.Config
-import dev.keiji.mangaview.widget.DoublePageLayoutManager
 import dev.keiji.mangaview.DoubleTapZoomHelper
 import dev.keiji.mangaview.EdgeNavigationHelper
-import dev.keiji.mangaview.TiledSource
 import dev.keiji.mangaview.layer.BitmapLayer
-import dev.keiji.mangaview.layer.RegionLayer
-import dev.keiji.mangaview.layer.TiledBitmapLayer
 import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
 import dev.keiji.mangaview.widget.Page
 import dev.keiji.mangaview.widget.PageAdapter
-import dev.keiji.mangaview.widget.PageLayout
 import dev.keiji.mangaview.widget.SinglePageLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 private val FILE_NAMES = arrayOf(
     "comic_001bj_2.jpg",
@@ -97,6 +89,7 @@ class WithViewPager2Activity : AppCompatActivity() {
     ) : RecyclerView.ViewHolder(itemView) {
         private val mangaView = itemView.findViewById<MangaView>(R.id.manga_view)
         private val doubleTapZoomHelper = DoubleTapZoomHelper(maxScale = DOUBLE_TAP_SCALE)
+        private val edgeNavigationHelper = EdgeNavigationHelper()
 
         fun bind() {
             mangaView.config = Config(
@@ -107,10 +100,12 @@ class WithViewPager2Activity : AppCompatActivity() {
             mangaView.adapter =
                 SimpleAdapter(assetManager, FILE_NAMES, coroutineScope, PAGE_WIDTH, PAGE_HEIGHT)
             doubleTapZoomHelper.attachToMangaView(mangaView)
+            edgeNavigationHelper.attachToMangaView(mangaView)
         }
 
         fun unbind() {
             doubleTapZoomHelper.detachToMangaView(mangaView)
+            edgeNavigationHelper.detachToMangaView(mangaView)
         }
     }
 
