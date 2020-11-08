@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -41,9 +42,11 @@ private val FILE_NAMES = arrayOf(
     "comic_001bj_10.jpg",
     "comic_001bj_11.jpg",
     "comic_001bj_12.jpg",
+    "comic_001bj_1.jpg",
 )
 
-private const val FILE_NAME_LAST_PAGE = "comic_001bj_1.jpg"
+private const val GITHUB_MARK_FILE_NAME = "GitHub-Mark-120px-plus.png"
+private const val GITHUB_REPOSITORY_URL = "https://github.com/keiji/mangaview"
 
 class WithViewPager2Activity : AppCompatActivity() {
 
@@ -109,23 +112,29 @@ class WithViewPager2Activity : AppCompatActivity() {
         }
     }
 
-    class LastPageHolder(
+    class ProjectPageHolder(
         itemView: View,
         private val assetManager: AssetManager,
         private val coroutineScope: CoroutineScope
     ) : RecyclerView.ViewHolder(itemView) {
         private val imageView = itemView.findViewById<ImageView>(R.id.image_view)
+        private val textView = itemView.findViewById<TextView>(R.id.project_url)
+
+        init {
+            ViewCompat.setLayoutDirection(itemView, ViewCompat.LAYOUT_DIRECTION_LOCALE)
+        }
 
         fun bind() {
+            textView.text = GITHUB_REPOSITORY_URL
             coroutineScope.launch(Dispatchers.IO) {
-                assetManager.open(FILE_NAME_LAST_PAGE).use {
+                assetManager.open(GITHUB_MARK_FILE_NAME).use {
                     val bitmap = BitmapFactory.decodeStream(it)
                     showBitmap(bitmap)
                 }
             }
         }
 
-        suspend fun showBitmap(bitmap: Bitmap) = withContext(Dispatchers.Main) {
+        private suspend fun showBitmap(bitmap: Bitmap) = withContext(Dispatchers.Main) {
             imageView.setImageBitmap(bitmap)
         }
     }
@@ -163,7 +172,7 @@ class WithViewPager2Activity : AppCompatActivity() {
                     assetManager,
                     coroutineScope
                 )
-                VIEW_TYPE_LAST_PAGE -> LastPageHolder(
+                VIEW_TYPE_LAST_PAGE -> ProjectPageHolder(
                     inflater.inflate(
                         R.layout.view_item_last_page,
                         parent,
@@ -181,7 +190,7 @@ class WithViewPager2Activity : AppCompatActivity() {
                 is MangaViewHolder -> {
                     holder.bind()
                 }
-                is LastPageHolder -> {
+                is ProjectPageHolder -> {
                     holder.bind()
                 }
             }
