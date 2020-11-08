@@ -30,6 +30,12 @@ dependencies {
 }
 ```
 
+Usage
+=======
+There is a [sample](https://github.com/keiji/mangaview/tree/master/sample) provided how to use the MangaView.
+
+ * Full features sample: [MainActivity](https://github.com/keiji/mangaview/blob/master/sample/src/main/java/jp/co/c_lis/mangaview/android/MainActivity.kt)
+ * With ViewPager2 sample: [WithViewPager2Activity](https://github.com/keiji/mangaview/blob/master/sample/src/main/java/jp/co/c_lis/mangaview/android/WithViewPager2Activity.kt)
 
 License
 =======
