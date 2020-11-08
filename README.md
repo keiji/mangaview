@@ -40,3 +40,7 @@ MangaView supports various page layout orientation.
 ### Select a preset region(Path).
 
 ![select_region](https://github.com/keiji/mangaview/blob/gallery/select_region.gif)
+
+### With RecyclerView(ViewPager2).
+
+![with_viewpager2](https://github.com/keiji/mangaview/blob/gallery/with_viewpager2.gif)
