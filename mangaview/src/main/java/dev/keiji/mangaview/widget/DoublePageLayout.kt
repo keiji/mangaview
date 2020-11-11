@@ -6,8 +6,7 @@ import kotlin.math.min
 
 class DoublePageLayout(
     index: Int,
-    private val isSpread: Boolean,
-    private val startOneSide: Boolean
+    private val isSpread: Boolean
 ) : PageLayout(index) {
 
     companion object {

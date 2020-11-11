@@ -46,5 +46,5 @@ class DoublePageLayoutManager(
     }
 
     override fun createPageLayout(index: Int): PageLayout =
-        DoublePageLayout(index, startOneSide, isSpread)
+        DoublePageLayout(index, isSpread)
 }
