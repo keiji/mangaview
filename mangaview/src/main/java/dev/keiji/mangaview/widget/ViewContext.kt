@@ -4,7 +4,7 @@ import android.os.Parcelable
 import androidx.annotation.VisibleForTesting
 import dev.keiji.mangaview.Rectangle
 import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import kotlin.math.max
 import kotlin.math.min
 

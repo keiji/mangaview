@@ -20,7 +20,7 @@ import dev.keiji.mangaview.Config
 import dev.keiji.mangaview.Log
 import dev.keiji.mangaview.Rectangle
 import dev.keiji.mangaview.layer.ContentLayer
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
