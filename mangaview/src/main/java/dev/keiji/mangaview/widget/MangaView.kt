@@ -51,9 +51,6 @@ class MangaView(
          */
         const val SCROLL_STATE_SETTLING = 2
 
-        private const val SCROLLING_DURATION = 280L
-        private const val SCALING_DURATION = 250L
-
         private const val FOCUS_DURATION = 220L
     }
 
@@ -437,7 +434,7 @@ class MangaView(
         val duration = if (!smoothScroll) {
             0L
         } else {
-            SCROLLING_DURATION
+            config.mode.scrollingDuration
         }
 
         animator = Animator().populateTo(
@@ -494,7 +491,7 @@ class MangaView(
                 viewContext,
                 layoutManagerSnapshot,
                 pagingTouchSlop,
-                SCROLLING_DURATION
+                config.mode.scrollingDuration
             )
             .populateToCurrent(currentPageLayout)
 
@@ -703,7 +700,7 @@ class MangaView(
                 viewContext,
                 layoutManagerSnapshot,
                 pagingTouchSlop,
-                SCROLLING_DURATION
+                config.mode.scrollingDuration
             )
 
         val horizontal = (abs(scaledVelocityX) > abs(scaledVelocityY))
@@ -910,7 +907,7 @@ class MangaView(
         val duration = if (!smoothScale) {
             0L
         } else {
-            SCALING_DURATION
+            config.mode.scalingDuration
         }
 
         animator = Animator().scale(

@@ -15,6 +15,7 @@ import dev.keiji.mangaview.Config
 import dev.keiji.mangaview.widget.DoublePageLayoutManager
 import dev.keiji.mangaview.DoubleTapZoomHelper
 import dev.keiji.mangaview.EdgeNavigationHelper
+import dev.keiji.mangaview.Mode
 import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
 import dev.keiji.mangaview.widget.Page
@@ -150,7 +151,8 @@ class MainActivity : AppCompatActivity() {
 
         mangaView = findViewById<MangaView>(R.id.manga_view).also { mangaView ->
             mangaView.config = Config(
-                resetScaleOnPageChanged = true
+                mode = Mode.Normal,
+                resetScaleOnPageChanged = true,
             )
             mangaView.layoutManager = HorizontalRtlLayoutManager()
             mangaView.pageLayoutManager = pageLayoutManager

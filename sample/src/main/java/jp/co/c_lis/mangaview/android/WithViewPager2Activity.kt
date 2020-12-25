@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2
 import dev.keiji.mangaview.Config
 import dev.keiji.mangaview.DoubleTapZoomHelper
 import dev.keiji.mangaview.EdgeNavigationHelper
+import dev.keiji.mangaview.Mode
 import dev.keiji.mangaview.layer.BitmapLayer
 import dev.keiji.mangaview.widget.HorizontalRtlLayoutManager
 import dev.keiji.mangaview.widget.MangaView
@@ -96,7 +97,8 @@ class WithViewPager2Activity : AppCompatActivity() {
 
         fun bind() {
             mangaView.config = Config(
-                resetScaleOnPageChanged = true
+                mode = Mode.Normal,
+                resetScaleOnPageChanged = true,
             )
             mangaView.layoutManager = HorizontalRtlLayoutManager()
             mangaView.pageLayoutManager = SinglePageLayoutManager()
