@@ -18,6 +18,7 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.net.URI
 import java.net.URL
+import java.util.Collections
 
 /**
  * MRDB(Manga Region Database).
@@ -36,7 +37,7 @@ class MrdbFrameRegionSource(
         private const val LABEL_FRAME = 0
     }
 
-    override val regionList = ArrayList<Region>();
+    override val regionList: MutableList<Region> = Collections.synchronizedList(ArrayList<Region>())
 
     override val contentWidth: Float
         get() = bitmapWidth

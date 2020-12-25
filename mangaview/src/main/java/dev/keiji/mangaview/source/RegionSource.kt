@@ -5,7 +5,7 @@ import dev.keiji.mangaview.Region
 
 abstract class RegionSource : ContentSource() {
 
-    abstract val regionList: ArrayList<Region>
+    abstract val regionList: MutableList<Region>
 
     private val cachedPathList = ArrayList<Path>()
 
