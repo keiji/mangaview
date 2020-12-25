@@ -241,6 +241,7 @@ class MangaView(
     var paint = Paint().also {
         it.isAntiAlias = true
         it.isDither = true
+        it.isFilterBitmap = true
     }
 
     private var scroller = OverScroller(context, DecelerateInterpolator())
