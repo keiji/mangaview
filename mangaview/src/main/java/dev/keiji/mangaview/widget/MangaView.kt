@@ -291,7 +291,7 @@ class MangaView(
     private fun initWith(saveState: SaveState): Boolean {
 
         if (viewContext.viewWidth == 0.0F || viewContext.viewHeight == 0.0F) {
-            return false
+            return true
         }
 
         val layoutSignature =
@@ -299,32 +299,36 @@ class MangaView(
         val restoredLayoutSignature = saveState.layoutSignature
 
         if (layoutSignature != restoredLayoutSignature) {
-            // dispose SavedState
-            savedState = null
-            return false
+            // dispose ViewContext
+            saveState.disposeViewContext()
+            return true
         }
 
-        val restoredViewContext = saveState.viewContext
+        saveState.viewContext?.also { restoredViewContext ->
+            if (viewContext.viewWidth != restoredViewContext.viewWidth
+                || viewContext.viewHeight != restoredViewContext.viewHeight
+            ) {
+                // dispose ViewContext
+                saveState.disposeViewContext()
+                return true
+            }
 
-        if (viewContext.viewWidth != restoredViewContext.viewWidth
-            || viewContext.viewHeight != restoredViewContext.viewHeight
-        ) {
-            // dispose SavedState
-            savedState = null
-            return false
+            viewContext.apply {
+                minScale = restoredViewContext.minScale
+                maxScale = restoredViewContext.maxScale
+                currentScale = restoredViewContext.currentScale
+                currentX = restoredViewContext.currentX
+                currentY = restoredViewContext.currentY
+            }.applyViewport()
         }
 
-        viewContext.apply {
-            minScale = restoredViewContext.minScale
-            maxScale = restoredViewContext.maxScale
-            currentScale = restoredViewContext.currentScale
-            currentX = restoredViewContext.currentX
-            currentY = restoredViewContext.currentY
-        }.applyViewport()
+        if (saveState.currentPageIndex != currentPageIndex) {
+            return true
+        }
 
         savedState = null
 
-        return true
+        return false
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -334,7 +338,7 @@ class MangaView(
             init()
 
             savedState?.also { savedState ->
-                if (!initWith(savedState)) {
+                if (initWith(savedState)) {
                     initInitialPage(savedState)
                 }
             }
@@ -1156,8 +1160,10 @@ class MangaView(
     @Parcelize
     private class SaveState(
         val layoutSignature: String,
-        val viewContext: ViewContext,
+        var viewContext: ViewContext?,
         val currentPageIndex: Int,
+
+        @Suppress("CanBeParameter")
         private val baseState: Parcelable?,
     ) : BaseSavedState(baseState) {
 
@@ -1174,6 +1180,10 @@ class MangaView(
                     pageLayoutManager::class.java.canonicalName
                 )
             }
+        }
+
+        fun disposeViewContext() {
+            viewContext = null
         }
     }
 }
