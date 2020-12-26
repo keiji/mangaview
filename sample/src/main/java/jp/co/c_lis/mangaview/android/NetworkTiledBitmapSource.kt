@@ -10,10 +10,12 @@ import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.lang.Exception
 import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 
@@ -26,6 +28,9 @@ class NetworkTiledBitmapSource(
 
     companion object {
         private val TAG = NetworkTiledBitmapSource::class.java.simpleName
+
+        private const val RETRY_INTERVAL = 10 * 1000L
+        private const val MAX_RETRY_COUNT = 5
     }
 
     @Volatile
@@ -46,39 +51,61 @@ class NetworkTiledBitmapSource(
         }
 
         jobMap[tile] = coroutineScope.launch(Dispatchers.IO) {
-            val url = URL(urlList[tile.index])
             val fileName = Uri.parse(urlList[tile.index]).lastPathSegment ?: return@launch
             val tmpFilePath = File(tmpDir, fileName)
 
             if (!tmpFilePath.exists()) {
-                FileOutputStream(tmpFilePath).use { outputStream ->
-                    val conn = url.openConnection().also {
-                        it.connect()
-                    }
-                    conn.getInputStream().use { inputStream ->
-                        inputStream.copyTo(outputStream)
-                    }
-                    outputStream.flush()
+                var retryCount = 0
+
+                while (
+                    !downloadTiledBitmap(URL(urlList[tile.index]), tmpFilePath)
+                    && retryCount < MAX_RETRY_COUNT
+                ) {
+                    delay(RETRY_INTERVAL)
+                    retryCount++
                 }
             }
 
-            val bitmap = FileInputStream(tmpFilePath).use {
-                BitmapFactory.decodeStream(it, null, options)
-            }
+            if (tmpFilePath.exists()) {
+                val bitmap = FileInputStream(tmpFilePath).use {
+                    BitmapFactory.decodeStream(it, null, options)
+                }
 
-            if (bitmap != null) {
-                cacheBin[tile] = bitmap
+                if (bitmap != null) {
+                    cacheBin[tile] = bitmap
+                } else {
+                    Log.e(TAG, "Bitmap decoding error occurred.")
+                    if (tmpFilePath.delete()) {
+                        Log.e(TAG, "Cache file ${tmpFilePath.absolutePath} has been deleted.")
+                    }
+                }
             } else {
-                Log.e(TAG, "Bitmap decoding error occurred.")
-                if (tmpFilePath.delete()) {
-                    Log.e(TAG, "Cache file ${tmpFilePath.absolutePath} has been deleted.")
-                }
+                Log.e(TAG, "File ${tmpFilePath.name} not found. May download process failed.")
             }
 
             jobMap.remove(tile)
         }
 
         return null
+    }
+
+    private fun downloadTiledBitmap(url: URL, tmpFilePath: File): Boolean {
+        return try {
+            FileOutputStream(tmpFilePath).use { outputStream ->
+                val conn = url.openConnection().also {
+                    it.connect()
+                }
+                conn.getInputStream().use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+                outputStream.flush()
+            }
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, e.javaClass.simpleName, e)
+            tmpFilePath.delete()
+            false
+        }
     }
 
     override fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
