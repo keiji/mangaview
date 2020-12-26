@@ -10,12 +10,14 @@ import dev.keiji.mangaview.widget.ViewContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.lang.Exception
 import java.net.URI
 import java.net.URL
 import java.util.Collections
@@ -35,6 +37,9 @@ class MrdbFrameRegionSource(
 
         private const val CATEGORY_COMIC = 1
         private const val LABEL_FRAME = 0
+
+        private const val RETRY_INTERVAL = 10 * 1000L
+        private const val MAX_RETRY_COUNT = 5
     }
 
     override val regionList: MutableList<Region> = Collections.synchronizedList(ArrayList<Region>())
@@ -61,7 +66,7 @@ class MrdbFrameRegionSource(
 
     private var job: Job? = null
 
-    private fun getRegionList() {
+    private suspend fun getRegionList() = withContext(Dispatchers.IO) {
 
         // All MrdbFrameRegionSource will read whole file every loading.
         // This implementation is completely for test use.
@@ -71,7 +76,7 @@ class MrdbFrameRegionSource(
 
         val jsonObj = JSONObject(jsonStr)
         if (!jsonObj.has(fileName)) {
-            return
+            return@withContext
         }
 
         val fileObj = jsonObj.getJSONObject(fileName)
@@ -84,28 +89,29 @@ class MrdbFrameRegionSource(
         val tmpFilePath = File(tmpDir, imageId)
 
         if (!tmpFilePath.exists() || tmpFilePath.length() == 0L) {
-            try {
-                FileOutputStream(tmpFilePath).use { outputStream ->
-                    val conn = URL(urlStr).openConnection().also {
-                        it.connect()
-                    }
-                    conn.getInputStream().use { inputStream ->
-                        inputStream.copyTo(outputStream)
-                    }
-                    outputStream.flush()
-                }
-            } catch (e: FileNotFoundException) {
-                Log.d(TAG, "FileNotFoundException", e);
+            var retryCount = 0
+
+            @Suppress("BlockingMethodInNonBlockingContext")
+            while (!getRegionList(URL(urlStr), tmpFilePath)
+                && retryCount < MAX_RETRY_COUNT
+            ) {
+                delay(RETRY_INTERVAL)
+                retryCount++
             }
+
         }
 
+        if (!tmpFilePath.exists()) {
+            Log.e(TAG, "File ${tmpFilePath.name} not found. May download process failed.")
+            return@withContext
+        }
+
+        @Suppress("BlockingMethodInNonBlockingContext")
         val regionsStr = FileInputStream(tmpFilePath)
             .bufferedReader()
             .readText()
         val regionArray = JSONObject(regionsStr)
             .getJSONArray("regions")
-
-        Log.d(TAG, regionsStr)
 
         for (index in (0 until regionArray.length())) {
             val regionObj = regionArray.getJSONObject(index)
@@ -126,6 +132,25 @@ class MrdbFrameRegionSource(
             if (categoryId == CATEGORY_COMIC && label == LABEL_FRAME) {
                 regionList.add(Region(categoryId, label, pointList = pointArray))
             }
+        }
+    }
+
+    private fun getRegionList(url: URL, tmpFilePath: File): Boolean {
+        return try {
+            FileOutputStream(tmpFilePath).use { outputStream ->
+                val conn = url.openConnection().also {
+                    it.connect()
+                }
+                conn.getInputStream().use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+                outputStream.flush()
+            }
+            true
+        } catch (e: Exception) {
+            Log.d(TAG, e.javaClass.simpleName, e)
+            tmpFilePath.delete()
+            false
         }
     }
 
