@@ -114,13 +114,17 @@ class DoublePageLayout(
         val paddingTop = paddingVertical / 2
         val paddingBottom = paddingVertical - paddingTop
 
+        // Rounding padding values
+        val padding = Rectangle(paddingLeft, paddingTop, paddingRight, paddingBottom)
+            .apply { round() }
+
         page.horizontalAlign = PageHorizontalAlign.Center
 
         page.globalRect.also {
-            it.left = globalPosition.left + paddingLeft
-            it.top = globalPosition.top + paddingTop
-            it.right = globalPosition.right - paddingRight
-            it.bottom = globalPosition.bottom - paddingBottom
+            it.left = globalPosition.left + padding.left
+            it.top = globalPosition.top + padding.top
+            it.right = globalPosition.right - padding.right
+            it.bottom = globalPosition.bottom - padding.bottom
         }
 
         centerPage = page
@@ -148,11 +152,15 @@ class DoublePageLayout(
             paddingLeft = paddingHorizontal - paddingRight
         }
 
+        // Rounding padding values
+        val padding = Rectangle(paddingLeft, paddingTop, paddingRight, paddingBottom)
+            .apply { round() }
+
         page.globalRect.also {
-            it.left = globalPosition.left + pageWidth + paddingLeft
-            it.top = globalPosition.top + paddingTop
-            it.right = globalPosition.right - paddingRight
-            it.bottom = globalPosition.bottom - paddingBottom
+            it.left = globalPosition.left + pageWidth + padding.left
+            it.top = globalPosition.top + padding.top
+            it.right = globalPosition.right - padding.right
+            it.bottom = globalPosition.bottom - padding.bottom
         }
 
         rightPage = page
@@ -179,6 +187,10 @@ class DoublePageLayout(
             paddingLeft = paddingHorizontal / 3 * 2
             paddingRight = paddingHorizontal - paddingLeft
         }
+
+        // Rounding padding values
+        val padding = Rectangle(paddingLeft, paddingTop, paddingRight, paddingBottom)
+            .apply { round() }
 
         page.globalRect.also {
             it.left = globalPosition.left + paddingLeft

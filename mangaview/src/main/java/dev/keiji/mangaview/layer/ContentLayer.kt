@@ -12,6 +12,7 @@ import dev.keiji.mangaview.widget.PageHorizontalAlign
 import dev.keiji.mangaview.widget.PageVerticalAlign
 import dev.keiji.mangaview.widget.ViewContext
 import kotlin.math.min
+import kotlin.math.round
 
 abstract class ContentLayer(
     private val contentSource: ContentSource
@@ -80,6 +81,11 @@ abstract class ContentLayer(
         paddingRight = paddingHorizontal - paddingLeft
         paddingBottom = paddingVertical - paddingTop
 
+        paddingLeft = round(paddingLeft)
+        paddingTop = round(paddingTop)
+        paddingRight = round(paddingRight)
+        paddingBottom = round(paddingBottom)
+
         globalPosition.copyFrom(pageSnapshot.globalRect).also {
             it.left += paddingLeft
             it.top += paddingTop
@@ -118,6 +124,7 @@ abstract class ContentLayer(
                 it.top = it.top / baseScale
                 it.right = it.right / baseScale
                 it.bottom = it.bottom / baseScale
+                it.round()
 
                 it.offset(-paddingLeft, -paddingTop)
             }

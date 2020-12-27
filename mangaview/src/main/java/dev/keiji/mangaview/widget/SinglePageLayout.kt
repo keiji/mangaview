@@ -1,6 +1,7 @@
 package dev.keiji.mangaview.widget
 
 import dev.keiji.mangaview.Log
+import dev.keiji.mangaview.Rectangle
 import kotlin.math.min
 
 class SinglePageLayout(index: Int) : PageLayout(index) {
@@ -31,11 +32,15 @@ class SinglePageLayout(index: Int) : PageLayout(index) {
         val paddingTop = paddingVertical / 2
         val paddingBottom = paddingVertical - paddingTop
 
+        // Rounding padding values
+        val padding = Rectangle(paddingLeft, paddingTop, paddingRight, paddingBottom)
+            .apply { round() }
+
         page.globalRect.also {
-            it.left = globalPosition.left + paddingLeft
-            it.top = globalPosition.top + paddingTop
-            it.right = globalPosition.right - paddingRight
-            it.bottom = globalPosition.bottom - paddingBottom
+            it.left = globalPosition.left + padding.left
+            it.top = globalPosition.top + padding.top
+            it.right = globalPosition.right - padding.right
+            it.bottom = globalPosition.bottom - padding.bottom
         }
 
         this.page = page
