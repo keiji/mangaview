@@ -37,9 +37,7 @@ class AssetBitmapSource(
         }
     }
 
-    private val options = BitmapFactory.Options().also {
-        it.inPreferredConfig = Bitmap.Config.RGB_565
-    }
+    private val options = BitmapFactory.Options()
 
     private var job: Job? = null
 
