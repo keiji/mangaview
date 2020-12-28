@@ -5,6 +5,7 @@ import android.graphics.RectF
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.round
 import kotlin.math.roundToInt
 
 data class Rectangle(
@@ -199,5 +200,12 @@ data class Rectangle(
         top = rectF.top
         bottom = rectF.bottom
         return this
+    }
+
+    fun round() {
+        left = round(left)
+        top = round(top)
+        right = round(right)
+        bottom = round(bottom)
     }
 }

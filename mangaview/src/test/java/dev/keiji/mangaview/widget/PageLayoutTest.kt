@@ -77,9 +77,9 @@ class PageLayoutTest {
         pageLayoutList[0].also { pageLayout ->
             pageLayout.scrollArea.also { scrollArea ->
                 assertEquals(-VIEW_WIDTH, scrollArea.left)
-                assertEquals(260.8335F, scrollArea.top)
+                assertEquals(261.0F, scrollArea.top)
                 assertEquals(0.0F, scrollArea.right)
-                assertEquals((VIEW_HEIGHT - 260.8335F), scrollArea.bottom)
+                assertEquals((VIEW_HEIGHT - 261.0F), scrollArea.bottom)
             }
             assertEquals(1, pageLayout.pages.size)
             assertEquals(
@@ -100,15 +100,15 @@ class PageLayoutTest {
                 assertEquals(1526.333F, page.scaledHeight)
 
                 assertEquals(
-                    Rectangle(left = -1080.0F, top = 260.8335F, right = 0.0F, bottom = 1787.1665F),
+                    Rectangle(left = -1080.0F, top = 261.0F, right = 0.0F, bottom = 1787.0F),
                     page.globalRect
                 )
                 assertEquals(
-                    Rectangle(left = 0.0F, top = 260.8335F, right = 1080.0F, bottom = 1787.1665F),
+                    Rectangle(left = 0.0F, top = 261.0F, right = 1080.0F, bottom = 1787.0F),
                     page.displayProjection
                 )
                 assertEquals(
-                    Rectangle(left = 0.0F, top = 0.0F, right = 1080.0F, bottom = 1526.333F),
+                    Rectangle(left = 0.0F, top = 0.0F, right = 1080.0F, bottom = 1526.0F),
                     page.contentSrc
                 )
 
@@ -122,9 +122,9 @@ class PageLayoutTest {
                     assertEquals(
                         Rectangle(
                             left = -1080.0F,
-                            top = 260.8335F,
+                            top = 261.0F,
                             right = 0.0F,
-                            bottom = 1787.1665F
+                            bottom = 1787.0F
                         ),
                         layer.globalPosition
                     )
@@ -138,9 +138,9 @@ class PageLayoutTest {
         pageLayoutList[1].also { pageLayout ->
             pageLayout.scrollArea.also { scrollArea ->
                 assertEquals(-VIEW_WIDTH * 2, scrollArea.left)
-                assertEquals(260.8335F, scrollArea.top)
+                assertEquals(261.0F, scrollArea.top)
                 assertEquals(-VIEW_WIDTH, scrollArea.right)
-                assertEquals((VIEW_HEIGHT - 260.8335F), scrollArea.bottom)
+                assertEquals((VIEW_HEIGHT - 261.0F), scrollArea.bottom)
             }
             assertEquals(1, pageLayout.pages.size)
             assertEquals(
@@ -168,18 +168,18 @@ class PageLayoutTest {
                 assertEquals(
                     Rectangle(
                         left = -2160.0F,
-                        top = 260.8335F,
+                        top = 261.0F,
                         right = -1080.0F,
-                        bottom = 1787.1665F
+                        bottom = 1787.0F
                     ),
                     page.globalRect
                 )
                 assertEquals(
-                    Rectangle(left = 0.0F, top = 260.8335F, right = 0.0F, bottom = 1787.1665F),
+                    Rectangle(left = 0.0F, top = 261.0F, right = 0.0F, bottom = 1787.0F),
                     page.displayProjection
                 )
                 assertEquals(
-                    Rectangle(left = 1080.0F, top = 0.0F, right = 1080.0F, bottom = 1526.333F),
+                    Rectangle(left = 1080.0F, top = 0.0F, right = 1080.0F, bottom = 1526.0F),
                     page.contentSrc
                 )
 
@@ -193,9 +193,9 @@ class PageLayoutTest {
                     assertEquals(
                         Rectangle(
                             left = -2160.0F,
-                            top = 260.8335F,
+                            top = 261.0F,
                             right = -1080.0F,
-                            bottom = 1787.1665F
+                            bottom = 1787.0F
                         ),
                         layer.globalPosition
                     )
