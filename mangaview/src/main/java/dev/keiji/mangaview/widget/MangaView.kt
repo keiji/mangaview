@@ -292,6 +292,12 @@ class MangaView(
         viewContext.setViewSize(w, h)
 
         isInitialized = false
+
+        layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
+
+        if (currentPageLayout == null) {
+            currentPageLayout = layoutManager?.currentPageLayout(viewContext)
+        }
     }
 
     private fun init() {
@@ -376,7 +382,6 @@ class MangaView(
             postInvalidate()
         }
     }
-
 
     override fun onSaveInstanceState(): Parcelable? {
         val baseState = super.onSaveInstanceState()
