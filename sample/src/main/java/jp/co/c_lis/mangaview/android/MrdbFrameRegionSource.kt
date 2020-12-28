@@ -113,6 +113,8 @@ class MrdbFrameRegionSource(
         val regionArray = JSONObject(regionsStr)
             .getJSONArray("regions")
 
+        val tmpList = ArrayList<Region>()
+
         for (index in (0 until regionArray.length())) {
             val regionObj = regionArray.getJSONObject(index)
             val categoryId = regionObj.getInt("category_id")
@@ -130,9 +132,12 @@ class MrdbFrameRegionSource(
             }
 
             if (categoryId == CATEGORY_COMIC && label == LABEL_FRAME) {
-                regionList.add(Region(categoryId, label, pointList = pointArray))
+                tmpList.add(Region(categoryId, label, pointList = pointArray))
             }
         }
+
+        regionList.addAll(tmpList)
+        tmpList.clear()
     }
 
     private fun getRegionList(url: URL, tmpFilePath: File): Boolean {
