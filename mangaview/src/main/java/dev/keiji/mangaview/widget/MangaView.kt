@@ -322,13 +322,7 @@ class MangaView(
             }.applyViewport()
         }
 
-        if (saveState.currentPageIndex != currentPageIndex) {
-            return true
-        }
-
-        savedState = null
-
-        return false
+        return saveState.currentPageIndex != currentPageIndex
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -337,10 +331,11 @@ class MangaView(
         if (!isInitialized) {
             init()
 
-            savedState?.also { savedState ->
-                if (initWith(savedState)) {
-                    initInitialPage(savedState)
+            savedState?.also { state ->
+                if (initWith(state)) {
+                    initInitialPage(state)
                 }
+                savedState = null
             }
 
             isInitialized = true
