@@ -223,6 +223,23 @@ class MangaView(
     internal val viewContext = ViewContext()
 
     private var isInitialized = false
+        set(value) {
+            field = value
+            if (field) {
+                return
+            }
+
+            init()
+
+            savedState?.also { state ->
+                if (initWith(state)) {
+                    initInitialPage(state)
+                }
+                savedState = null
+            }
+
+            field = true
+        }
 
     private val gestureDetector = GestureDetectorCompat(context, this).also {
         it.setOnDoubleTapListener(this)
@@ -327,21 +344,6 @@ class MangaView(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-
-        if (!isInitialized) {
-            init()
-
-            savedState?.also { state ->
-                if (initWith(state)) {
-                    initInitialPage(state)
-                }
-                savedState = null
-            }
-
-            isInitialized = true
-            postInvalidate()
-            return
-        }
 
         recycleBin.addAll(visiblePageLayoutList.flatMap { it.pages })
 
