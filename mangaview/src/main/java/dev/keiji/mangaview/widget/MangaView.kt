@@ -229,13 +229,23 @@ class MangaView(
                 return
             }
 
-            init()
+            if (!viewContext.isValidViewSize) {
+                return
+            }
+
+            initialize()
 
             savedState?.also { state ->
                 if (initWith(state)) {
                     initInitialPage(state)
                 }
                 savedState = null
+            }
+
+            layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
+
+            if (currentPageLayout == null) {
+                currentPageLayout = layoutManager?.currentPageLayout(viewContext)
             }
 
             field = true
@@ -292,15 +302,9 @@ class MangaView(
         viewContext.setViewSize(w, h)
 
         isInitialized = false
-
-        layoutManager?.obtainVisiblePageLayout(viewContext, visiblePageLayoutList)
-
-        if (currentPageLayout == null) {
-            currentPageLayout = layoutManager?.currentPageLayout(viewContext)
-        }
     }
 
-    private fun init() {
+    private fun initialize() {
         val layoutManagerSnapshot = layoutManager ?: return
         val adapterSnapshot = adapter ?: return
 
