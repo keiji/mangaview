@@ -20,7 +20,7 @@ data class ViewContext(
 
     private var scrollPolicyHorizontal: Int = SCROLL_POLICY_UNLIMITED,
     private var scrollPolicyVertical: Int = SCROLL_POLICY_UNLIMITED
-): Parcelable {
+) : Parcelable {
 
     companion object {
         private val TAG = ViewContext::class.java.simpleName
@@ -50,6 +50,9 @@ data class ViewContext(
         viewport.right = viewWidth
         viewport.bottom = viewHeight
     }
+
+    val isValidViewSize: Boolean
+        get() = viewWidth != 0.0F && viewHeight != 0.0F
 
     internal fun applyViewport(scrollableArea: Rectangle? = null) {
         viewport.set(
