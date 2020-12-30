@@ -29,6 +29,7 @@ class MangaView(
     attrs: AttributeSet?,
     defStyleAttr: Int
 ) : View(context, attrs, defStyleAttr),
+    View.OnTouchListener,
     GestureDetector.OnGestureListener,
     GestureDetector.OnDoubleTapListener,
     ScaleGestureDetector.OnScaleGestureListener {
@@ -57,6 +58,10 @@ class MangaView(
     constructor(context: Context) : this(context, null, 0x0)
 
     constructor(context: Context, attrs: AttributeSet) : this(context, attrs, 0x0)
+
+    init {
+        setOnTouchListener(this)
+    }
 
     private var scrollState: Int = SCROLL_STATE_IDLE
         set(value) {
@@ -461,9 +466,7 @@ class MangaView(
         postInvalidate()
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        event ?: return super.onTouchEvent(event)
-
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
                 parent?.requestDisallowInterceptTouchEvent(true)
@@ -485,7 +488,7 @@ class MangaView(
             return true
         }
 
-        return super.onTouchEvent(event)
+        return false
     }
 
     private fun populateToCurrent() {
