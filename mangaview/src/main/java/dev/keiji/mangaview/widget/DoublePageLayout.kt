@@ -193,10 +193,10 @@ class DoublePageLayout(
             .apply { round() }
 
         page.globalRect.also {
-            it.left = globalPosition.left + paddingLeft
-            it.top = globalPosition.top + paddingTop
-            it.right = globalPosition.right - pageWidth - paddingRight
-            it.bottom = globalPosition.bottom - paddingBottom
+            it.left = globalPosition.left + padding.left
+            it.top = globalPosition.top + padding.top
+            it.right = globalPosition.right - pageWidth - padding.right
+            it.bottom = globalPosition.bottom - padding.bottom
         }
 
         leftPage = page
