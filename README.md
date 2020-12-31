@@ -27,7 +27,7 @@ To add MangaView to your project, include the following in your app module build
 dependencies {
     ...
 
-    implementation 'dev.keiji.mangaview:mangaview:1.0.0'
+    implementation 'dev.keiji.mangaview:mangaview:1.1.0'
 }
 ```
 
