@@ -41,7 +41,7 @@ There is a [sample](https://github.com/keiji/mangaview/tree/master/sample) provi
 License
 =======
 
-    Copyright 2020 Keiji ARIYAMA (C-LIS CO., LTD.)
+    Copyright 2020-2021 Keiji ARIYAMA (C-LIS CO., LTD.)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
