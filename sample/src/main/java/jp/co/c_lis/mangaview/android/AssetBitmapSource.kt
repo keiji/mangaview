@@ -41,7 +41,7 @@ class AssetBitmapSource(
 
     private var job: Job? = null
 
-    override fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
+    override fun prepare(viewContext: ViewContext, onPrepared: () -> Unit): Boolean {
         if (getState(viewContext) != State.NA) {
             return true
         }
@@ -50,7 +50,7 @@ class AssetBitmapSource(
             assetBitmap = assetManager.open(fileName).use {
                 BitmapFactory.decodeStream(it, null, options)
             }
-            onImageSourceLoaded()
+            onPrepared()
             job = null
         }
 

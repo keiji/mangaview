@@ -50,7 +50,7 @@ abstract class ContentLayer(
 
     private var state = State.NA
 
-    private val tmpLocalPoint = Rectangle()
+    private val tmpLocalPosition = Rectangle()
 
     private val contentSourcePrepareCallback = fun() {
         val pageSnapshot = page ?: return
@@ -101,6 +101,17 @@ abstract class ContentLayer(
         state = State.Initialized
     }
 
+    /**
+     * Draw to canvas.
+     *
+     * @param canvas The canvas on which to draw the layer
+     * @param page The page on which to draw the layer
+     * @param viewContext The ViewContext the MangaView is running in
+     * @param paint The paint used to compose the layer
+     *
+     * @return `true` the layer is drawn,
+     *         `false` otherwise
+     */
     fun draw(
         canvas: Canvas?,
         viewContext: ViewContext,
@@ -149,6 +160,17 @@ abstract class ContentLayer(
         return onDraw(canvas, page, viewContext, paint)
     }
 
+    /**
+     * Calls this layer's onDraw event.
+     *
+     * @param canvas The canvas on which to draw the layer
+     * @param page The page on which to draw the layer
+     * @param viewContext The ViewContext the MangaView is running in
+     * @param paint The paint used to compose the layer
+     *
+     * @return `true` the layer is drawn,
+     *         `false` otherwise
+     */
     abstract fun onDraw(
         canvas: Canvas?,
         page: Page,
@@ -156,18 +178,28 @@ abstract class ContentLayer(
         paint: Paint,
     ): Boolean
 
+    /**
+     * Request handling this layer's tap event.
+     *
+     * @param globalX `globalX` coordinate of the anchoring tap event
+     * @param globalY `globalY` coordinate of the anchoring tap event
+     * @param onTapListenerList List of onTapListener
+     *
+     * @return `true` if the event is consumed,
+     *         `false` otherwise
+     */
     fun requestHandleOnTapEvent(
         globalX: Float,
         globalY: Float,
         onTapListenerList: List<MangaView.OnTapListener>
     ): Boolean {
-        tmpLocalPoint.set(globalX, globalY, globalX, globalY)
+        tmpLocalPosition.set(globalX, globalY, globalX, globalY)
 
-        if (!globalPosition.contains(tmpLocalPoint)) {
+        if (!globalPosition.contains(tmpLocalPosition)) {
             return false
         }
 
-        val localPoint = convertToLocal()
+        val localPoint = convertToLocalPosition()
         if (localPoint.right > contentSource.contentWidth || localPoint.bottom > contentSource.contentHeight) {
             return false
         }
@@ -187,20 +219,40 @@ abstract class ContentLayer(
         return consumed
     }
 
+    /**
+     * Calls this layer's onTap event, if it is override.
+     * Invokes the onTap event did not consume the event, anchoring it to an (x,y) coordinate.
+     *
+     * @param x `x` coordinate of the anchoring tap event
+     * @param y `y` coordinate of the anchoring tap event
+     *
+     * @return `true` if the event is consumed,
+     *         `false` otherwise
+     */
     open fun onTap(x: Float, y: Float): Boolean = false
 
+    /**
+     * Request handling this layer's double tap event.
+     *
+     * @param globalX `globalX` coordinate of the anchoring double tap event
+     * @param globalY `globalY` coordinate of the anchoring double tap event
+     * @param onDoubleTapListenerList List of onDoubleTapListener
+     *
+     * @return `true` if the event is consumed,
+     *         `false` otherwise
+     */
     fun requestHandleOnDoubleTapEvent(
         globalX: Float,
         globalY: Float,
         onDoubleTapListenerList: List<MangaView.OnDoubleTapListener>
     ): Boolean {
-        tmpLocalPoint.set(globalX, globalY, globalX, globalY)
+        tmpLocalPosition.set(globalX, globalY, globalX, globalY)
 
-        if (!globalPosition.contains(tmpLocalPoint)) {
+        if (!globalPosition.contains(tmpLocalPosition)) {
             return false
         }
 
-        val localPoint = convertToLocal()
+        val localPoint = convertToLocalPosition()
         if (localPoint.right > contentSource.contentWidth || localPoint.bottom > contentSource.contentHeight) {
             return false
         }
@@ -220,29 +272,49 @@ abstract class ContentLayer(
         return consumed
     }
 
+    /**
+     * Calls this layer's onDoubleTap event, if it is override.
+     * Invokes the onDoubleTap event did not consume the event, anchoring it to an (x,y) coordinate.
+     *
+     * @param x `x` coordinate of the anchoring double tap event
+     * @param y `y` coordinate of the anchoring double tap event
+     *
+     * @return `true` if the event is consumed,
+     *         `false` otherwise
+     */
     open fun onDoubleTap(x: Float, y: Float): Boolean = false
 
+    /**
+     * Request handling this layer's onLongTap event.
+     *
+     * @param globalX `globalX` coordinate of the anchoring long tap event
+     * @param globalY `globalY` coordinate of the anchoring long tap event
+     * @param onLongTapListenerList List of onLongTapListener
+     *
+     * @return `true` if the event is consumed,
+     *         `false` otherwise
+     */
     fun requestHandleOnLongTapEvent(
         globalX: Float,
         globalY: Float,
         onLongTapListenerList: List<MangaView.OnLongTapListener>
     ): Boolean {
-        tmpLocalPoint.set(globalX, globalY, globalX, globalY)
+        tmpLocalPosition.set(globalX, globalY, globalX, globalY)
 
 
-        if (!globalPosition.contains(tmpLocalPoint)) {
+        if (!globalPosition.contains(tmpLocalPosition)) {
             return false
         }
 
-        val localPoint = convertToLocal()
-        if (localPoint.right > contentSource.contentWidth || localPoint.bottom > contentSource.contentHeight) {
+        val localPosition = convertToLocalPosition()
+        if (localPosition.right > contentSource.contentWidth || localPosition.bottom > contentSource.contentHeight) {
             return false
         }
 
-        var consumed = onLongTap(localPoint.centerX, localPoint.centerY)
+        var consumed = onLongTap(localPosition.centerX, localPosition.centerY)
 
         onLongTapListenerList.forEach {
-            if (it.onLongTap(this, localPoint.centerX, localPoint.centerY)) {
+            if (it.onLongTap(this, localPosition.centerX, localPosition.centerY)) {
                 consumed = true
                 return@forEach
             }
@@ -251,10 +323,20 @@ abstract class ContentLayer(
         return consumed
     }
 
+    /**
+     * Calls this layer's onLongTap event, if it is override.
+     * Invokes the onLongTap event did not consume the event, anchoring it to an (x,y) coordinate.
+     *
+     * @param x `x` coordinate of the anchoring long tap event
+     * @param y `y` coordinate of the anchoring long tap event
+     *
+     * @return `true` if the event is consumed,
+     *         `false` otherwise
+     */
     open fun onLongTap(x: Float, y: Float): Boolean = false
 
-    private fun convertToLocal(): Rectangle {
-        return tmpLocalPoint
+    private fun convertToLocalPosition(): Rectangle {
+        return tmpLocalPosition
             .relativeBy(globalPosition).also {
                 it.left /= baseScale
                 it.top /= baseScale
@@ -263,12 +345,18 @@ abstract class ContentLayer(
             }
     }
 
+    /**
+     * Free objects associated with this layer.
+     */
     fun recycle() {
         onRecycled()
 
         state = State.NA
     }
 
+    /**
+     * Calls this layer's onRecycled event.
+     */
     open fun onRecycled() {
     }
 }

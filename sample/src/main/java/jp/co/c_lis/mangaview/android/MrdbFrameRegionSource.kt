@@ -159,7 +159,7 @@ class MrdbFrameRegionSource(
         }
     }
 
-    override fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
+    override fun prepare(viewContext: ViewContext, onPrepared: () -> Unit): Boolean {
 
         if (bitmapWidth < 0 || bitmapHeight < 0) {
             if (job != null) {
@@ -181,7 +181,7 @@ class MrdbFrameRegionSource(
             return false
         }
 
-        onImageSourceLoaded()
+        onPrepared()
 
         return true
     }

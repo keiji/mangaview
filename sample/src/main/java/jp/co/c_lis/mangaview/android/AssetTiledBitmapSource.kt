@@ -52,8 +52,8 @@ class AssetTiledBitmapSource(
         return null
     }
 
-    override fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean {
-        onImageSourceLoaded()
+    override fun prepare(viewContext: ViewContext, onPrepared: () -> Unit): Boolean {
+        onPrepared()
         return true
     }
 

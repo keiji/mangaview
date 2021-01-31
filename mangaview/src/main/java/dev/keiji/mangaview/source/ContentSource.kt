@@ -15,7 +15,7 @@ abstract class ContentSource {
 
     abstract fun getState(viewContext: ViewContext): State
 
-    abstract fun prepare(viewContext: ViewContext, onImageSourceLoaded: () -> Unit): Boolean
+    abstract fun prepare(viewContext: ViewContext, onPrepared: () -> Unit): Boolean
 
     abstract fun recycle()
 }
