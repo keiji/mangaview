@@ -33,7 +33,7 @@ abstract class ContentSource {
     abstract fun getState(viewContext: ViewContext): State
 
     /**
-     * Prepare the content source.
+     * Prepare the content.
      *
      * @param viewContext
      * @param onPrepared
@@ -44,7 +44,7 @@ abstract class ContentSource {
     abstract fun prepare(viewContext: ViewContext, onPrepared: () -> Unit): Boolean
 
     /**
-     * Free objects associated with this source.
+     * Free objects associated with this content.
      */
     abstract fun recycle()
 }
