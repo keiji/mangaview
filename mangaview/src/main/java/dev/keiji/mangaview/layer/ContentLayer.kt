@@ -102,7 +102,7 @@ abstract class ContentLayer(
     }
 
     /**
-     * Draw to canvas.
+     * Draw on the canvas.
      *
      * @param canvas The canvas on which to draw the layer
      * @param page The page on which to draw the layer
