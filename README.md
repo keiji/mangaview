@@ -3,6 +3,8 @@ MangaView
 
 An ImageView for reading manga(comics) for Android.
 
+[![CI](https://github.com/keiji/mangaview/actions/workflows/ci.yml/badge.svg)](https://github.com/keiji/mangaview/actions/workflows/ci.yml)
+
 You can download the sample app via [deploygate](https://dply.me/1dakl4).
 
 Features
