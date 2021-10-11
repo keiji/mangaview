@@ -1,3 +1,0 @@
-include ':mangaview'
-include ':sample'
-rootProject.name = "MangaView"
