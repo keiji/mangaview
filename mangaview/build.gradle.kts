@@ -32,6 +32,10 @@ android {
             )
         }
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 tasks.create("javadocJar", Jar::class) {
