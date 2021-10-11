@@ -117,8 +117,8 @@ publishing {
             }
             setUrl(selectedUrl)
 
-            val sonatypeUsername: String by project
-            val sonatypePassword: String by project
+            val sonatypeUsername: String? by project
+            val sonatypePassword: String? by project
             credentials {
                 username = sonatypeUsername
                 password = sonatypePassword
