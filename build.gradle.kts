@@ -2,11 +2,11 @@
 buildscript {
     val versionName = "1.1.1"
     val versionCode = 1110
-    val kotlinVersion = "1.5.31"
+    val kotlinVersion = "1.6.10"
 
     extra.apply {
-        set("compileSdkVersion", 30)
-        set("targetSdkVersion", 30)
+        set("compileSdkVersion", 31)
+        set("targetSdkVersion", 31)
         set("minSdkVersion", 15)
         set("buildToolsVersion", "30.0.2")
         set("kotlinVersion", kotlinVersion)
@@ -20,7 +20,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.2")
+        classpath("com.android.tools.build:gradle:7.2.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
 
         classpath("com.deploygate:gradle:2.4.0")
